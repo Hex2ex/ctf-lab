@@ -1,0 +1,4 @@
+#!/bin/bash
+# For desktop launchers: runs a ctf command and waits for Enter so you can read the result.
+"$(dirname "$(readlink -f "$0")")/ctf" "$@"; rc=$?
+echo; read -rp "Press Enter to close..." _; exit $rc

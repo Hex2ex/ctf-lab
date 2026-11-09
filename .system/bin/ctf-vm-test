@@ -1,0 +1,20 @@
+#!/bin/bash
+# Starts installed VMs through the REAL user path (ctf start), checks that the IP is alive and lists open ports, then stops them.
+# Result: logs/vm-test.tsv      Usage: ctf-vm-test <id>...     Env: PARALLEL, SETTLE (s)
+SYS="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"; export PATH="$SYS/bin:$PATH"
+export LIBVIRT_DEFAULT_URI=qemu:///system
+one() {
+  id="$1"; t0=$(date +%s)
+  ctf stop "$id" >/dev/null 2>&1
+  ctf start "$id" >/dev/null 2>&1
+  ip=$(awk -F'|' -v id="$id" '$1==id{print $7}' "$SYS/catalog/labs.psv" | sed -nE 's/.*static_ip=([^;]*).*/\1/p'); [ -n "$ip" ] || ip=$(ctf ip "$id" 2>/dev/null)
+  case "$ip" in *.*.*.*) ;; *) printf '%s\tNO-IP\t-\t-\t-\n' "$id"; ctf stop "$id" >/dev/null 2>&1; return;; esac
+  took=$(( $(date +%s) - t0 )); sleep "${SETTLE:-30}"
+  if ping -c1 -W2 "$ip" >/dev/null 2>&1 || ip neigh show "$ip" | grep -q REACHABLE; then s=OK; else s=NOT-ALIVE; fi
+  ports=$(nmap -Pn -n -p 1-1024,3306,5432,8080,9999,10000,32768 -T4 --max-retries 1 "$ip" 2>/dev/null | awk '/^[0-9]+\/tcp +open/{split($1,a,"/"); printf "%s,", a[1]}' | sed 's/,$//')
+  printf '%s\t%s\t%s\t%ss\t%s\n' "$id" "$s" "$ip" "$took" "${ports:-no-ports}"
+  ctf stop "$id" >/dev/null 2>&1
+}
+export -f one; export SYS SETTLE
+: > "$SYS/logs/vm-test.tsv"
+printf '%s\n' "$@" | xargs -P "${PARALLEL:-6}" -I{} bash -c 'one {}' | tee -a "$SYS/logs/vm-test.tsv"

@@ -1,0 +1,8 @@
+services:
+  vampi:
+    image: erev0s/vampi
+    ports: ["5000:5000"]
+    environment:
+      - vulnerable=1
+      - tokentimetolive=3600
+    restart: "no"

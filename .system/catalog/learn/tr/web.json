@@ -1,0 +1,553 @@
+{
+ "dvwa": {
+  "learn": [
+   "Web zafiyetlerinin temel mantığı: kullanıcı girdisi nereye gidiyor, nasıl filtreleniyor?",
+   "Aynı zafiyeti Low → Medium → High seviyelerinde kaynak koduyla karşılaştırarak filtre atlatmayı kavramak",
+   "Burp Suite ile isteği yakalayıp değiştirmek (Proxy, Repeater, Intruder)",
+   "sqlmap ve hydra gibi araçların elle yapılan saldırıyla ilişkisini görmek"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Girdi sorguya doğrudan eklenir; UNION ile veritabanındaki kullanıcı/parola çekilir"
+   },
+   {
+    "id": "sql-injection-blind",
+    "name": "SQL Injection (Blind)",
+    "desc": "Çıktı görünmez; doğru/yanlış ve süre farkıyla veri sızdırılır"
+   },
+   {
+    "id": "xss-reflected-stored-dom",
+    "name": "XSS (Reflected / Stored / DOM)",
+    "desc": "Girdi sayfaya kodlanmadan yazılır; çerez çalma, sayfa değiştirme"
+   },
+   {
+    "id": "command-injection",
+    "name": "Command Injection",
+    "desc": "ping formu gibi alanlardan işletim sistemi komutu çalıştırmak"
+   },
+   {
+    "id": "file-inclusion-lfi-rfi",
+    "name": "File Inclusion (LFI/RFI)",
+    "desc": "page= parametresiyle sunucudaki ya da uzaktaki dosyayı sayfaya dahil etmek"
+   },
+   {
+    "id": "file-upload",
+    "name": "File Upload",
+    "desc": "Resim yerine PHP web shell yüklemek"
+   },
+   {
+    "id": "brute-force",
+    "name": "Brute Force",
+    "desc": "Giriş formunda parola denemesi; hız sınırı olmayışı"
+   },
+   {
+    "id": "csrf",
+    "name": "CSRF",
+    "desc": "Kurbanın oturumuyla istemediği bir işlemi (parola değiştirme) yaptırmak"
+   }
+  ]
+ },
+ "bwapp": {
+  "learn": [
+   "OWASP Top 10 kategorilerinin her birinin gerçek bir örneğini görmek",
+   "100'den fazla zafiyeti bir arada denemek: hangi girdi hangi zafiyete açılır?",
+   "Güvenlik seviyesini (low/medium/high) değiştirerek filtre atlatma teknikleri çalışmak",
+   "Manuel testle otomatik tarayıcı (ZAP, Nikto) sonuçlarını karşılaştırmak"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection-get-post-blind",
+    "name": "SQL Injection (GET/POST/Blind)",
+    "desc": "Arama ve giriş formlarında sorgu manipülasyonu"
+   },
+   {
+    "id": "xss-reflected-stored",
+    "name": "XSS (Reflected / Stored)",
+    "desc": "Kodlanmamış çıktı; kalıcı script yerleştirme"
+   },
+   {
+    "id": "os-command-injection",
+    "name": "OS Command Injection",
+    "desc": "Sunucuda komut çalıştırma"
+   },
+   {
+    "id": "php-code-injection",
+    "name": "PHP Code Injection",
+    "desc": "eval benzeri yapılarla PHP kodu çalıştırma"
+   },
+   {
+    "id": "local-remote-file-inclusion",
+    "name": "Local / Remote File Inclusion",
+    "desc": "Dosya yolu parametresini istismar etme"
+   },
+   {
+    "id": "insecure-direct-object-reference",
+    "name": "Insecure Direct Object Reference",
+    "desc": "Nesne numarasını değiştirip başkasının verisine erişme"
+   },
+   {
+    "id": "xxe",
+    "name": "XXE",
+    "desc": "XML işleyicide dış varlık (entity) ile dosya okuma"
+   },
+   {
+    "id": "ssrf",
+    "name": "SSRF",
+    "desc": "Sunucuyu iç ağa ya da başka adreslere istek attırma"
+   }
+  ]
+ },
+ "mutillidae": {
+  "learn": [
+   "OWASP Top 10 zafiyetlerini ipucu seviyesini kendin ayarlayarak çalışmak (0 = ipucu yok)",
+   "Veritabanı kurulumundan başlayıp SQL ve LDAP enjeksiyonunu kavramak",
+   "İstemci tarafı zafiyetleri: XSS, clickjacking, HTML5 web storage, CORS",
+   "Burp Suite ve tarayıcı geliştirici araçlarıyla istek analizi"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Giriş, kullanıcı bilgisi ve arama formlarında"
+   },
+   {
+    "id": "ldap-command-injection",
+    "name": "LDAP / Command Injection",
+    "desc": "Dizin sorgularına ve işletim sistemine enjeksiyon"
+   },
+   {
+    "id": "xss-reflected-stored-dom",
+    "name": "XSS (Reflected / Stored / DOM)",
+    "desc": "Birçok farklı bağlamda kodlanmamış çıktı"
+   },
+   {
+    "id": "ssrf-and-file-inclusion",
+    "name": "SSRF ve Dosya Dahil Etme",
+    "desc": "Sunucu tarafından yapılan istekleri ve dosya yollarını yönlendirmek"
+   },
+   {
+    "id": "cors-and-clickjacking",
+    "name": "CORS ve Clickjacking",
+    "desc": "Yanlış yapılandırılmış tarayıcı güvenlik başlıkları"
+   },
+   {
+    "id": "weak-session-management",
+    "name": "Zayıf Oturum Yönetimi",
+    "desc": "Tahmin edilebilir oturum kimliği ve çerez manipülasyonu"
+   }
+  ]
+ },
+ "webgoat": {
+  "learn": [
+   "Adım adım derslerle zafiyeti anlayıp aynı sayfada hemen sömürmek",
+   "SQL enjeksiyonunun üç aşaması: giriş, ileri düzey, önlem",
+   "JWT'nin yapısı ve imza doğrulama hataları",
+   "Java uygulamalarında XXE ve güvensiz deserialization",
+   "WebWolf ile dışarıdan gelen istekleri (mail, dosya, çağrı) yakalamak"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Giriş, ileri düzey ve azaltma dersleri"
+   },
+   {
+    "id": "broken-access-control-idor",
+    "name": "Kırık Erişim Kontrolü (IDOR)",
+    "desc": "Yetkisiz nesne ve fonksiyon erişimi"
+   },
+   {
+    "id": "jwt-flaws",
+    "name": "JWT Hataları",
+    "desc": "alg:none, zayıf anahtar, imza doğrulamama"
+   },
+   {
+    "id": "xxe",
+    "name": "XXE",
+    "desc": "XML dış varlığıyla dosya okuma ve SSRF"
+   },
+   {
+    "id": "ssrf",
+    "name": "SSRF",
+    "desc": "Sunucuyu istediğin adrese istek attırmak"
+   },
+   {
+    "id": "insecure-deserialization",
+    "name": "Güvensiz Deserialization",
+    "desc": "Java nesne akışıyla kod çalıştırma"
+   },
+   {
+    "id": "path-traversal",
+    "name": "Path Traversal",
+    "desc": "../ ile yükleme dizininden çıkıp dosya yazma/okuma"
+   },
+   {
+    "id": "password-reset-flaws",
+    "name": "Parola Sıfırlama Zafiyetleri",
+    "desc": "Tahmin edilebilir token, güvenlik sorusu zayıflığı"
+   }
+  ]
+ },
+ "sqlilabs": {
+  "learn": [
+   "SQL enjeksiyonunun tüm biçimlerini aşama aşama (65 seviye) ilerleyerek öğrenmek",
+   "Hata mesajı, boolean ve zaman tabanlı çıkarım tekniklerinin farkı",
+   "WAF/filtre atlatma: yorum, kodlama, kelime filtresi atlama",
+   "Enjeksiyonun GET/POST dışında başlık ve çerezden de gelebileceğini görmek"
+  ],
+  "vulns": [
+   {
+    "id": "error-based-injection",
+    "name": "Error-based Injection",
+    "desc": "Hata mesajından veritabanı bilgisi okumak (extractvalue, updatexml)"
+   },
+   {
+    "id": "union-based-injection",
+    "name": "UNION-based Injection",
+    "desc": "Sütun sayısını bulup başka tablodan veri birleştirmek"
+   },
+   {
+    "id": "blind-boolean-time-based",
+    "name": "Blind Boolean / Time-based",
+    "desc": "Sayfa farkı ya da sleep() gecikmesiyle bit bit okumak"
+   },
+   {
+    "id": "second-order-injection",
+    "name": "Second-order Injection",
+    "desc": "Önce kaydedilen girdinin sonradan çalışan sorguda patlaması"
+   },
+   {
+    "id": "header-cookie-injection",
+    "name": "Header / Cookie Injection",
+    "desc": "User-Agent, Referer ve çerez alanlarından enjeksiyon"
+   },
+   {
+    "id": "waf-bypass",
+    "name": "WAF Bypass",
+    "desc": "Filtrelenen anahtar kelimeleri atlatma teknikleri"
+   }
+  ]
+ },
+ "uploadlabs": {
+  "learn": [
+   "Dosya yükleme filtrelerinin hangi katmanda uygulandığını ayırt etmek (tarayıcı, MIME, uzantı, içerik)",
+   "Her filtre için atlatma tekniği geliştirmek ve web shell yerleştirmek",
+   "Sunucu yapılandırması (.htaccess, ayrıştırma kuralları) ile yüklemenin birleşimini görmek",
+   "Yarış durumu (race condition) ile geçici yüklenen dosyayı çalıştırmak"
+  ],
+  "vulns": [
+   {
+    "id": "client-side-validation",
+    "name": "İstemci Tarafı Doğrulama",
+    "desc": "JavaScript filtresi sunucuyu bağlamaz; Burp ile atlanır"
+   },
+   {
+    "id": "mime-type-check",
+    "name": "MIME Türü Denetimi",
+    "desc": "Content-Type başlığını değiştirerek filtreyi geçmek"
+   },
+   {
+    "id": "blacklist-extension-filter",
+    "name": "Kara Liste Uzantı Filtresi",
+    "desc": ".php yerine .php5, .phtml, büyük/küçük harf, çift uzantı"
+   },
+   {
+    "id": "htaccess-upload",
+    "name": ".htaccess Yükleme",
+    "desc": "Yapılandırmayı ezip başka uzantıyı PHP olarak çalıştırmak"
+   },
+   {
+    "id": "null-byte-and-path-tricks",
+    "name": "Null Byte ve Yol Hileleri",
+    "desc": "%00 ve sondaki nokta/boşlukla uzantı kontrolünü atlamak"
+   },
+   {
+    "id": "code-embedded-in-an-image",
+    "name": "Resim İçine Gömülü Kod",
+    "desc": "Geçerli resim başlığı ile PHP kodunu birleştirmek"
+   },
+   {
+    "id": "race-condition",
+    "name": "Yarış Durumu",
+    "desc": "Dosya silinmeden önce çağırıp çalıştırmak"
+   }
+  ]
+ },
+ "dsvw": {
+  "learn": [
+   "Tek dosyalık küçük bir uygulamada kaynak kodu okuyup zafiyeti satırından görmek",
+   "SQL enjeksiyonu, XSS, dosya okuma ve XXE'nin en yalın hallerini tanımak",
+   "Zafiyetin neden oluştuğunu kodda bulup nasıl düzeltileceğini düşünmek"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection-union-blind",
+    "name": "SQL Injection (Union / Blind)",
+    "desc": "Parametre doğrudan sorguya eklenir"
+   },
+   {
+    "id": "xss-reflected-stored-dom",
+    "name": "XSS (Reflected / Stored / DOM)",
+    "desc": "Kodlanmamış çıktılar"
+   },
+   {
+    "id": "path-traversal-lfi",
+    "name": "Path Traversal / LFI",
+    "desc": "Dosya yolu parametresiyle sunucu dosyalarını okumak"
+   },
+   {
+    "id": "xxe",
+    "name": "XXE",
+    "desc": "XML işleyicide dış varlık okuma"
+   },
+   {
+    "id": "ssrf-and-open-redirect",
+    "name": "SSRF ve Açık Yönlendirme",
+    "desc": "Sunucu üzerinden dış istek, güvensiz yönlendirme"
+   },
+   {
+    "id": "http-header-injection",
+    "name": "HTTP Başlık Enjeksiyonu",
+    "desc": "Başlığa satır sonu karakteri sokmak"
+   }
+  ]
+ },
+ "juiceshop": {
+  "learn": [
+   "Modern bir Angular/Node uygulamasında ~100 meydan okumayı yıldız (1-6) zorluğuyla çözmek",
+   "Skor tablosunu (Score Board) bulmak: gizli sayfaları JavaScript kaynağından keşfetmek",
+   "REST API'yi tarayıcı araçları ve Burp ile elle sınamak",
+   "Gerçek hayattaki hatalara benzeyen yapılandırma/erişim hatalarını yakalamak"
+  ],
+  "vulns": [
+   {
+    "id": "injection-sqli-nosqli",
+    "name": "Injection (SQLi / NoSQLi)",
+    "desc": "Girişte admin olarak oturum açma, sipariş verisini çekme"
+   },
+   {
+    "id": "broken-authentication",
+    "name": "Kırık Kimlik Doğrulama",
+    "desc": "Parola sıfırlama, JWT sahteciliği, zayıf parolalar"
+   },
+   {
+    "id": "broken-access-control",
+    "name": "Kırık Erişim Kontrolü",
+    "desc": "Başkasının sepetini görmek (IDOR), yönetici sayfasına erişmek"
+   },
+   {
+    "id": "sensitive-data-exposure",
+    "name": "Hassas Veri İfşası",
+    "desc": "/ftp gibi açık dizinler, yedek dosyalar, yorumlardaki bilgiler"
+   },
+   {
+    "id": "xss-dom-reflected-stored",
+    "name": "XSS (DOM / Reflected / Stored)",
+    "desc": "Arama ve ürün alanlarında script çalıştırma"
+   },
+   {
+    "id": "improper-input-validation",
+    "name": "Güvensiz Doğrulama",
+    "desc": "Kayıt ve geri bildirim akışında sunucu kontrolünün eksikliği"
+   },
+   {
+    "id": "xxe-and-insecure-deserialization",
+    "name": "XXE ve Güvensiz Deserialization",
+    "desc": "Dosya yüklemede XML ile dosya okuma"
+   }
+  ]
+ },
+ "dvna": {
+  "learn": [
+   "Node.js/Express uygulamalarında OWASP Top 10 hatalarının kod karşılıklarını görmek",
+   "Kullanıcı girdisinin eval, exec ve veritabanı sorgusuna ulaşma yolunu izlemek",
+   "Güvensiz serileştirme ile Node'da uzaktan kod çalıştırma"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Ürün arama ve kullanıcı sorguları"
+   },
+   {
+    "id": "os-command-injection",
+    "name": "OS Command Injection",
+    "desc": "ping/nslookup benzeri formlardan komut çalıştırma"
+   },
+   {
+    "id": "insecure-deserialization",
+    "name": "Güvensiz Deserialization",
+    "desc": "node-serialize ile RCE"
+   },
+   {
+    "id": "xss",
+    "name": "XSS",
+    "desc": "Çıktının kodlanmaması"
+   },
+   {
+    "id": "broken-access-control",
+    "name": "Kırık Erişim Kontrolü",
+    "desc": "Yetkisiz işlemler ve başkasının kaydını değiştirme"
+   },
+   {
+    "id": "xxe",
+    "name": "XXE",
+    "desc": "XML ayrıştırmada dış varlık"
+   }
+  ]
+ },
+ "hackazon": {
+  "learn": [
+   "Gerçeğe yakın bir e-ticaret sitesi ve REST API üzerinde zafiyet avlamak",
+   "AJAX ve JSON isteklerini tarayıcı + Burp ile incelemek",
+   "İş mantığı hataları: fiyat, sepet ve ödeme akışı manipülasyonu"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Ürün arama ve filtre parametreleri"
+   },
+   {
+    "id": "xss-stored-reflected",
+    "name": "XSS (Stored / Reflected)",
+    "desc": "Yorum ve arama alanları"
+   },
+   {
+    "id": "csrf",
+    "name": "CSRF",
+    "desc": "Profil ve adres değişikliği"
+   },
+   {
+    "id": "xxe-rest-xml",
+    "name": "XXE (REST/XML)",
+    "desc": "API'ye XML gönderilen uçlarda dış varlık"
+   },
+   {
+    "id": "idor",
+    "name": "IDOR",
+    "desc": "Sipariş ve kullanıcı numarasını değiştirerek başkasının verisine ulaşmak"
+   },
+   {
+    "id": "business-logic-flaws",
+    "name": "İş Mantığı Hataları",
+    "desc": "Sepet/fiyat/kupon akışında sunucu doğrulamasının eksikliği"
+   }
+  ]
+ },
+ "wrongsecrets": {
+  "learn": [
+   "Sırların (parola, anahtar, token) yanlış yerlerde saklandığı durumları tanımak",
+   "Docker imajı, ortam değişkenleri, kaynak kod ve git geçmişinde sır avlamak",
+   "Bulduğun sırrı uygulamaya girerek doğrulamak (uygulama kendi doğrulamasını yapar)",
+   "Sırrı doğru yönetmenin yollarını (vault, ayrı sır deposu) kavramak"
+  ],
+  "vulns": [
+   {
+    "id": "hardcoded-secret",
+    "name": "Koda Gömülü Sır",
+    "desc": "Kaynak kodda sabit yazılmış parola ve anahtarlar",
+    "task": "Koda gömülü sırrı bul"
+   },
+   {
+    "id": "secret-in-a-docker-image",
+    "name": "Docker İmajında Sır",
+    "desc": "İmaj katmanlarında ya da ortam değişkenlerinde kalan sırlar",
+    "task": "İmajdaki sırrı bul"
+   },
+   {
+    "id": "secret-in-git-history",
+    "name": "Git Geçmişindeki Sır",
+    "desc": "Silinmiş ama geçmişte duran anahtarlar",
+    "task": "Git geçmişindeki sırrı bul"
+   },
+   {
+    "id": "weak-encryption-and-encoding",
+    "name": "Zayıf Şifreleme ve Kodlama",
+    "desc": "Base64'ü şifre sanmak, sabit anahtar/IV kullanmak",
+    "task": "Zayıf korunan sırrı çöz"
+   },
+   {
+    "id": "cloud-and-kubernetes-secrets",
+    "name": "Bulut ve Kubernetes Sırları",
+    "desc": "Yanlış yapılandırılmış sır nesneleri",
+    "task": "Yapılandırmadaki sırrı bul"
+   }
+  ]
+ },
+ "nodegoat": {
+  "learn": [
+   "OWASP Top 10'u Node.js + MongoDB uygulamasında görmek",
+   "NoSQL enjeksiyonu ve sunucu tarafı JavaScript enjeksiyonu",
+   "Düzenli ifade kaynaklı hizmet kesintisi (ReDoS) mantığı"
+  ],
+  "vulns": [
+   {
+    "id": "server-side-js-and-nosql-injection",
+    "name": "Sunucu Tarafı JS ve NoSQL Enjeksiyonu",
+    "desc": "eval ve $where kullanımı"
+   },
+   {
+    "id": "broken-authentication-and-sessions",
+    "name": "Kırık Kimlik Doğrulama ve Oturum",
+    "desc": "Zayıf parola politikası, oturum sabitleme"
+   },
+   {
+    "id": "xss",
+    "name": "XSS",
+    "desc": "Kodlanmamış kullanıcı girdisi"
+   },
+   {
+    "id": "idor-missing-function-level-authorizatio",
+    "name": "IDOR / Eksik Fonksiyon Yetkisi",
+    "desc": "Başkasının kayıtlarına ve yönetici işlevlerine erişim"
+   },
+   {
+    "id": "ssrf-and-open-redirect",
+    "name": "SSRF ve Açık Yönlendirme",
+    "desc": "Doğrulanmamış URL'ler"
+   },
+   {
+    "id": "redos",
+    "name": "ReDoS",
+    "desc": "Kötü düzenli ifadeyle işlemciyi kilitleme"
+   }
+  ]
+ },
+ "vulhub": {
+  "learn": [
+   "Gerçek CVE'leri tek komutla ayağa kaldırıp sömürmek",
+   "Log4Shell, Struts2, Spring gibi ünlü zafiyetlerin çalışma mantığı",
+   "Her ortamın README'sinden zafiyetin kök nedenini ve düzeltmesini okumak",
+   "Docker Compose ile izole zafiyet ortamı yönetmek"
+  ],
+  "vulns": [
+   {
+    "id": "log4shell-cve-2021-44228",
+    "name": "Log4Shell (CVE-2021-44228)",
+    "desc": "JNDI arama ile uzaktan kod çalıştırma",
+    "task": "Log4Shell (CVE-2021-44228) ortamını sömür"
+   },
+   {
+    "id": "struts2-spring-rce",
+    "name": "Struts2 / Spring RCE",
+    "desc": "OGNL ve SpringShell kod çalıştırma",
+    "task": "Struts2 ya da Spring RCE ortamını sömür"
+   },
+   {
+    "id": "unauthenticated-service-access",
+    "name": "Yetkisiz Servis Erişimi",
+    "desc": "Redis, MongoDB, Elasticsearch gibi servislerde kimlik doğrulama yokluğu",
+    "task": "Yetkisiz erişim ortamını sömür (Redis/Mongo vb.)"
+   },
+   {
+    "id": "any-cve-environment",
+    "name": "Herhangi Bir CVE Ortamı",
+    "desc": "Kendi seçtiğin bir ortam",
+    "task": "Seçtiğin bir CVE ortamını başlat ve sömür"
+   }
+  ]
+ }
+}

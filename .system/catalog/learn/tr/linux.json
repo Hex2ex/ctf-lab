@@ -1,0 +1,867 @@
+{
+ "metasploitable2": {
+  "learn": [
+   "Nmap ile tam port ve servis sürümü taraması; çıktıdan saldırı yüzeyi çıkarmak",
+   "Metasploit akışı: search → use → set → exploit; searchsploit ile elle exploit bulmak",
+   "Eski servislerdeki bilinen arka kapılar ve hatalı yapılandırmalar",
+   "hydra ile servis parolası kaba kuvveti"
+  ],
+  "vulns": [
+   {
+    "id": "vsftpd-2-3-4-backdoor",
+    "name": "vsftpd 2.3.4 Arka Kapısı",
+    "desc": "Kullanıcı adına :) eklenince 6200. portta kabuk açılır"
+   },
+   {
+    "id": "samba-usermap-script-cve-2007-2447",
+    "name": "Samba usermap_script (CVE-2007-2447)",
+    "desc": "Kullanıcı adı alanında komut enjeksiyonu"
+   },
+   {
+    "id": "distcc-cve-2004-2687",
+    "name": "distcc (CVE-2004-2687)",
+    "desc": "Kimlik doğrulamasız komut çalıştırma"
+   },
+   {
+    "id": "unrealircd-3-2-8-1-backdoor",
+    "name": "UnrealIRCd 3.2.8.1 Arka Kapısı",
+    "desc": "AB komutuyla uzaktan komut çalıştırma"
+   },
+   {
+    "id": "tomcat-default-password",
+    "name": "Tomcat Varsayılan Parolası",
+    "desc": "Manager paneline WAR yükleyerek kabuk"
+   },
+   {
+    "id": "open-nfs-r-services",
+    "name": "Açık NFS / r-servisleri",
+    "desc": "Kök dizini paylaşan NFS, parolasız rsh/rlogin"
+   },
+   {
+    "id": "bindshell-1524",
+    "name": "Bindshell (1524)",
+    "desc": "Doğrudan root kabuğu veren açık port"
+   }
+  ]
+ },
+ "kioptrix1": {
+  "learn": [
+   "Eski bir Linux sunucuda sürüm tespitinden exploit seçmeye giden yol",
+   "Exploit-DB'den C kaynağını indirip düzeltip derlemek",
+   "SMB ve SSL servislerini numaralandırmak"
+  ],
+  "vulns": [
+   {
+    "id": "apache-mod-ssl-openfuck",
+    "name": "Apache mod_ssl (OpenFuck)",
+    "desc": "OpenSSL tampon taşması ile uzaktan kabuk (CVE-2002-0082)"
+   },
+   {
+    "id": "samba-trans2open-cve-2003-0201",
+    "name": "Samba trans2open (CVE-2003-0201)",
+    "desc": "SMB tampon taşması ile root kabuğu"
+   },
+   {
+    "id": "old-kernel",
+    "name": "Eski Çekirdek",
+    "desc": "Yerel yetki yükseltme exploit'leri"
+   }
+  ]
+ },
+ "kioptrix3": {
+  "learn": [
+   "Web uygulamasından sunucuya: CMS zafiyeti, SQL enjeksiyonu ve parola çıkarma",
+   "/etc/hosts ile sanal alan adı çözümleme",
+   "sudo yapılandırma hatasından yetki yükseltmek"
+  ],
+  "vulns": [
+   {
+    "id": "lotuscms-eval-injection",
+    "name": "LotusCMS eval() Enjeksiyonu",
+    "desc": "Router parametresi üzerinden PHP kodu çalıştırma"
+   },
+   {
+    "id": "gallarific-sql-injection",
+    "name": "Gallarific SQL Injection",
+    "desc": "gallery.php id parametresiyle kullanıcı/parola çekme"
+   },
+   {
+    "id": "weak-sudo-configuration",
+    "name": "Zayıf sudo Yapılandırması",
+    "desc": "Editörü sudo ile çalıştırıp /etc/sudoers'ı değiştirmek"
+   },
+   {
+    "id": "password-reuse",
+    "name": "Parola Yeniden Kullanımı",
+    "desc": "Veritabanı parolasıyla SSH'a girmek"
+   }
+  ]
+ },
+ "mrrobot": {
+  "learn": [
+   "Web keşfi: robots.txt, gizli dizinler ve sözlük dosyaları",
+   "WordPress parola saldırısı (wpscan/hydra) ve tema düzenleyerek kabuk almak",
+   "Hash kırma ve kullanıcı değiştirme (su)",
+   "SUID binary ile yetki yükseltme (nmap --interactive)"
+  ],
+  "vulns": [
+   {
+    "id": "robots-txt-information-leak",
+    "name": "robots.txt Bilgi Sızıntısı",
+    "desc": "Sözlük dosyası ve ilk anahtarı ifşa eder"
+   },
+   {
+    "id": "weak-wordpress-password",
+    "name": "WordPress Zayıf Parola",
+    "desc": "Kullanıcı adı numaralandırma ve kaba kuvvet"
+   },
+   {
+    "id": "rce-via-theme-editing",
+    "name": "Tema Düzenleme ile RCE",
+    "desc": "404.php içine ters kabuk yerleştirmek"
+   },
+   {
+    "id": "exposed-password-hash",
+    "name": "Parola Hash'inin Açıkta Olması",
+    "desc": "Okunabilir MD5 hash dosyası"
+   },
+   {
+    "id": "suid-nmap",
+    "name": "SUID nmap",
+    "desc": "Eski nmap interaktif modunda root kabuğu"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "key1",
+    "name": "Anahtar 1 / 3"
+   },
+   {
+    "id": "key2",
+    "name": "Anahtar 2 / 3"
+   },
+   {
+    "id": "key3",
+    "name": "Anahtar 3 / 3 (root)"
+   }
+  ]
+ },
+ "basicpentesting1": {
+  "learn": [
+   "Sızma testinin tam akışı: keşif, numaralandırma, sömürü, yetki yükseltme",
+   "Servis sürümünden bilinen zafiyet bulmak",
+   "SSH parola saldırısı ve yerel numaralandırma (LinPEAS, sudo -l, SUID)"
+  ],
+  "vulns": [
+   {
+    "id": "proftpd-1-3-3c-backdoor",
+    "name": "ProFTPD 1.3.3c Arka Kapısı",
+    "desc": "Sürüme özgü uzaktan komut çalıştırma"
+   },
+   {
+    "id": "weak-ssh-password",
+    "name": "Zayıf SSH Parolası",
+    "desc": "Kaba kuvvetle kullanıcı erişimi"
+   },
+   {
+    "id": "privilege-escalation",
+    "name": "Yetki Yükseltme",
+    "desc": "Zayıf dosya izinleri ve eski çekirdek"
+   }
+  ]
+ },
+ "lazysysadmin": {
+  "learn": [
+   "SMB paylaşımlarını anonim olarak numaralandırmak (smbclient, enum4linux)",
+   "Yapılandırma dosyalarından (wp-config.php) kimlik bilgisi çıkarmak",
+   "Parola yeniden kullanımı ve sudo hatalarından root"
+  ],
+  "vulns": [
+   {
+    "id": "anonymous-smb-share",
+    "name": "Anonim SMB Paylaşımı",
+    "desc": "Web kök dizininin parolasız paylaşılması"
+   },
+   {
+    "id": "password-in-a-configuration-file",
+    "name": "Yapılandırma Dosyasında Parola",
+    "desc": "wp-config.php ve not dosyaları"
+   },
+   {
+    "id": "password-reuse",
+    "name": "Parola Yeniden Kullanımı",
+    "desc": "Aynı parolayla SSH girişi"
+   },
+   {
+    "id": "over-privileged-sudo",
+    "name": "Aşırı Yetkili sudo",
+    "desc": "Kullanıcıya her komut için sudo verilmesi"
+   }
+  ]
+ },
+ "troll1": {
+  "learn": [
+   "Yanıltıcı ipuçları arasında doğru yolu seçmek",
+   "Anonim FTP'den pcap indirip Wireshark ile analiz etmek",
+   "Gizli web dizinleri ve küçük bir binary'yi incelemek"
+  ],
+  "vulns": [
+   {
+    "id": "anonymous-ftp",
+    "name": "Anonim FTP",
+    "desc": "Parolasız erişimle dosya indirme"
+   },
+   {
+    "id": "information-leaked-in-network-traffic",
+    "name": "Ağ Trafiğinde Sızan Bilgi",
+    "desc": "pcap içinde dizin adı ve ipuçları"
+   },
+   {
+    "id": "weak-user-password",
+    "name": "Zayıf Kullanıcı Parolası",
+    "desc": "Tahmin edilebilir kimlik bilgileri"
+   },
+   {
+    "id": "old-kernel-buffer-overflow",
+    "name": "Eski Çekirdek / Tampon Taşması",
+    "desc": "Yerel yetki yükseltme"
+   }
+  ]
+ },
+ "lampiao": {
+  "learn": [
+   "Drupal sürümünü tespit edip uygun exploit'i seçmek",
+   "CVE zinciri: web sömürüsü ardından çekirdek zafiyeti",
+   "Dirty COW exploit'ini derleyip çalıştırmak"
+  ],
+  "vulns": [
+   {
+    "id": "drupalgeddon2-cve-2018-7600",
+    "name": "Drupalgeddon2 (CVE-2018-7600)",
+    "desc": "Kimlik doğrulamasız uzaktan kod çalıştırma"
+   },
+   {
+    "id": "dirty-cow-cve-2016-5195",
+    "name": "Dirty COW (CVE-2016-5195)",
+    "desc": "Çekirdekte yarış durumu ile root"
+   }
+  ]
+ },
+ "jangow": {
+  "learn": [
+   "Web parametresinden komut çalıştırmak ve ters kabuk almak",
+   "Çıkış trafiğinin kısıtlı olduğu ortamlarda uygun portu seçmek",
+   "Konfigürasyon dosyalarından kimlik bilgisi toplamak"
+  ],
+  "vulns": [
+   {
+    "id": "command-injection",
+    "name": "Komut Enjeksiyonu",
+    "desc": "Web sayfası parametresi doğrudan kabuğa gidiyor"
+   },
+   {
+    "id": "plaintext-credentials",
+    "name": "Düz Metin Kimlik Bilgisi",
+    "desc": "Yapılandırma dosyasında FTP/SSH parolası"
+   },
+   {
+    "id": "old-kernel",
+    "name": "Eski Çekirdek",
+    "desc": "Yerel yetki yükseltme exploit'i"
+   }
+  ]
+ },
+ "dc1": {
+  "learn": [
+   "Drupal 7'yi tanıyıp uygun exploit'i seçmek",
+   "Yapılandırma dosyasından veritabanı kimlik bilgisi bulmak, Drupal parolasını sıfırlamak",
+   "SUID binary'lerle yetki yükseltme (find)"
+  ],
+  "vulns": [
+   {
+    "id": "drupalgeddon-drupal-7",
+    "name": "Drupalgeddon (Drupal 7)",
+    "desc": "Uzaktan kod çalıştırma"
+   },
+   {
+    "id": "password-in-a-configuration-file",
+    "name": "Yapılandırma Dosyasında Parola",
+    "desc": "settings.php içindeki veritabanı bilgisi"
+   },
+   {
+    "id": "suid-find",
+    "name": "SUID find",
+    "desc": "find -exec ile root komutu çalıştırma"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "flag1",
+    "name": "Flag 1"
+   },
+   {
+    "id": "flag2",
+    "name": "Flag 2"
+   },
+   {
+    "id": "flag3",
+    "name": "Flag 3"
+   },
+   {
+    "id": "flag4",
+    "name": "Flag 4"
+   },
+   {
+    "id": "final",
+    "name": "Son bayrak (root)"
+   }
+  ]
+ },
+ "dc2": {
+  "learn": [
+   "cewl ile siteden özel sözlük üretmek",
+   "wpscan ile kullanıcı numaralandırma ve parola saldırısı",
+   "Kısıtlı kabuktan (rbash) kaçış ve git ile yetki yükseltme"
+  ],
+  "vulns": [
+   {
+    "id": "weak-wordpress-passwords",
+    "name": "WordPress Zayıf Parolalar",
+    "desc": "Siteden türetilen sözlükle giriş"
+   },
+   {
+    "id": "restricted-shell-rbash-escape",
+    "name": "Kısıtlı Kabuk (rbash) Kaçışı",
+    "desc": "vi içinden kabuk açıp PATH'i düzelterek kısıtları aşmak"
+   },
+   {
+    "id": "sudo-git",
+    "name": "sudo git",
+    "desc": "Git'in sayfalayıcısından root kabuğu"
+   }
+  ]
+ },
+ "dc3": {
+  "learn": [
+   "Joomla sürümünü tespit etmek ve sqlmap ile veritabanını boşaltmak",
+   "John the Ripper ile yönetici hash'ini kırmak",
+   "Yönetici paneli üzerinden şablon düzenleyerek kabuk almak"
+  ],
+  "vulns": [
+   {
+    "id": "joomla-sql-injection-cve-2017-8917",
+    "name": "Joomla SQL Injection (CVE-2017-8917)",
+    "desc": "Kimlik doğrulamasız veri çekme"
+   },
+   {
+    "id": "weak-admin-password",
+    "name": "Zayıf Yönetici Parolası",
+    "desc": "Hash'in sözlükle kırılması"
+   },
+   {
+    "id": "rce-via-template-editing",
+    "name": "Şablon Düzenleme ile RCE",
+    "desc": "PHP dosyasına kod eklemek"
+   },
+   {
+    "id": "old-kernel",
+    "name": "Eski Çekirdek",
+    "desc": "Yerel yetki yükseltme"
+   }
+  ]
+ },
+ "dc4": {
+  "learn": [
+   "hydra ile web formu kaba kuvveti",
+   "Komut enjeksiyonunu yakalayıp ters kabuğa çevirmek",
+   "Yedek dosyalardan parola listesi çıkarmak; yazılabilir /etc/passwd ile yetki yükseltme"
+  ],
+  "vulns": [
+   {
+    "id": "login-form-brute-force",
+    "name": "Giriş Formunda Kaba Kuvvet",
+    "desc": "Hız sınırı yok, zayıf parola"
+   },
+   {
+    "id": "command-injection",
+    "name": "Komut Enjeksiyonu",
+    "desc": "Yönetim panelindeki komut çalıştırma formu"
+   },
+   {
+    "id": "passwords-in-a-backup-file",
+    "name": "Yedek Dosyada Parolalar",
+    "desc": "old-passwords.bak ile SSH denemesi"
+   },
+   {
+    "id": "file-write-via-sudo",
+    "name": "sudo ile Dosya Yazma",
+    "desc": "/etc/passwd'a kullanıcı ekleyip root olmak"
+   }
+  ]
+ },
+ "dc5": {
+  "learn": [
+   "Dosya dahil etme (LFI) zafiyetini bulmak (fuzzing)",
+   "Log zehirleme ile LFI'yı komut çalıştırmaya çevirmek",
+   "SUID binary için yerel exploit çalıştırmak"
+  ],
+  "vulns": [
+   {
+    "id": "local-file-inclusion",
+    "name": "Local File Inclusion",
+    "desc": "Sayfa parametresi dosya yolu olarak kullanılıyor"
+   },
+   {
+    "id": "log-poisoning",
+    "name": "Log Zehirleme",
+    "desc": "Erişim günlüğüne PHP kodu yazıp dahil ettirmek"
+   },
+   {
+    "id": "screen-4-5-0-suid",
+    "name": "screen 4.5.0 SUID",
+    "desc": "Yerel yetki yükseltme"
+   }
+  ]
+ },
+ "dc6": {
+  "learn": [
+   "wpscan ve rockyou ipucuyla hedefe özel sözlük",
+   "Eklenti zafiyetiyle komut çalıştırma",
+   "Zincirleme kullanıcı geçişi ve sudo ile yetki yükseltme"
+  ],
+  "vulns": [
+   {
+    "id": "weak-wordpress-password",
+    "name": "WordPress Zayıf Parola",
+    "desc": "Sözlük kısıtlanarak kaba kuvvet"
+   },
+   {
+    "id": "plugin-command-injection",
+    "name": "Eklenti Komut Enjeksiyonu",
+    "desc": "Activity Monitor eklentisi"
+   },
+   {
+    "id": "writable-backup-script",
+    "name": "Yazılabilir Yedek Betiği",
+    "desc": "Zamanlanmış/sudo betiğini değiştirerek kullanıcı atlamak"
+   },
+   {
+    "id": "sudo-nmap-script",
+    "name": "sudo nmap Betiği",
+    "desc": "Nmap NSE betiği ile root"
+   }
+  ]
+ },
+ "dc7": {
+  "learn": [
+   "OSINT ile ilk adım: açık depodan sızan kimlik bilgileri",
+   "Drupal yönetimi için drush kullanımı",
+   "Zamanlanmış görev ve yazılabilir betik ile yetki yükseltme"
+  ],
+  "vulns": [
+   {
+    "id": "password-leaked-in-a-public-repo",
+    "name": "Açık Depoda Sızan Parola",
+    "desc": "Kod deposunda unutulmuş yapılandırma"
+   },
+   {
+    "id": "drupal-php-filter",
+    "name": "Drupal PHP Filtresi",
+    "desc": "Yönetici olduktan sonra PHP çalıştırma"
+   },
+   {
+    "id": "writable-cron-script",
+    "name": "Yazılabilir Cron Betiği",
+    "desc": "root'un çalıştırdığı betiği değiştirmek"
+   }
+  ]
+ },
+ "dc8": {
+  "learn": [
+   "sqlmap ile Drupal 7 veritabanını boşaltmak",
+   "john ile hash kırmak",
+   "Form üzerinden PHP kodu çalıştırmak ve exim4 yerel exploit"
+  ],
+  "vulns": [
+   {
+    "id": "drupal-7-sql-injection",
+    "name": "Drupal 7 SQL Injection",
+    "desc": "nid parametresiyle veri çekme"
+   },
+   {
+    "id": "webform-php-execution",
+    "name": "Webform PHP Çalıştırma",
+    "desc": "Yönetici olunca PHP kodu"
+   },
+   {
+    "id": "exim4-suid-local-exploit",
+    "name": "exim4 SUID Yerel Exploit",
+    "desc": "Yerel root"
+   }
+  ]
+ },
+ "dc9": {
+  "learn": [
+   "SQL enjeksiyonu ile kullanıcı tablosunu okumak",
+   "LFI ile yapılandırma dosyasını okuyup port knocking dizisini öğrenmek",
+   "knock ile kapalı SSH portunu açmak, hydra ile parola saldırısı"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Arama formunda"
+   },
+   {
+    "id": "local-file-inclusion",
+    "name": "Local File Inclusion",
+    "desc": "Yönetim sayfasında dosya parametresi"
+   },
+   {
+    "id": "port-knocking",
+    "name": "Port Knocking",
+    "desc": "knockd yapılandırması okunarak SSH açılır"
+   },
+   {
+    "id": "privileged-script-via-sudo",
+    "name": "sudo ile Yetkili Betik",
+    "desc": "Dosya yazan sudo betiğiyle /etc/passwd'ı değiştirmek"
+   }
+  ]
+ },
+ "stapler": {
+  "learn": [
+   "Çok servisli bir hedefi sistematik numaralandırmak (FTP, SMB, HTTP, MySQL)",
+   "Aynı hedefe birden çok yoldan ulaşmak",
+   "enum4linux ve wpscan çıktısından kullanıcı/parola toplamak"
+  ],
+  "vulns": [
+   {
+    "id": "anonymous-ftp",
+    "name": "Anonim FTP",
+    "desc": "Kullanıcı adı ipuçları"
+   },
+   {
+    "id": "smb-shares",
+    "name": "SMB Paylaşımları",
+    "desc": "Anonim erişim ve kullanıcı numaralandırma"
+   },
+   {
+    "id": "wordpress-plugin-lfi",
+    "name": "WordPress Eklenti LFI",
+    "desc": "wp-config.php okuma"
+   },
+   {
+    "id": "old-kernel-and-weak-passwords",
+    "name": "Eski Çekirdek ve Zayıf Parolalar",
+    "desc": "Birden çok yetki yükseltme yolu"
+   }
+  ]
+ },
+ "fristileaks": {
+  "learn": [
+   "Gizli dizin bulma ve kaynak kodundan ipucu çıkarmak",
+   "Dosya yükleme filtresini çift uzantıyla aşmak",
+   "base64/rot13 ile kodlanmış parolaları çözmek; zamanlanmış görevle yetki yükseltme"
+  ],
+  "vulns": [
+   {
+    "id": "credentials-embedded-in-source",
+    "name": "Kaynak Kodda Gömülü Kimlik Bilgisi",
+    "desc": "Yorum satırında base64 resim ve parola"
+   },
+   {
+    "id": "file-upload-filter",
+    "name": "Dosya Yükleme Filtresi",
+    "desc": ".php.jpg ile kontrolü atlatma"
+   },
+   {
+    "id": "encoded-passwords",
+    "name": "Kodlanmış Parolalar",
+    "desc": "Basit kodlama şifreleme sanılmış"
+   },
+   {
+    "id": "privilege-escalation-via-scheduled-task",
+    "name": "Zamanlanmış Görev ile Yetki Yükseltme",
+    "desc": "Kullanıcının yazabildiği dosyanın çalıştırılması"
+   }
+  ]
+ },
+ "zico2": {
+  "learn": [
+   "LFI'dan phpLiteAdmin üzerinden kod çalıştırmaya zincir kurmak",
+   "Varsayılan parolaların gücü",
+   "sudo ile zip/tar kullanımından yetki yükseltmek"
+  ],
+  "vulns": [
+   {
+    "id": "lfi-path-traversal",
+    "name": "LFI / Path Traversal",
+    "desc": "view.php page parametresi"
+   },
+   {
+    "id": "phpliteadmin-default-password",
+    "name": "phpLiteAdmin Varsayılan Parola",
+    "desc": "Veritabanına PHP kodu yazıp çağırma"
+   },
+   {
+    "id": "sudo-zip-tar",
+    "name": "sudo zip / tar",
+    "desc": "Yetkili arşivleyiciyle komut çalıştırma"
+   }
+  ]
+ },
+ "raven2": {
+  "learn": [
+   "Sürüm tespitiyle bilinen CVE'ye ulaşmak (PHPMailer)",
+   "Veritabanı kimlik bilgisini yapılandırmadan bulmak",
+   "MySQL UDF ile root komutu çalıştırmak"
+  ],
+  "vulns": [
+   {
+    "id": "phpmailer-rce-cve-2016-10033",
+    "name": "PHPMailer RCE (CVE-2016-10033)",
+    "desc": "E-posta parametresi üzerinden komut çalıştırma"
+   },
+   {
+    "id": "mysql-running-as-root",
+    "name": "root Olarak Çalışan MySQL",
+    "desc": "UDF yüklenip komut çalıştırma"
+   },
+   {
+    "id": "password-in-the-configuration",
+    "name": "Yapılandırmada Parola",
+    "desc": "wp-config.php içinde veritabanı bilgisi"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "flag1",
+    "name": "Flag 1"
+   },
+   {
+    "id": "flag2",
+    "name": "Flag 2"
+   },
+   {
+    "id": "flag3",
+    "name": "Flag 3"
+   },
+   {
+    "id": "flag4",
+    "name": "Flag 4 (root)"
+   }
+  ]
+ },
+ "symfonos1": {
+  "learn": [
+   "SMB ile başlayıp WordPress eklenti zafiyetine uzanan zincir",
+   "SMTP log zehirleme ile LFI'yı kod çalıştırmaya çevirmek",
+   "Göreli yol kullanan SUID binary ile PATH ele geçirme"
+  ],
+  "vulns": [
+   {
+    "id": "anonymous-smb-share",
+    "name": "Anonim SMB Paylaşımı",
+    "desc": "İçinde parola ipucu"
+   },
+   {
+    "id": "mail-masta-plugin-lfi",
+    "name": "Mail-Masta Eklentisi LFI",
+    "desc": "Dosya okuma ve log yoluyla RCE"
+   },
+   {
+    "id": "smtp-log-poisoning",
+    "name": "SMTP Log Zehirleme",
+    "desc": "Posta dosyasına PHP kodu yazma"
+   },
+   {
+    "id": "suid-path-hijacking",
+    "name": "SUID PATH Ele Geçirme",
+    "desc": "Binary'nin curl'ü tam yol vermeden çağırması"
+   }
+  ]
+ },
+ "pwnos2": {
+  "learn": [
+   "Web zafiyetinden veritabanı kimlik bilgilerine ulaşmak",
+   "Parola yeniden kullanımını SSH'ta denemek",
+   "Sabit IP kullanan hedefte ağ takma adı (alias) ayarı"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Giriş sayfası ve blog"
+   },
+   {
+    "id": "remote-code-execution",
+    "name": "Uzaktan Kod Çalıştırma",
+    "desc": "CMS açığıyla kabuk"
+   },
+   {
+    "id": "password-reuse",
+    "name": "Parola Yeniden Kullanımı",
+    "desc": "Veritabanı parolası root hesabında da geçerli"
+   }
+  ]
+ },
+ "bob": {
+  "learn": [
+   "Kurumsal senaryoda web kabuğundan içeri girmek",
+   "Komut filtresini atlatma",
+   "Şifreli notları (GPG) çözmek ve gizli bilgi toplamak"
+  ],
+  "vulns": [
+   {
+    "id": "weak-web-command-filter",
+    "name": "Zayıf Web Komut Filtresi",
+    "desc": "Kara liste ile engellenen komutların atlatılması"
+   },
+   {
+    "id": "hidden-notes-and-a-gpg-key",
+    "name": "Gizli Notlar ve GPG Anahtarı",
+    "desc": "Kullanıcı dizinlerinde parola ipuçları"
+   },
+   {
+    "id": "privilege-escalation",
+    "name": "Yetki Yükseltme",
+    "desc": "sudo hatalı yapılandırması"
+   }
+  ]
+ },
+ "metasploitable3ub": {
+  "learn": [
+   "Gerçekçi çok servisli Linux hedefte zincirleme saldırı",
+   "Metasploit ile servisten servise geçiş (pivot), kimlik bilgisi toplama",
+   "Modern servislerin varsayılan/zayıf yapılandırmaları"
+  ],
+  "vulns": [
+   {
+    "id": "proftpd-mod-copy-cve-2015-3306",
+    "name": "ProFTPD mod_copy (CVE-2015-3306)",
+    "desc": "Kimlik doğrulamasız dosya kopyalama ile RCE"
+   },
+   {
+    "id": "apache-struts-rce",
+    "name": "Apache Struts RCE",
+    "desc": "OGNL enjeksiyonu"
+   },
+   {
+    "id": "jenkins-script-console",
+    "name": "Jenkins Script Console",
+    "desc": "Yönetici yetkisiyle Groovy kodu çalıştırma"
+   },
+   {
+    "id": "elasticsearch-rce",
+    "name": "Elasticsearch RCE",
+    "desc": "Eski sürümde betik çalıştırma"
+   },
+   {
+    "id": "samba-weak-passwords",
+    "name": "Samba / Zayıf Parolalar",
+    "desc": "Paylaşım ve hesap zayıflıkları"
+   }
+  ]
+ },
+ "nebula": {
+  "learn": [
+   "Linux yetki yükseltmenin temel taşları: SUID, PATH, ortam değişkenleri, izinler",
+   "Betik ve küçük C programlarında kod incelemesi yapıp zafiyeti bulmak",
+   "Yarış durumu (TOCTOU) ve zayıf kriptografi örnekleri"
+  ],
+  "vulns": [
+   {
+    "id": "suid-binaries-and-path-hijacking",
+    "name": "SUID Binary ve PATH Ele Geçirme",
+    "desc": "level00-05 arası temel hatalar"
+   },
+   {
+    "id": "command-injection-scripts",
+    "name": "Komut Enjeksiyonu (Betikler)",
+    "desc": "Kullanıcı girdisinin kabuğa ulaşması"
+   },
+   {
+    "id": "race-condition-toctou",
+    "name": "Yarış Durumu (TOCTOU)",
+    "desc": "Kontrol ve kullanım arasındaki boşluk"
+   },
+   {
+    "id": "environment-variables-ld-preload-etc",
+    "name": "Ortam Değişkeni (LD_PRELOAD vb.)",
+    "desc": "Çalışma ortamını manipüle etme"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "level00-04",
+    "name": "Level 00 – 04"
+   },
+   {
+    "id": "level05-09",
+    "name": "Level 05 – 09"
+   },
+   {
+    "id": "level10-14",
+    "name": "Level 10 – 14"
+   },
+   {
+    "id": "level15-19",
+    "name": "Level 15 – 19"
+   }
+  ]
+ },
+ "symfonos2": {
+  "learn": [
+   "SMB ve FTP'den kimlik bilgisi toplamak",
+   "ProFTPD mod_copy ile dosya sızdırmak ve hash kırmak",
+   "SSH port yönlendirme (tünelleme) ile yalnızca yerelden erişilen servise ulaşmak"
+  ],
+  "vulns": [
+   {
+    "id": "proftpd-mod-copy",
+    "name": "ProFTPD mod_copy",
+    "desc": "Kimlik doğrulamasız dosya kopyalama"
+   },
+   {
+    "id": "weak-user-passwords",
+    "name": "Zayıf Kullanıcı Parolaları",
+    "desc": "Hash'lerin sözlükle kırılması"
+   },
+   {
+    "id": "librenms-authenticated-rce",
+    "name": "LibreNMS Kimlik Doğrulamalı RCE",
+    "desc": "Yalnızca localhost'ta dinleyen web arayüzü"
+   },
+   {
+    "id": "sudo-mysql",
+    "name": "sudo mysql",
+    "desc": "Yetkili istemciden kabuk"
+   }
+  ]
+ },
+ "brainpan1": {
+  "learn": [
+   "Tampon taşması exploit'i geliştirme akışı: fuzzing, offset, kötü karakterler, JMP ESP",
+   "Windows PE'yi analiz edip aynı mantığı Linux servisine uyarlamak",
+   "OSCP tarzı sınav hazırlığı"
+  ],
+  "vulns": [
+   {
+    "id": "stack-buffer-overflow",
+    "name": "Stack Buffer Overflow",
+    "desc": "strcpy ile sınırsız kopyalama, EIP ezme"
+   },
+   {
+    "id": "unprotected-binary",
+    "name": "Korumasız Binary",
+    "desc": "ASLR/DEP olmadan yığında shellcode çalıştırma"
+   },
+   {
+    "id": "privileged-script-via-sudo",
+    "name": "sudo ile Yetkili Betik",
+    "desc": "Yönetim betiği üzerinden root"
+   }
+  ]
+ }
+}

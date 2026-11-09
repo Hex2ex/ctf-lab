@@ -1,0 +1,867 @@
+{
+ "metasploitable2": {
+  "learn": [
+   "Full port and service version scans with Nmap; map the attack surface from the output",
+   "The Metasploit workflow: search → use → set → exploit; find exploits by hand with searchsploit",
+   "Known backdoors and misconfigurations in old services",
+   "Brute force service passwords with hydra"
+  ],
+  "vulns": [
+   {
+    "id": "vsftpd-2-3-4-backdoor",
+    "name": "vsftpd 2.3.4 Backdoor",
+    "desc": "Adding :) to the username opens a shell on port 6200"
+   },
+   {
+    "id": "samba-usermap-script-cve-2007-2447",
+    "name": "Samba usermap_script (CVE-2007-2447)",
+    "desc": "Command injection in the username field"
+   },
+   {
+    "id": "distcc-cve-2004-2687",
+    "name": "distcc (CVE-2004-2687)",
+    "desc": "Unauthenticated command execution"
+   },
+   {
+    "id": "unrealircd-3-2-8-1-backdoor",
+    "name": "UnrealIRCd 3.2.8.1 Backdoor",
+    "desc": "Remote command execution with the AB command"
+   },
+   {
+    "id": "tomcat-default-password",
+    "name": "Tomcat Default Password",
+    "desc": "Shell by uploading a WAR file to the manager panel"
+   },
+   {
+    "id": "open-nfs-r-services",
+    "name": "Open NFS / r-services",
+    "desc": "NFS sharing the root directory, passwordless rsh/rlogin"
+   },
+   {
+    "id": "bindshell-1524",
+    "name": "Bindshell (1524)",
+    "desc": "An open port that hands out a root shell"
+   }
+  ]
+ },
+ "kioptrix1": {
+  "learn": [
+   "The path from version detection to exploit selection on an old Linux server",
+   "Download C source from Exploit-DB, fix it and compile it",
+   "Enumerate SMB and SSL services"
+  ],
+  "vulns": [
+   {
+    "id": "apache-mod-ssl-openfuck",
+    "name": "Apache mod_ssl (OpenFuck)",
+    "desc": "Remote shell via an OpenSSL buffer overflow (CVE-2002-0082)"
+   },
+   {
+    "id": "samba-trans2open-cve-2003-0201",
+    "name": "Samba trans2open (CVE-2003-0201)",
+    "desc": "Root shell via an SMB buffer overflow"
+   },
+   {
+    "id": "old-kernel",
+    "name": "Old Kernel",
+    "desc": "Local privilege escalation exploits"
+   }
+  ]
+ },
+ "kioptrix3": {
+  "learn": [
+   "From web application to server: CMS bug, SQL injection and password extraction",
+   "Resolve a virtual host name with /etc/hosts",
+   "Escalate privileges through a sudo misconfiguration"
+  ],
+  "vulns": [
+   {
+    "id": "lotuscms-eval-injection",
+    "name": "LotusCMS eval() Injection",
+    "desc": "PHP code execution through the router parameter"
+   },
+   {
+    "id": "gallarific-sql-injection",
+    "name": "Gallarific SQL Injection",
+    "desc": "Dump usernames/passwords via the gallery.php id parameter"
+   },
+   {
+    "id": "weak-sudo-configuration",
+    "name": "Weak sudo Configuration",
+    "desc": "Run an editor with sudo and edit /etc/sudoers"
+   },
+   {
+    "id": "password-reuse",
+    "name": "Password Reuse",
+    "desc": "Log in over SSH with the database password"
+   }
+  ]
+ },
+ "mrrobot": {
+  "learn": [
+   "Web discovery: robots.txt, hidden directories and wordlist files",
+   "WordPress password attacks (wpscan/hydra) and getting a shell by editing a theme",
+   "Hash cracking and switching users (su)",
+   "Privilege escalation with a SUID binary (nmap --interactive)"
+  ],
+  "vulns": [
+   {
+    "id": "robots-txt-information-leak",
+    "name": "robots.txt Information Leak",
+    "desc": "Reveals a wordlist and the first key"
+   },
+   {
+    "id": "weak-wordpress-password",
+    "name": "Weak WordPress Password",
+    "desc": "Username enumeration and brute force"
+   },
+   {
+    "id": "rce-via-theme-editing",
+    "name": "RCE via Theme Editing",
+    "desc": "Plant a reverse shell in 404.php"
+   },
+   {
+    "id": "exposed-password-hash",
+    "name": "Exposed Password Hash",
+    "desc": "A readable MD5 hash file"
+   },
+   {
+    "id": "suid-nmap",
+    "name": "SUID nmap",
+    "desc": "Root shell from the interactive mode of an old nmap"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "key1",
+    "name": "Key 1 / 3"
+   },
+   {
+    "id": "key2",
+    "name": "Key 2 / 3"
+   },
+   {
+    "id": "key3",
+    "name": "Key 3 / 3 (root)"
+   }
+  ]
+ },
+ "basicpentesting1": {
+  "learn": [
+   "The full penetration test flow: recon, enumeration, exploitation, privilege escalation",
+   "Find a known vulnerability from a service version",
+   "SSH password attacks and local enumeration (LinPEAS, sudo -l, SUID)"
+  ],
+  "vulns": [
+   {
+    "id": "proftpd-1-3-3c-backdoor",
+    "name": "ProFTPD 1.3.3c Backdoor",
+    "desc": "Version-specific remote command execution"
+   },
+   {
+    "id": "weak-ssh-password",
+    "name": "Weak SSH Password",
+    "desc": "User access through brute force"
+   },
+   {
+    "id": "privilege-escalation",
+    "name": "Privilege Escalation",
+    "desc": "Weak file permissions and an old kernel"
+   }
+  ]
+ },
+ "lazysysadmin": {
+  "learn": [
+   "Enumerate SMB shares anonymously (smbclient, enum4linux)",
+   "Pull credentials out of configuration files (wp-config.php)",
+   "Root through password reuse and sudo mistakes"
+  ],
+  "vulns": [
+   {
+    "id": "anonymous-smb-share",
+    "name": "Anonymous SMB Share",
+    "desc": "The web root is shared without a password"
+   },
+   {
+    "id": "password-in-a-configuration-file",
+    "name": "Password in a Configuration File",
+    "desc": "wp-config.php and note files"
+   },
+   {
+    "id": "password-reuse",
+    "name": "Password Reuse",
+    "desc": "SSH login with the same password"
+   },
+   {
+    "id": "over-privileged-sudo",
+    "name": "Over-Privileged sudo",
+    "desc": "The user may run any command with sudo"
+   }
+  ]
+ },
+ "troll1": {
+  "learn": [
+   "Pick the right path among misleading hints",
+   "Download a pcap from anonymous FTP and analyse it in Wireshark",
+   "Examine hidden web directories and a small binary"
+  ],
+  "vulns": [
+   {
+    "id": "anonymous-ftp",
+    "name": "Anonymous FTP",
+    "desc": "Download files without a password"
+   },
+   {
+    "id": "information-leaked-in-network-traffic",
+    "name": "Information Leaked in Network Traffic",
+    "desc": "Directory names and hints inside a pcap"
+   },
+   {
+    "id": "weak-user-password",
+    "name": "Weak User Password",
+    "desc": "Guessable credentials"
+   },
+   {
+    "id": "old-kernel-buffer-overflow",
+    "name": "Old Kernel / Buffer Overflow",
+    "desc": "Local privilege escalation"
+   }
+  ]
+ },
+ "lampiao": {
+  "learn": [
+   "Detect the Drupal version and pick the matching exploit",
+   "A CVE chain: web exploitation followed by a kernel vulnerability",
+   "Compile and run the Dirty COW exploit"
+  ],
+  "vulns": [
+   {
+    "id": "drupalgeddon2-cve-2018-7600",
+    "name": "Drupalgeddon2 (CVE-2018-7600)",
+    "desc": "Unauthenticated remote code execution"
+   },
+   {
+    "id": "dirty-cow-cve-2016-5195",
+    "name": "Dirty COW (CVE-2016-5195)",
+    "desc": "Root through a kernel race condition"
+   }
+  ]
+ },
+ "jangow": {
+  "learn": [
+   "Execute commands through a web parameter and get a reverse shell",
+   "Choose the right port where outbound traffic is restricted",
+   "Collect credentials from configuration files"
+  ],
+  "vulns": [
+   {
+    "id": "command-injection",
+    "name": "Command Injection",
+    "desc": "A web page parameter goes straight to the shell"
+   },
+   {
+    "id": "plaintext-credentials",
+    "name": "Plaintext Credentials",
+    "desc": "FTP/SSH password in a configuration file"
+   },
+   {
+    "id": "old-kernel",
+    "name": "Old Kernel",
+    "desc": "Local privilege escalation exploit"
+   }
+  ]
+ },
+ "dc1": {
+  "learn": [
+   "Recognise Drupal 7 and pick the matching exploit",
+   "Find database credentials in a configuration file and reset the Drupal password",
+   "Privilege escalation with SUID binaries (find)"
+  ],
+  "vulns": [
+   {
+    "id": "drupalgeddon-drupal-7",
+    "name": "Drupalgeddon (Drupal 7)",
+    "desc": "Remote code execution"
+   },
+   {
+    "id": "password-in-a-configuration-file",
+    "name": "Password in a Configuration File",
+    "desc": "Database details in settings.php"
+   },
+   {
+    "id": "suid-find",
+    "name": "SUID find",
+    "desc": "Run root commands with find -exec"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "flag1",
+    "name": "Flag 1"
+   },
+   {
+    "id": "flag2",
+    "name": "Flag 2"
+   },
+   {
+    "id": "flag3",
+    "name": "Flag 3"
+   },
+   {
+    "id": "flag4",
+    "name": "Flag 4"
+   },
+   {
+    "id": "final",
+    "name": "Final flag (root)"
+   }
+  ]
+ },
+ "dc2": {
+  "learn": [
+   "Generate a custom wordlist from the site with cewl",
+   "User enumeration and password attacks with wpscan",
+   "Escape a restricted shell (rbash) and escalate with git"
+  ],
+  "vulns": [
+   {
+    "id": "weak-wordpress-passwords",
+    "name": "Weak WordPress Passwords",
+    "desc": "Log in with a wordlist derived from the site"
+   },
+   {
+    "id": "restricted-shell-rbash-escape",
+    "name": "Restricted Shell (rbash) Escape",
+    "desc": "Open a shell from vi and fix PATH to get around restrictions"
+   },
+   {
+    "id": "sudo-git",
+    "name": "sudo git",
+    "desc": "Root shell from git's pager"
+   }
+  ]
+ },
+ "dc3": {
+  "learn": [
+   "Detect the Joomla version and dump the database with sqlmap",
+   "Crack the admin hash with John the Ripper",
+   "Get a shell by editing a template in the admin panel"
+  ],
+  "vulns": [
+   {
+    "id": "joomla-sql-injection-cve-2017-8917",
+    "name": "Joomla SQL Injection (CVE-2017-8917)",
+    "desc": "Unauthenticated data extraction"
+   },
+   {
+    "id": "weak-admin-password",
+    "name": "Weak Admin Password",
+    "desc": "The hash cracks with a wordlist"
+   },
+   {
+    "id": "rce-via-template-editing",
+    "name": "RCE via Template Editing",
+    "desc": "Add code to a PHP file"
+   },
+   {
+    "id": "old-kernel",
+    "name": "Old Kernel",
+    "desc": "Local privilege escalation"
+   }
+  ]
+ },
+ "dc4": {
+  "learn": [
+   "Brute force a web form with hydra",
+   "Spot command injection and turn it into a reverse shell",
+   "Build a password list from backup files; escalate with a writable /etc/passwd"
+  ],
+  "vulns": [
+   {
+    "id": "login-form-brute-force",
+    "name": "Login Form Brute Force",
+    "desc": "No rate limiting, weak password"
+   },
+   {
+    "id": "command-injection",
+    "name": "Command Injection",
+    "desc": "The command-runner form in the admin panel"
+   },
+   {
+    "id": "passwords-in-a-backup-file",
+    "name": "Passwords in a Backup File",
+    "desc": "Try SSH with old-passwords.bak"
+   },
+   {
+    "id": "file-write-via-sudo",
+    "name": "File Write via sudo",
+    "desc": "Add a user to /etc/passwd and become root"
+   }
+  ]
+ },
+ "dc5": {
+  "learn": [
+   "Find a file inclusion (LFI) vulnerability by fuzzing",
+   "Turn LFI into command execution with log poisoning",
+   "Run a local exploit against a SUID binary"
+  ],
+  "vulns": [
+   {
+    "id": "local-file-inclusion",
+    "name": "Local File Inclusion",
+    "desc": "A page parameter is used as a file path"
+   },
+   {
+    "id": "log-poisoning",
+    "name": "Log Poisoning",
+    "desc": "Write PHP code into the access log and include it"
+   },
+   {
+    "id": "screen-4-5-0-suid",
+    "name": "screen 4.5.0 SUID",
+    "desc": "Local privilege escalation"
+   }
+  ]
+ },
+ "dc6": {
+  "learn": [
+   "Build a target-specific wordlist with wpscan and the rockyou hint",
+   "Command execution through a plugin vulnerability",
+   "Chained user switching and privilege escalation with sudo"
+  ],
+  "vulns": [
+   {
+    "id": "weak-wordpress-password",
+    "name": "Weak WordPress Password",
+    "desc": "Brute force with a trimmed wordlist"
+   },
+   {
+    "id": "plugin-command-injection",
+    "name": "Plugin Command Injection",
+    "desc": "The Activity Monitor plugin"
+   },
+   {
+    "id": "writable-backup-script",
+    "name": "Writable Backup Script",
+    "desc": "Hop users by modifying a scheduled/sudo script"
+   },
+   {
+    "id": "sudo-nmap-script",
+    "name": "sudo nmap Script",
+    "desc": "Root with an Nmap NSE script"
+   }
+  ]
+ },
+ "dc7": {
+  "learn": [
+   "First step through OSINT: credentials leaked in a public repository",
+   "Use drush to manage Drupal",
+   "Escalate privileges through a scheduled task and a writable script"
+  ],
+  "vulns": [
+   {
+    "id": "password-leaked-in-a-public-repo",
+    "name": "Password Leaked in a Public Repo",
+    "desc": "A configuration file forgotten in a code repository"
+   },
+   {
+    "id": "drupal-php-filter",
+    "name": "Drupal PHP Filter",
+    "desc": "Run PHP once you are an administrator"
+   },
+   {
+    "id": "writable-cron-script",
+    "name": "Writable Cron Script",
+    "desc": "Modify a script that root executes"
+   }
+  ]
+ },
+ "dc8": {
+  "learn": [
+   "Dump the Drupal 7 database with sqlmap",
+   "Crack hashes with john",
+   "Run PHP code through a form, then a local exim4 exploit"
+  ],
+  "vulns": [
+   {
+    "id": "drupal-7-sql-injection",
+    "name": "Drupal 7 SQL Injection",
+    "desc": "Data extraction via the nid parameter"
+   },
+   {
+    "id": "webform-php-execution",
+    "name": "Webform PHP Execution",
+    "desc": "PHP code once you are an administrator"
+   },
+   {
+    "id": "exim4-suid-local-exploit",
+    "name": "exim4 SUID Local Exploit",
+    "desc": "Local root"
+   }
+  ]
+ },
+ "dc9": {
+  "learn": [
+   "Read the users table with SQL injection",
+   "Read a configuration file with LFI to learn the port-knocking sequence",
+   "Open the closed SSH port with knock, then attack passwords with hydra"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "In the search form"
+   },
+   {
+    "id": "local-file-inclusion",
+    "name": "Local File Inclusion",
+    "desc": "A file parameter on the admin page"
+   },
+   {
+    "id": "port-knocking",
+    "name": "Port Knocking",
+    "desc": "Reading the knockd configuration opens SSH"
+   },
+   {
+    "id": "privileged-script-via-sudo",
+    "name": "Privileged Script via sudo",
+    "desc": "Modify /etc/passwd with a sudo script that writes files"
+   }
+  ]
+ },
+ "stapler": {
+  "learn": [
+   "Enumerate a multi-service target systematically (FTP, SMB, HTTP, MySQL)",
+   "Reach the same target by several paths",
+   "Collect usernames/passwords from enum4linux and wpscan output"
+  ],
+  "vulns": [
+   {
+    "id": "anonymous-ftp",
+    "name": "Anonymous FTP",
+    "desc": "Username hints"
+   },
+   {
+    "id": "smb-shares",
+    "name": "SMB Shares",
+    "desc": "Anonymous access and user enumeration"
+   },
+   {
+    "id": "wordpress-plugin-lfi",
+    "name": "WordPress Plugin LFI",
+    "desc": "Read wp-config.php"
+   },
+   {
+    "id": "old-kernel-and-weak-passwords",
+    "name": "Old Kernel and Weak Passwords",
+    "desc": "Several privilege escalation paths"
+   }
+  ]
+ },
+ "fristileaks": {
+  "learn": [
+   "Find hidden directories and pull hints out of page source",
+   "Bypass an upload filter with a double extension",
+   "Decode base64/rot13-encoded passwords; escalate through a scheduled task"
+  ],
+  "vulns": [
+   {
+    "id": "credentials-embedded-in-source",
+    "name": "Credentials Embedded in Source",
+    "desc": "A base64 image and a password in a comment"
+   },
+   {
+    "id": "file-upload-filter",
+    "name": "File Upload Filter",
+    "desc": "Bypass the check with .php.jpg"
+   },
+   {
+    "id": "encoded-passwords",
+    "name": "Encoded Passwords",
+    "desc": "Simple encoding mistaken for encryption"
+   },
+   {
+    "id": "privilege-escalation-via-scheduled-task",
+    "name": "Privilege Escalation via Scheduled Task",
+    "desc": "A user-writable file gets executed"
+   }
+  ]
+ },
+ "zico2": {
+  "learn": [
+   "Chain LFI into code execution through phpLiteAdmin",
+   "The power of default passwords",
+   "Escalate privileges through zip/tar run with sudo"
+  ],
+  "vulns": [
+   {
+    "id": "lfi-path-traversal",
+    "name": "LFI / Path Traversal",
+    "desc": "The page parameter of view.php"
+   },
+   {
+    "id": "phpliteadmin-default-password",
+    "name": "phpLiteAdmin Default Password",
+    "desc": "Write PHP code into the database and call it"
+   },
+   {
+    "id": "sudo-zip-tar",
+    "name": "sudo zip / tar",
+    "desc": "Command execution through a privileged archiver"
+   }
+  ]
+ },
+ "raven2": {
+  "learn": [
+   "Reach a known CVE through version detection (PHPMailer)",
+   "Find database credentials in the configuration",
+   "Run commands as root with a MySQL UDF"
+  ],
+  "vulns": [
+   {
+    "id": "phpmailer-rce-cve-2016-10033",
+    "name": "PHPMailer RCE (CVE-2016-10033)",
+    "desc": "Command execution through the e-mail parameter"
+   },
+   {
+    "id": "mysql-running-as-root",
+    "name": "MySQL Running as root",
+    "desc": "Load a UDF and run commands"
+   },
+   {
+    "id": "password-in-the-configuration",
+    "name": "Password in the Configuration",
+    "desc": "Database details in wp-config.php"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "flag1",
+    "name": "Flag 1"
+   },
+   {
+    "id": "flag2",
+    "name": "Flag 2"
+   },
+   {
+    "id": "flag3",
+    "name": "Flag 3"
+   },
+   {
+    "id": "flag4",
+    "name": "Flag 4 (root)"
+   }
+  ]
+ },
+ "symfonos1": {
+  "learn": [
+   "A chain that starts at SMB and ends at a WordPress plugin bug",
+   "Turn LFI into code execution with SMTP log poisoning",
+   "PATH hijacking with a SUID binary that uses relative paths"
+  ],
+  "vulns": [
+   {
+    "id": "anonymous-smb-share",
+    "name": "Anonymous SMB Share",
+    "desc": "Contains a password hint"
+   },
+   {
+    "id": "mail-masta-plugin-lfi",
+    "name": "Mail-Masta Plugin LFI",
+    "desc": "File read and RCE through a log"
+   },
+   {
+    "id": "smtp-log-poisoning",
+    "name": "SMTP Log Poisoning",
+    "desc": "Write PHP code into a mail file"
+   },
+   {
+    "id": "suid-path-hijacking",
+    "name": "SUID PATH Hijacking",
+    "desc": "The binary calls curl without a full path"
+   }
+  ]
+ },
+ "pwnos2": {
+  "learn": [
+   "Get from a web vulnerability to database credentials",
+   "Try password reuse over SSH",
+   "Set up a network alias for a target with a static IP"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Login page and blog"
+   },
+   {
+    "id": "remote-code-execution",
+    "name": "Remote Code Execution",
+    "desc": "Shell through a CMS bug"
+   },
+   {
+    "id": "password-reuse",
+    "name": "Password Reuse",
+    "desc": "The database password also works for root"
+   }
+  ]
+ },
+ "bob": {
+  "learn": [
+   "Get in through a web shell in a corporate scenario",
+   "Bypass a command filter",
+   "Decrypt encrypted notes (GPG) and gather secrets"
+  ],
+  "vulns": [
+   {
+    "id": "weak-web-command-filter",
+    "name": "Weak Web Command Filter",
+    "desc": "Bypass commands blocked by a blacklist"
+   },
+   {
+    "id": "hidden-notes-and-a-gpg-key",
+    "name": "Hidden Notes and a GPG Key",
+    "desc": "Password hints in user directories"
+   },
+   {
+    "id": "privilege-escalation",
+    "name": "Privilege Escalation",
+    "desc": "sudo misconfiguration"
+   }
+  ]
+ },
+ "metasploitable3ub": {
+  "learn": [
+   "Chained attacks against a realistic multi-service Linux target",
+   "Pivot from service to service with Metasploit and collect credentials",
+   "Default/weak configurations of modern services"
+  ],
+  "vulns": [
+   {
+    "id": "proftpd-mod-copy-cve-2015-3306",
+    "name": "ProFTPD mod_copy (CVE-2015-3306)",
+    "desc": "RCE through unauthenticated file copy"
+   },
+   {
+    "id": "apache-struts-rce",
+    "name": "Apache Struts RCE",
+    "desc": "OGNL injection"
+   },
+   {
+    "id": "jenkins-script-console",
+    "name": "Jenkins Script Console",
+    "desc": "Run Groovy code with admin rights"
+   },
+   {
+    "id": "elasticsearch-rce",
+    "name": "Elasticsearch RCE",
+    "desc": "Script execution in an old version"
+   },
+   {
+    "id": "samba-weak-passwords",
+    "name": "Samba / Weak Passwords",
+    "desc": "Share and account weaknesses"
+   }
+  ]
+ },
+ "nebula": {
+  "learn": [
+   "The building blocks of Linux privilege escalation: SUID, PATH, environment variables, permissions",
+   "Review scripts and small C programs to find the bug",
+   "Examples of race conditions (TOCTOU) and weak cryptography"
+  ],
+  "vulns": [
+   {
+    "id": "suid-binaries-and-path-hijacking",
+    "name": "SUID Binaries and PATH Hijacking",
+    "desc": "Basic mistakes in level00-05"
+   },
+   {
+    "id": "command-injection-scripts",
+    "name": "Command Injection (Scripts)",
+    "desc": "User input reaching the shell"
+   },
+   {
+    "id": "race-condition-toctou",
+    "name": "Race Condition (TOCTOU)",
+    "desc": "The gap between check and use"
+   },
+   {
+    "id": "environment-variables-ld-preload-etc",
+    "name": "Environment Variables (LD_PRELOAD etc.)",
+    "desc": "Manipulate the runtime environment"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "level00-04",
+    "name": "Level 00 – 04"
+   },
+   {
+    "id": "level05-09",
+    "name": "Level 05 – 09"
+   },
+   {
+    "id": "level10-14",
+    "name": "Level 10 – 14"
+   },
+   {
+    "id": "level15-19",
+    "name": "Level 15 – 19"
+   }
+  ]
+ },
+ "symfonos2": {
+  "learn": [
+   "Collect credentials from SMB and FTP",
+   "Leak files with ProFTPD mod_copy and crack hashes",
+   "Reach a localhost-only service with SSH port forwarding (tunnelling)"
+  ],
+  "vulns": [
+   {
+    "id": "proftpd-mod-copy",
+    "name": "ProFTPD mod_copy",
+    "desc": "Unauthenticated file copy"
+   },
+   {
+    "id": "weak-user-passwords",
+    "name": "Weak User Passwords",
+    "desc": "Hashes crack with a wordlist"
+   },
+   {
+    "id": "librenms-authenticated-rce",
+    "name": "LibreNMS Authenticated RCE",
+    "desc": "A web interface that only listens on localhost"
+   },
+   {
+    "id": "sudo-mysql",
+    "name": "sudo mysql",
+    "desc": "Shell from a privileged client"
+   }
+  ]
+ },
+ "brainpan1": {
+  "learn": [
+   "The buffer overflow exploit workflow: fuzzing, offset, bad characters, JMP ESP",
+   "Analyse a Windows PE and apply the same logic to a Linux service",
+   "OSCP-style exam practice"
+  ],
+  "vulns": [
+   {
+    "id": "stack-buffer-overflow",
+    "name": "Stack Buffer Overflow",
+    "desc": "Unbounded copy with strcpy, EIP overwrite"
+   },
+   {
+    "id": "unprotected-binary",
+    "name": "Unprotected Binary",
+    "desc": "Run shellcode on the stack without ASLR/DEP"
+   },
+   {
+    "id": "privileged-script-via-sudo",
+    "name": "Privileged Script via sudo",
+    "desc": "Root through a management script"
+   }
+  ]
+ }
+}

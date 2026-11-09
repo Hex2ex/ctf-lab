@@ -1,0 +1,7 @@
+#!/bin/bash
+# Downloads every vm/iso source in the catalog (if not downloaded yet) with 3 parallel streams.
+SYS="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+awk -F'|' '!/^#/ && ($2=="vm"||$2=="iso") {
+  fname=""; n=split($7,kv,";"); for(i=1;i<=n;i++){ if(kv[i] ~ /^fname=/){ fname=substr(kv[i],7) } }
+  print $1 "\t" $6 "\t" fname }' "$SYS/catalog/labs.psv" \
+| xargs -P "${PARALLEL:-3}" -d '\n' -I{} bash -c 'IFS=$'"'"'\t'"'"' read -r id url fname <<< "{}"; "'"$SYS"'/bin/ctf-download" "$id" "$url" "$fname"'

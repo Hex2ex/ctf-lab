@@ -1,0 +1,19 @@
+<network xmlns:dnsmasq='http://libvirt.org/schemas/network/dnsmasq/1.0'>
+  <name>ctf-lab</name>
+  <!-- Isolated CTF network: no internet, no home LAN. Only Kali + targets + boot2root VMs (+ WireGuard peers .210-.250).
+       mode='open': libvirt adds no firewall rules of its own; ctf-firewall.sh enforces the isolation. -->
+  <forward mode='open'/>
+  <bridge name='virbr-ctf' stp='on' delay='0'/>
+  <dns enable='no'/>
+  <ip address='192.168.100.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.100.100' end='192.168.100.200'/>
+      <host mac='52:54:00:c7:f0:10' name='kali' ip='192.168.100.10'/>
+      <host mac='52:54:00:c7:f0:20' name='targets' ip='192.168.100.20'/>
+    </dhcp>
+  </ip>
+  <!-- no default gateway for lab VMs: they must not try to route anywhere through the host -->
+  <dnsmasq:options>
+    <dnsmasq:option value='dhcp-option=3'/>
+  </dnsmasq:options>
+</network>

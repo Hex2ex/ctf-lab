@@ -1,0 +1,553 @@
+{
+ "dvwa": {
+  "learn": [
+   "The core logic of web vulnerabilities: where does user input go, and how is it filtered?",
+   "Understand filter bypasses by comparing the same bug at Low → Medium → High with the source code",
+   "Intercept and modify requests with Burp Suite (Proxy, Repeater, Intruder)",
+   "See how tools like sqlmap and hydra relate to doing the attack by hand"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Input is added straight to the query; pull usernames/passwords with UNION"
+   },
+   {
+    "id": "sql-injection-blind",
+    "name": "SQL Injection (Blind)",
+    "desc": "No visible output; leak data through true/false and timing differences"
+   },
+   {
+    "id": "xss-reflected-stored-dom",
+    "name": "XSS (Reflected / Stored / DOM)",
+    "desc": "Input is written to the page unencoded; cookie theft, defacement"
+   },
+   {
+    "id": "command-injection",
+    "name": "Command Injection",
+    "desc": "Run OS commands from fields such as the ping form"
+   },
+   {
+    "id": "file-inclusion-lfi-rfi",
+    "name": "File Inclusion (LFI/RFI)",
+    "desc": "Include a local or remote file in the page via page="
+   },
+   {
+    "id": "file-upload",
+    "name": "File Upload",
+    "desc": "Upload a PHP web shell instead of an image"
+   },
+   {
+    "id": "brute-force",
+    "name": "Brute Force",
+    "desc": "Password guessing on the login form; no rate limiting"
+   },
+   {
+    "id": "csrf",
+    "name": "CSRF",
+    "desc": "Make the victim perform an unwanted action (password change) with their session"
+   }
+  ]
+ },
+ "bwapp": {
+  "learn": [
+   "See a real example of every OWASP Top 10 category",
+   "Try over 100 vulnerabilities in one place: which input opens which bug?",
+   "Practise filter bypasses by switching the security level (low/medium/high)",
+   "Compare manual testing with automated scanners (ZAP, Nikto)"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection-get-post-blind",
+    "name": "SQL Injection (GET/POST/Blind)",
+    "desc": "Query manipulation in search and login forms"
+   },
+   {
+    "id": "xss-reflected-stored",
+    "name": "XSS (Reflected / Stored)",
+    "desc": "Unencoded output; planting persistent scripts"
+   },
+   {
+    "id": "os-command-injection",
+    "name": "OS Command Injection",
+    "desc": "Run commands on the server"
+   },
+   {
+    "id": "php-code-injection",
+    "name": "PHP Code Injection",
+    "desc": "Run PHP code through eval-like constructs"
+   },
+   {
+    "id": "local-remote-file-inclusion",
+    "name": "Local / Remote File Inclusion",
+    "desc": "Abuse a file path parameter"
+   },
+   {
+    "id": "insecure-direct-object-reference",
+    "name": "Insecure Direct Object Reference",
+    "desc": "Access someone else's data by changing an object ID"
+   },
+   {
+    "id": "xxe",
+    "name": "XXE",
+    "desc": "Read files through an external entity in the XML parser"
+   },
+   {
+    "id": "ssrf",
+    "name": "SSRF",
+    "desc": "Make the server send requests to the internal network or other addresses"
+   }
+  ]
+ },
+ "mutillidae": {
+  "learn": [
+   "Work through the OWASP Top 10 with an adjustable hint level (0 = no hints)",
+   "Understand SQL and LDAP injection, starting from the database setup",
+   "Client-side bugs: XSS, clickjacking, HTML5 web storage, CORS",
+   "Analyse requests with Burp Suite and the browser's developer tools"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "In the login, user info and search forms"
+   },
+   {
+    "id": "ldap-command-injection",
+    "name": "LDAP / Command Injection",
+    "desc": "Injection into directory queries and the operating system"
+   },
+   {
+    "id": "xss-reflected-stored-dom",
+    "name": "XSS (Reflected / Stored / DOM)",
+    "desc": "Unencoded output in many different contexts"
+   },
+   {
+    "id": "ssrf-and-file-inclusion",
+    "name": "SSRF and File Inclusion",
+    "desc": "Redirect server-side requests and file paths"
+   },
+   {
+    "id": "cors-and-clickjacking",
+    "name": "CORS and Clickjacking",
+    "desc": "Misconfigured browser security headers"
+   },
+   {
+    "id": "weak-session-management",
+    "name": "Weak Session Management",
+    "desc": "Predictable session IDs and cookie tampering"
+   }
+  ]
+ },
+ "webgoat": {
+  "learn": [
+   "Understand a vulnerability through step-by-step lessons and exploit it right on the same page",
+   "The three stages of SQL injection: intro, advanced, mitigation",
+   "JWT structure and signature verification mistakes",
+   "XXE and insecure deserialization in Java applications",
+   "Catch incoming requests (mail, files, callbacks) with WebWolf"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Intro, advanced and mitigation lessons"
+   },
+   {
+    "id": "broken-access-control-idor",
+    "name": "Broken Access Control (IDOR)",
+    "desc": "Unauthorized access to objects and functions"
+   },
+   {
+    "id": "jwt-flaws",
+    "name": "JWT Flaws",
+    "desc": "alg:none, weak key, unverified signature"
+   },
+   {
+    "id": "xxe",
+    "name": "XXE",
+    "desc": "File read and SSRF through an XML external entity"
+   },
+   {
+    "id": "ssrf",
+    "name": "SSRF",
+    "desc": "Make the server request any address you choose"
+   },
+   {
+    "id": "insecure-deserialization",
+    "name": "Insecure Deserialization",
+    "desc": "Code execution through Java object streams"
+   },
+   {
+    "id": "path-traversal",
+    "name": "Path Traversal",
+    "desc": "Escape the upload directory with ../ to read/write files"
+   },
+   {
+    "id": "password-reset-flaws",
+    "name": "Password Reset Flaws",
+    "desc": "Predictable tokens, weak security questions"
+   }
+  ]
+ },
+ "sqlilabs": {
+  "learn": [
+   "Learn every form of SQL injection step by step (65 levels)",
+   "The difference between error-based, boolean and time-based inference",
+   "WAF/filter bypasses: comments, encoding, keyword filter evasion",
+   "Injection can come from headers and cookies, not just GET/POST"
+  ],
+  "vulns": [
+   {
+    "id": "error-based-injection",
+    "name": "Error-based Injection",
+    "desc": "Read database info from error messages (extractvalue, updatexml)"
+   },
+   {
+    "id": "union-based-injection",
+    "name": "UNION-based Injection",
+    "desc": "Find the column count and merge data from another table"
+   },
+   {
+    "id": "blind-boolean-time-based",
+    "name": "Blind Boolean / Time-based",
+    "desc": "Read bit by bit from page differences or sleep() delays"
+   },
+   {
+    "id": "second-order-injection",
+    "name": "Second-order Injection",
+    "desc": "Stored input blows up later in another query"
+   },
+   {
+    "id": "header-cookie-injection",
+    "name": "Header / Cookie Injection",
+    "desc": "Injection through User-Agent, Referer and cookie fields"
+   },
+   {
+    "id": "waf-bypass",
+    "name": "WAF Bypass",
+    "desc": "Techniques for getting past filtered keywords"
+   }
+  ]
+ },
+ "uploadlabs": {
+  "learn": [
+   "Tell which layer an upload filter runs at (browser, MIME, extension, content)",
+   "Develop a bypass for each filter and plant a web shell",
+   "See how server configuration (.htaccess, parsing rules) combines with uploads",
+   "Execute a temporarily uploaded file through a race condition"
+  ],
+  "vulns": [
+   {
+    "id": "client-side-validation",
+    "name": "Client-Side Validation",
+    "desc": "A JavaScript filter does not bind the server; skip it with Burp"
+   },
+   {
+    "id": "mime-type-check",
+    "name": "MIME Type Check",
+    "desc": "Pass the filter by changing the Content-Type header"
+   },
+   {
+    "id": "blacklist-extension-filter",
+    "name": "Blacklist Extension Filter",
+    "desc": ".php5, .phtml, mixed case or a double extension instead of .php"
+   },
+   {
+    "id": "htaccess-upload",
+    "name": ".htaccess Upload",
+    "desc": "Override the configuration to run another extension as PHP"
+   },
+   {
+    "id": "null-byte-and-path-tricks",
+    "name": "Null Byte and Path Tricks",
+    "desc": "Bypass extension checks with %00 or a trailing dot/space"
+   },
+   {
+    "id": "code-embedded-in-an-image",
+    "name": "Code Embedded in an Image",
+    "desc": "Combine a valid image header with PHP code"
+   },
+   {
+    "id": "race-condition",
+    "name": "Race Condition",
+    "desc": "Request and run the file before it is deleted"
+   }
+  ]
+ },
+ "dsvw": {
+  "learn": [
+   "Read the source of a tiny single-file app and see each bug on its line",
+   "Recognise the simplest forms of SQL injection, XSS, file read and XXE",
+   "Find in the code why each bug happens and think about how to fix it"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection-union-blind",
+    "name": "SQL Injection (Union / Blind)",
+    "desc": "The parameter is added straight to the query"
+   },
+   {
+    "id": "xss-reflected-stored-dom",
+    "name": "XSS (Reflected / Stored / DOM)",
+    "desc": "Unencoded output"
+   },
+   {
+    "id": "path-traversal-lfi",
+    "name": "Path Traversal / LFI",
+    "desc": "Read server files through a file path parameter"
+   },
+   {
+    "id": "xxe",
+    "name": "XXE",
+    "desc": "External entity read in the XML parser"
+   },
+   {
+    "id": "ssrf-and-open-redirect",
+    "name": "SSRF and Open Redirect",
+    "desc": "Outbound requests through the server, unsafe redirects"
+   },
+   {
+    "id": "http-header-injection",
+    "name": "HTTP Header Injection",
+    "desc": "Smuggle a line break into a header"
+   }
+  ]
+ },
+ "juiceshop": {
+  "learn": [
+   "Solve ~100 challenges rated 1–6 stars in a modern Angular/Node application",
+   "Find the Score Board: discover hidden pages from the JavaScript source",
+   "Test the REST API by hand with browser tools and Burp",
+   "Catch configuration/access mistakes that resemble real-world bugs"
+  ],
+  "vulns": [
+   {
+    "id": "injection-sqli-nosqli",
+    "name": "Injection (SQLi / NoSQLi)",
+    "desc": "Log in as admin, pull order data"
+   },
+   {
+    "id": "broken-authentication",
+    "name": "Broken Authentication",
+    "desc": "Password reset, JWT forgery, weak passwords"
+   },
+   {
+    "id": "broken-access-control",
+    "name": "Broken Access Control",
+    "desc": "View someone else's basket (IDOR), reach the admin page"
+   },
+   {
+    "id": "sensitive-data-exposure",
+    "name": "Sensitive Data Exposure",
+    "desc": "Open directories such as /ftp, backup files, details in comments"
+   },
+   {
+    "id": "xss-dom-reflected-stored",
+    "name": "XSS (DOM / Reflected / Stored)",
+    "desc": "Run scripts in search and product fields"
+   },
+   {
+    "id": "improper-input-validation",
+    "name": "Improper Input Validation",
+    "desc": "Missing server checks in registration and feedback"
+   },
+   {
+    "id": "xxe-and-insecure-deserialization",
+    "name": "XXE and Insecure Deserialization",
+    "desc": "Read files with XML in file uploads"
+   }
+  ]
+ },
+ "dvna": {
+  "learn": [
+   "See the code behind OWASP Top 10 mistakes in Node.js/Express apps",
+   "Trace how user input reaches eval, exec and database queries",
+   "Remote code execution in Node through insecure deserialization"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Product search and user queries"
+   },
+   {
+    "id": "os-command-injection",
+    "name": "OS Command Injection",
+    "desc": "Run commands from ping/nslookup-style forms"
+   },
+   {
+    "id": "insecure-deserialization",
+    "name": "Insecure Deserialization",
+    "desc": "RCE with node-serialize"
+   },
+   {
+    "id": "xss",
+    "name": "XSS",
+    "desc": "Output is not encoded"
+   },
+   {
+    "id": "broken-access-control",
+    "name": "Broken Access Control",
+    "desc": "Unauthorized actions and modifying other users' records"
+   },
+   {
+    "id": "xxe",
+    "name": "XXE",
+    "desc": "External entities when parsing XML"
+   }
+  ]
+ },
+ "hackazon": {
+  "learn": [
+   "Hunt for bugs in a realistic e-commerce site and its REST API",
+   "Examine AJAX and JSON requests with the browser and Burp",
+   "Business logic flaws: tampering with price, basket and checkout flows"
+  ],
+  "vulns": [
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Product search and filter parameters"
+   },
+   {
+    "id": "xss-stored-reflected",
+    "name": "XSS (Stored / Reflected)",
+    "desc": "Comment and search fields"
+   },
+   {
+    "id": "csrf",
+    "name": "CSRF",
+    "desc": "Profile and address changes"
+   },
+   {
+    "id": "xxe-rest-xml",
+    "name": "XXE (REST/XML)",
+    "desc": "External entities in endpoints that accept XML"
+   },
+   {
+    "id": "idor",
+    "name": "IDOR",
+    "desc": "Reach someone else's data by changing order and user IDs"
+   },
+   {
+    "id": "business-logic-flaws",
+    "name": "Business Logic Flaws",
+    "desc": "Missing server-side checks in the basket/price/coupon flow"
+   }
+  ]
+ },
+ "wrongsecrets": {
+  "learn": [
+   "Recognise secrets (passwords, keys, tokens) stored in the wrong places",
+   "Hunt for secrets in Docker images, environment variables, source code and git history",
+   "Confirm a secret by entering it in the app (the app checks it itself)",
+   "Learn how to manage secrets properly (vaults, a separate secret store)"
+  ],
+  "vulns": [
+   {
+    "id": "hardcoded-secret",
+    "name": "Hardcoded Secret",
+    "desc": "Passwords and keys written into the source code",
+    "task": "Find the hardcoded secret"
+   },
+   {
+    "id": "secret-in-a-docker-image",
+    "name": "Secret in a Docker Image",
+    "desc": "Secrets left in image layers or environment variables",
+    "task": "Find the secret in the image"
+   },
+   {
+    "id": "secret-in-git-history",
+    "name": "Secret in Git History",
+    "desc": "Keys deleted but still present in history",
+    "task": "Find the secret in git history"
+   },
+   {
+    "id": "weak-encryption-and-encoding",
+    "name": "Weak Encryption and Encoding",
+    "desc": "Mistaking Base64 for encryption, fixed keys/IVs",
+    "task": "Recover the weakly protected secret"
+   },
+   {
+    "id": "cloud-and-kubernetes-secrets",
+    "name": "Cloud and Kubernetes Secrets",
+    "desc": "Misconfigured secret objects",
+    "task": "Find the secret in the configuration"
+   }
+  ]
+ },
+ "nodegoat": {
+  "learn": [
+   "See the OWASP Top 10 in a Node.js + MongoDB application",
+   "NoSQL injection and server-side JavaScript injection",
+   "How regular expressions cause denial of service (ReDoS)"
+  ],
+  "vulns": [
+   {
+    "id": "server-side-js-and-nosql-injection",
+    "name": "Server-Side JS and NoSQL Injection",
+    "desc": "Use of eval and $where"
+   },
+   {
+    "id": "broken-authentication-and-sessions",
+    "name": "Broken Authentication and Sessions",
+    "desc": "Weak password policy, session fixation"
+   },
+   {
+    "id": "xss",
+    "name": "XSS",
+    "desc": "Unencoded user input"
+   },
+   {
+    "id": "idor-missing-function-level-authorizatio",
+    "name": "IDOR / Missing Function-Level Authorization",
+    "desc": "Access to other users' records and admin functions"
+   },
+   {
+    "id": "ssrf-and-open-redirect",
+    "name": "SSRF and Open Redirect",
+    "desc": "Unvalidated URLs"
+   },
+   {
+    "id": "redos",
+    "name": "ReDoS",
+    "desc": "Lock up the CPU with a bad regular expression"
+   }
+  ]
+ },
+ "vulhub": {
+  "learn": [
+   "Spin up real CVEs with one command and exploit them",
+   "How famous bugs like Log4Shell, Struts2 and Spring work",
+   "Read the root cause and the fix in each environment's README",
+   "Manage isolated vulnerable environments with Docker Compose"
+  ],
+  "vulns": [
+   {
+    "id": "log4shell-cve-2021-44228",
+    "name": "Log4Shell (CVE-2021-44228)",
+    "desc": "Remote code execution through a JNDI lookup",
+    "task": "Exploit the Log4Shell (CVE-2021-44228) environment"
+   },
+   {
+    "id": "struts2-spring-rce",
+    "name": "Struts2 / Spring RCE",
+    "desc": "Code execution via OGNL and SpringShell",
+    "task": "Exploit a Struts2 or Spring RCE environment"
+   },
+   {
+    "id": "unauthenticated-service-access",
+    "name": "Unauthenticated Service Access",
+    "desc": "No authentication on services like Redis, MongoDB, Elasticsearch",
+    "task": "Exploit an unauthenticated access environment (Redis/Mongo etc.)"
+   },
+   {
+    "id": "any-cve-environment",
+    "name": "Any CVE Environment",
+    "desc": "An environment of your choice",
+    "task": "Start and exploit a CVE environment you pick"
+   }
+  ]
+ }
+}

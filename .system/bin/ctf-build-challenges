@@ -1,0 +1,25 @@
+#!/bin/bash
+# Compiles the generated pwn/reverse challenges inside Kali (for glibc compatibility) and copies the binaries
+# back into the desktop folders. Falls back to the host compiler when Kali is not reachable.
+SYS="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"; ROOT="$(cd "$SYS/.." && pwd)"
+SSH_OPT=(-i "$SYS/ssh/id_ed25519" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o BatchMode=yes -o ConnectTimeout=5)
+K="kali@192.168.100.10"
+BUILD='set -e
+  gcc -O0 -w -o rev-crackme-1 rev-crackme-1.c
+  gcc -O1 -w -s -o rev-crackme-2 rev-crackme-2.c
+  gcc -O0 -w -fno-stack-protector -no-pie -z noexecstack -o pwn-ret2win pwn-ret2win.c
+  gcc -O0 -w -fno-stack-protector -no-pie -o pwn-format pwn-format.c
+  file rev-crackme-1 rev-crackme-2 pwn-ret2win pwn-format | cut -c1-110'
+if ssh "${SSH_OPT[@]}" $K 'rm -rf /tmp/build && mkdir -p /tmp/build' 2>/dev/null; then
+  rsync -a -e "ssh ${SSH_OPT[*]}" "$SYS/src-challenges/" "$K:/tmp/build/" || exit 1
+  ssh "${SSH_OPT[@]}" $K "cd /tmp/build && $BUILD" || exit 1
+  OUT=$(mktemp -d); rsync -a -e "ssh ${SSH_OPT[*]}" "$K:/tmp/build/" "$OUT/" || exit 1
+else
+  echo "! Kali is not reachable, compiling on the host instead (start Kali and rerun for Kali's glibc)" >&2
+  OUT=$(mktemp -d); cp "$SYS/src-challenges/"*.c "$OUT/" && (cd "$OUT" && bash -c "$BUILD") || exit 1
+fi
+for id in rev-crackme-1 rev-crackme-2 pwn-ret2win pwn-format; do
+  d=$(find "$ROOT/04-pwn-rev" -maxdepth 2 -type d -name "$id" | head -1)
+  [ -n "$d" ] && cp "$OUT/$id" "$d/$id" && chmod +x "$d/$id" && echo "✓ $id → $d"
+done
+rm -rf "$OUT"

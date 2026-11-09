@@ -1,0 +1,29 @@
+# Generated challenges (gen_challenges.py)
+crypto-caesar|local|crypto|1|Caesar Cipher|-||A classic shift cipher. Trying every shift is enough.
+crypto-base-chain|local|crypto|1|Encoding Chain|-||Peeling Base64/hex layers.
+crypto-xor-1byte|local|crypto|1|Single-Byte XOR|-||First step with XOR: brute force + known prefix.
+crypto-vigenere|local|crypto|1|Vigenère|-||Known-plaintext attack.
+crypto-hash-crack|local|crypto|1|Hash Cracking|-||Dictionary attack with John/hashcat.
+crypto-rsa-small-e|local|crypto|2|RSA — Small e|-||Decrypting by taking the root when m^e < n.
+crypto-rsa-fermat|local|crypto|2|RSA — Close Primes|-||Fermat factorisation attack.
+crypto-xor-multibyte|local|crypto|2|Repeating-Key XOR|-||Finding the key length + per-column frequency analysis.
+crypto-two-time-pad|local|crypto|2|Two-Time Pad|-||Reusing the same key twice (crib dragging).
+crypto-rsa-wiener|local|crypto|3|RSA — Small Private Exponent|-||Wiener's attack (continued fractions).
+crypto-rsa-hastad|local|crypto|3|RSA — Broadcast (Håstad)|-||Håstad's broadcast attack (CRT + cube root).
+crypto-jwt-weak-key|local|crypto|2|JWT — Weak Key|-||Cracking an HS256 JWT signing key with a wordlist.
+for-strings|local|forensics|1|Mystery File|-||Basic inspection with `strings` / `file`.
+for-exif-comment|local|forensics|1|The Photo's Note|-||Image metadata (EXIF/Comment).
+misc-qrcode|local|forensics|1|QR Code|-||Reading a QR code (zbarimg).
+for-zip-password|local|forensics|1|Password-Protected Zip|-||Cracking a ZIP password with a wordlist.
+for-png-lsb|local|forensics|2|Invisible Ink|-||LSB steganography (zsteg / StegSolve).
+for-zip-in-image|local|forensics|2|A Zip Disguised as an Image|-||A file embedded in a file (binwalk / foremost).
+for-pcap-login|local|forensics|2|Network Traffic|-||Plaintext credentials in HTTP traffic (Wireshark).
+for-web-log|local|forensics|2|Server Log|-||Log analysis: finding the attacker's IP and the leak.
+for-deleted-file|local|forensics|2|Deleted File|-||Recovering a deleted file from a disk image.
+for-morse-audio|local|forensics|2|Audio Recording|-||Morse code in an audio file.
+misc-brainfuck|local|forensics|2|Brain-Melting Language|-||Running an esolang (Brainfuck).
+misc-layered-encoding|local|forensics|3|Layer by Layer|-||Peeling multi-layer encodings (CyberChef).
+rev-crackme-1|local|pwn|1|Crackme 1 — Simple Password|-||Intro to reversing: strings / ltrace.
+rev-crackme-2|local|pwn|2|Crackme 2 — Hidden Flag|-||XORed data in an array: gdb / Ghidra.
+pwn-ret2win|local|pwn|1|Pwn 1 — ret2win|-||Overwriting the return address with a stack overflow.
+pwn-format|local|pwn|2|Pwn 2 — Format String|-||Leaking data from the stack with a format string.

@@ -1,0 +1,5 @@
+services:
+  hackazon:
+    image: ianwijaya/hackazon
+    ports: ["8091:80"]
+    restart: "no"

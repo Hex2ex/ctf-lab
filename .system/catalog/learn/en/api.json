@@ -1,0 +1,147 @@
+{
+ "vampi": {
+  "learn": [
+   "Exploit broken object level authorization (BOLA) in a REST API by hand",
+   "Discover endpoints with Postman/Burp and tamper with request bodies",
+   "Weak spots of JWT-based session handling",
+   "How the OWASP API Security Top 10 shows up in a small application"
+  ],
+  "vulns": [
+   {
+    "id": "bola-broken-object-level-authorization",
+    "name": "BOLA (Broken Object Level Authorization)",
+    "desc": "Read another user's books/data by changing an ID"
+   },
+   {
+    "id": "mass-assignment",
+    "name": "Mass Assignment",
+    "desc": "Escalate privileges by adding admin=true to the registration request"
+   },
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Query manipulation in the book search endpoint"
+   },
+   {
+    "id": "user-enumeration",
+    "name": "User Enumeration",
+    "desc": "Find usernames from differences in error messages"
+   },
+   {
+    "id": "excessive-data-exposure",
+    "name": "Excessive Data Exposure",
+    "desc": "A debug endpoint leaks passwords and user data"
+   },
+   {
+    "id": "weak-jwt-key",
+    "name": "Weak JWT Key",
+    "desc": "Forge tokens with a guessable signing key"
+   },
+   {
+    "id": "missing-rate-limiting",
+    "name": "Missing Rate Limiting",
+    "desc": "Unlimited attempts for password guessing and resource exhaustion"
+   }
+  ]
+ },
+ "dvga": {
+  "learn": [
+   "How GraphQL is structured: schema, queries, mutations and introspection",
+   "GraphQL-specific attacks: batching, aliases and deep-query DoS",
+   "Injection and server-side command execution through mutations",
+   "Discovery with GraphQL IDEs and Burp extensions"
+  ],
+  "vulns": [
+   {
+    "id": "introspection-enabled",
+    "name": "Introspection Enabled",
+    "desc": "Query the whole schema and find hidden fields"
+   },
+   {
+    "id": "brute-force-via-batching",
+    "name": "Brute Force via Batching",
+    "desc": "Hundreds of login/OTP attempts in a single request"
+   },
+   {
+    "id": "deep-circular-query-dos",
+    "name": "Deep / Circular Query (DoS)",
+    "desc": "Exhaust the server with nested relationships"
+   },
+   {
+    "id": "os-command-injection",
+    "name": "OS Command Injection",
+    "desc": "Command execution in mutations such as importPaste"
+   },
+   {
+    "id": "stored-xss",
+    "name": "Stored XSS",
+    "desc": "Scripts in content saved through GraphQL"
+   },
+   {
+    "id": "idor",
+    "name": "IDOR",
+    "desc": "Fetch someone else's data by changing an ID"
+   },
+   {
+    "id": "jwt-authorization-flaws",
+    "name": "JWT / Authorization Flaws",
+    "desc": "Missing field-level authorization checks"
+   }
+  ]
+ },
+ "crapi": {
+  "learn": [
+   "Work through the OWASP API Security Top 10 end to end in a realistic vehicle-service app",
+   "Endpoint discovery in a microservice architecture (web, mail, identity, community)",
+   "Read the e-mails the app sends with Mailhog (password reset flow)",
+   "Look at token and OTP flows through an attacker's eyes"
+  ],
+  "vulns": [
+   {
+    "id": "bola",
+    "name": "BOLA",
+    "desc": "See other users' vehicle locations and reports"
+   },
+   {
+    "id": "broken-authentication",
+    "name": "Broken Authentication",
+    "desc": "OTP brute force, weak JWT, weak password reset"
+   },
+   {
+    "id": "excessive-data-exposure",
+    "name": "Excessive Data Exposure",
+    "desc": "Responses contain more personal data than needed"
+   },
+   {
+    "id": "missing-rate-limiting",
+    "name": "Missing Rate Limiting",
+    "desc": "No limit on OTP and coupon attempts"
+   },
+   {
+    "id": "bfla",
+    "name": "BFLA",
+    "desc": "Call admin functions as a regular user"
+   },
+   {
+    "id": "mass-assignment",
+    "name": "Mass Assignment",
+    "desc": "Change balance/role by adding extra fields to the request body"
+   },
+   {
+    "id": "ssrf",
+    "name": "SSRF",
+    "desc": "Make the server send outbound requests via the mechanic contact form"
+   },
+   {
+    "id": "nosql-sql-injection",
+    "name": "NoSQL / SQL Injection",
+    "desc": "Injection in the coupon validation endpoints"
+   },
+   {
+    "id": "jwt-forgery",
+    "name": "JWT Forgery",
+    "desc": "Create tokens with alg:none or key confusion"
+   }
+  ]
+ }
+}

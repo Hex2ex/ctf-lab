@@ -1,0 +1,341 @@
+{
+ "protostar": {
+  "learn": [
+   "Basics of stack buffer overflows: overwrite a variable, take over the return address",
+   "Inspect memory layout with gdb and write shellcode",
+   "Introduction to format string, heap and network service exploits (32-bit, no protections)"
+  ],
+  "vulns": [
+   {
+    "id": "stack-buffer-overflow",
+    "name": "Stack Buffer Overflow",
+    "desc": "stack0-7: variable overwrite, EIP control, ret2libc"
+   },
+   {
+    "id": "format-string",
+    "name": "Format String",
+    "desc": "format0-4: reading from the stack, writing to an address"
+   },
+   {
+    "id": "heap-vulnerabilities",
+    "name": "Heap Vulnerabilities",
+    "desc": "heap0-3: pointer and unlink exploitation"
+   },
+   {
+    "id": "network-service-exploits",
+    "name": "Network Service Exploits",
+    "desc": "net0-4: parsing bugs in data received over sockets"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "stack",
+    "name": "Stack levels (stack0 – stack7)"
+   },
+   {
+    "id": "format",
+    "name": "Format string levels (format0 – format4)"
+   },
+   {
+    "id": "heap",
+    "name": "Heap levels (heap0 – heap3)"
+   },
+   {
+    "id": "net",
+    "name": "Network levels (net0 – net4)"
+   },
+   {
+    "id": "final",
+    "name": "Final levels (final0 – final2)"
+   }
+  ]
+ },
+ "phoenix": {
+  "learn": [
+   "The 64-bit, modern-protection counterpart of Protostar: NX, ASLR, canaries, PIE",
+   "Bypass protections one at a time: information leaks, ROP",
+   "Write network service exploits in a 64-bit environment"
+  ],
+  "vulns": [
+   {
+    "id": "stack-overflow-64-bit",
+    "name": "Stack Overflow (64-bit)",
+    "desc": "stack-zero – stack-six"
+   },
+   {
+    "id": "format-string",
+    "name": "Format String",
+    "desc": "format-zero – format-four"
+   },
+   {
+    "id": "heap-vulnerabilities",
+    "name": "Heap Vulnerabilities",
+    "desc": "heap-zero – heap-three"
+   },
+   {
+    "id": "network-and-final-levels",
+    "name": "Network and Final Levels",
+    "desc": "Exploits against real service logic"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "stack",
+    "name": "Stack levels (stack-zero – stack-six)"
+   },
+   {
+    "id": "format",
+    "name": "Format string levels (format-zero – format-four)"
+   },
+   {
+    "id": "heap",
+    "name": "Heap levels (heap-zero – heap-three)"
+   },
+   {
+    "id": "net",
+    "name": "Network levels (net-zero – net-two)"
+   },
+   {
+    "id": "final",
+    "name": "Final levels (final-zero – final-two)"
+   }
+  ]
+ },
+ "fusion": {
+  "learn": [
+   "Defeat combinations of ASLR, NX, PIE and RELRO",
+   "Develop remote exploits against network services",
+   "Realistic services with cryptographic and logic bugs"
+  ],
+  "vulns": [
+   {
+    "id": "bypassing-protections",
+    "name": "Bypassing Protections",
+    "desc": "Defeat ASLR/NX with an info leak plus ROP"
+   },
+   {
+    "id": "remote-buffer-overflow",
+    "name": "Remote Buffer Overflow",
+    "desc": "Stack overflow from data received over the network"
+   },
+   {
+    "id": "format-string-and-heap",
+    "name": "Format String and Heap",
+    "desc": "Advanced memory corruption"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "level00-06",
+    "name": "Level 00 – 06"
+   },
+   {
+    "id": "level07-13",
+    "name": "Level 07 – 13"
+   },
+   {
+    "id": "level14-20",
+    "name": "Level 14 – 20"
+   }
+  ]
+ },
+ "nightmare": {
+  "learn": [
+   "A binary exploitation and reverse engineering course organised topic by topic",
+   "Work real CTF challenges alongside written solutions",
+   "Practice Ghidra/gdb/pwntools on real challenges"
+  ],
+  "vulns": [
+   {
+    "id": "reverse-engineering",
+    "name": "Reverse Engineering",
+    "desc": "Reverse crackmes and key-check logic",
+    "task": "Solve a challenge from the reverse engineering section"
+   },
+   {
+    "id": "buffer-overflow",
+    "name": "Buffer Overflow",
+    "desc": "Control flow hijacking with stack overflows",
+    "task": "Solve a challenge from the buffer overflow section"
+   },
+   {
+    "id": "format-string",
+    "name": "Format String",
+    "desc": "printf vulnerabilities",
+    "task": "Solve a challenge from the format string section"
+   },
+   {
+    "id": "rop",
+    "name": "ROP",
+    "desc": "Return-oriented programming",
+    "task": "Solve a challenge from the ROP section"
+   },
+   {
+    "id": "heap",
+    "name": "Heap",
+    "desc": "glibc heap exploitation",
+    "task": "Solve a challenge from the heap section"
+   }
+  ]
+ },
+ "ropemporium": {
+  "learn": [
+   "Learn return-oriented programming in 8 steps, from simple to complex",
+   "Find gadgets (ropper, ROPgadget) and build chains",
+   "Calling conventions: x86 stack arguments vs x86_64 register arguments"
+  ],
+  "vulns": [
+   {
+    "id": "ret2win-and-split",
+    "name": "ret2win and split",
+    "desc": "Return to a single function, pass an argument",
+    "task": "Solve ret2win and split"
+   },
+   {
+    "id": "callme",
+    "name": "callme",
+    "desc": "Call several functions in sequence",
+    "task": "Solve callme"
+   },
+   {
+    "id": "write4",
+    "name": "write4",
+    "desc": "Place a string in memory with a write primitive",
+    "task": "Solve write4"
+   },
+   {
+    "id": "badchars",
+    "name": "badchars",
+    "desc": "Work around filtered bytes",
+    "task": "Solve badchars"
+   },
+   {
+    "id": "fluff",
+    "name": "fluff",
+    "desc": "Write memory with odd gadgets",
+    "task": "Solve fluff"
+   },
+   {
+    "id": "pivot",
+    "name": "pivot",
+    "desc": "Move the stack to another region",
+    "task": "Solve pivot"
+   },
+   {
+    "id": "ret2csu",
+    "name": "ret2csu",
+    "desc": "Control arguments with __libc_csu_init gadgets",
+    "task": "Solve ret2csu"
+   }
+  ]
+ },
+ "how2heap": {
+  "learn": [
+   "Internals of glibc heap management (malloc/free, tcache, fastbins, unsorted bin)",
+   "Build working examples of heap exploitation techniques and step through them in gdb",
+   "Which glibc version a technique works on, and where it was patched"
+  ],
+  "vulns": [
+   {
+    "id": "fastbin-tcache-dup",
+    "name": "Fastbin / Tcache Dup",
+    "desc": "Get the same chunk twice through a double free",
+    "task": "Run and understand the fastbin_dup and tcache_dup examples"
+   },
+   {
+    "id": "tcache-poisoning",
+    "name": "Tcache Poisoning",
+    "desc": "Corrupt the free-list pointer to allocate at an arbitrary address",
+    "task": "Run and understand the tcache poisoning example"
+   },
+   {
+    "id": "unsafe-unlink",
+    "name": "Unsafe Unlink",
+    "desc": "Use the unlink macro to write a pointer",
+    "task": "Run and understand the unsafe_unlink example"
+   },
+   {
+    "id": "house-of-force-spirit",
+    "name": "House of Force / Spirit",
+    "desc": "Abuse the top chunk size or a fake chunk",
+    "task": "Run and understand house_of_force and house_of_spirit"
+   }
+  ]
+ },
+ "rev-crackme-1": {
+  "learn": [
+   "Identify an ELF file with file, strings and ltrace",
+   "Catch a password comparison with dynamic tracing",
+   "The first step of reverse engineering: look before you run"
+  ],
+  "vulns": [
+   {
+    "id": "plaintext-password",
+    "name": "Plaintext Password",
+    "desc": "The password sits in the binary as a readable string"
+   },
+   {
+    "id": "traceable-strcmp",
+    "name": "Traceable strcmp",
+    "desc": "ltrace shows the value being compared"
+   }
+  ]
+ },
+ "rev-crackme-2": {
+  "learn": [
+   "Read compiled code in Ghidra and step through it in gdb",
+   "Recognise and undo simple obfuscation such as XOR",
+   "Decode data stored in arrays with static analysis"
+  ],
+  "vulns": [
+   {
+    "id": "xor-obfuscated-flag",
+    "name": "XOR-Obfuscated Flag",
+    "desc": "The key is inside the binary; the obfuscation can be reversed"
+   },
+   {
+    "id": "static-analysis-is-enough",
+    "name": "Static Analysis Is Enough",
+    "desc": "The flag can be extracted without running the program"
+   }
+  ]
+ },
+ "pwn-ret2win": {
+  "learn": [
+   "How a stack buffer overflow works: overwriting the return address",
+   "Find the offset (cyclic) and write the exploit with pwntools",
+   "Hijack control flow in an unprotected binary (no canary, no PIE)"
+  ],
+  "vulns": [
+   {
+    "id": "stack-buffer-overflow",
+    "name": "Stack Buffer Overflow",
+    "desc": "An unbounded read overwrites the return address"
+   },
+   {
+    "id": "unprotected-binary",
+    "name": "Unprotected Binary",
+    "desc": "Stack canary and PIE are off, so win() has a fixed address"
+   }
+  ]
+ },
+ "pwn-format": {
+  "learn": [
+   "How printf(user_input) becomes a vulnerability",
+   "Leak stack values with %p / %x / %s",
+   "Use direct parameter access (like %7$s) and read the flag from the leak"
+  ],
+  "vulns": [
+   {
+    "id": "format-string",
+    "name": "Format String",
+    "desc": "Format specifiers make printf read data off the stack"
+   },
+   {
+    "id": "information-leak",
+    "name": "Information Leak",
+    "desc": "The flag is in memory, so it can be read"
+   }
+  ]
+ }
+}

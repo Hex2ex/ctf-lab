@@ -1,0 +1,8 @@
+services:
+  webgoat:
+    image: webgoat/webgoat
+    ports: ["8080:8080", "9090:9090"]
+    environment:
+      - WEBWOLF_HOST=192.168.100.20
+      - WEBWOLF_PORT=9090
+    restart: "no"

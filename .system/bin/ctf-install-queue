@@ -1,0 +1,21 @@
+#!/bin/bash
+# Installs every vm/iso once its download has finished (convert to VM, define in libvirt). Exits when all are done.
+SYS="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+export PATH="$SYS/bin:$PATH"
+IDS=$(awk -F'|' '!/^#/ && ($2=="vm"||$2=="iso") {print $1}' "$SYS/catalog/labs.psv")
+DONE=""; FAILED=""
+while true; do
+  LEFT=0
+  for id in $IDS; do
+    case " $DONE $FAILED " in *" $id "*) continue;; esac
+    if [ -f "$SYS/downloads/$id/.done" ]; then
+      echo "[$(date +%T)] installing: $id"
+      if "$SYS/bin/ctf" install "$id" >> "$SYS/logs/install-$id.log" 2>&1; then DONE="$DONE $id"; echo "[$(date +%T)] ok: $id"
+      else FAILED="$FAILED $id"; echo "[$(date +%T)] ERROR: $id (logs/install-$id.log)"; fi
+    else LEFT=$((LEFT+1)); fi
+  done
+  [ "$LEFT" -eq 0 ] && break
+  sleep 30
+done
+echo "INSTALL_DONE  ok:${DONE:-}  failed:${FAILED:-}"
+"$SYS/bin/ctf" layout >/dev/null 2>&1

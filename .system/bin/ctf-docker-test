@@ -1,0 +1,12 @@
+#!/bin/bash
+# Starts the Docker labs one by one, checks the HTTP answer, stops them. Result: logs/docker-test.tsv
+SYS="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"; export PATH="$SYS/bin:$PATH"
+: > "$SYS/logs/docker-test.tsv"
+for id in "$@"; do
+  line=$(awk -F'|' -v id="$id" '$1==id{print $7}' "$SYS/catalog/labs.psv")
+  port=$(sed -E 's/.*port=([0-9]+).*/\1/' <<< "$line"); url=$(sed -nE 's/.*url=([^;]*).*/\1/p' <<< "$line")
+  t0=$(date +%s); ctf start "$id" > "$SYS/logs/docker-$id.log" 2>&1; rc=$?
+  code="-"; for i in $(seq 1 45); do code=$(curl -s -o /dev/null -L --max-time 4 -w '%{http_code}' "http://192.168.100.20:$port${url}"); case "$code" in 200|401|403) break;; esac; sleep 3; done
+  printf '%s\t%s\t%s\t%ss\n' "$id" "$([ "$rc" = 0 ] && echo started || echo NOT-STARTED)" "HTTP $code (:$port)" "$(( $(date +%s) - t0 ))" | tee -a "$SYS/logs/docker-test.tsv"
+  ctf stop "$id" >> "$SYS/logs/docker-$id.log" 2>&1
+done

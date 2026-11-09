@@ -1,0 +1,190 @@
+{
+ "crypto-caesar": {
+  "learn": [
+   "Kaydırmalı (Sezar/ROT) şifrelemenin nasıl çalıştığı",
+   "Küçük anahtar uzayını kaba kuvvetle taramak (yalnızca 25 olasılık)",
+   "CyberChef veya tr komutuyla hızlı çözüm"
+  ],
+  "vulns": [
+   {
+    "id": "tiny-key-space",
+    "name": "Çok Küçük Anahtar Uzayı",
+    "desc": "Tüm anahtarlar saniyeler içinde denenebilir"
+   },
+   {
+    "id": "preserved-letter-frequencies",
+    "name": "Harf Dağılımının Korunması",
+    "desc": "Frekans analizi anahtarı doğrudan verir"
+   }
+  ]
+ },
+ "crypto-base-chain": {
+  "learn": [
+   "Kodlama (encoding) ile şifrelemenin (encryption) farkı",
+   "Base64 ve hex katmanlarını tanıyıp sırayla soymak",
+   "CyberChef 'Magic' ile otomatik tespit"
+  ],
+  "vulns": [
+   {
+    "id": "mistaking-encoding-for-encryption",
+    "name": "Kodlamayı Şifreleme Sanmak",
+    "desc": "Base64/hex geri döndürülebilir; gizlilik sağlamaz"
+   }
+  ]
+ },
+ "crypto-xor-1byte": {
+  "learn": [
+   "XOR'un özellikleri: a ⊕ k ⊕ k = a",
+   "256 olasılığı kaba kuvvetle denemek",
+   "Bilinen düz metin başlangıcı (CTFLAB{) ile anahtarı doğrulamak"
+  ],
+  "vulns": [
+   {
+    "id": "single-byte-key",
+    "name": "Tek Baytlık Anahtar",
+    "desc": "Yalnızca 256 olasılık"
+   },
+   {
+    "id": "predictable-plaintext",
+    "name": "Tahmin Edilebilir Düz Metin",
+    "desc": "Bayrak biçimi anahtarı ele verir"
+   }
+  ]
+ },
+ "crypto-vigenere": {
+  "learn": [
+   "Çok alfabeli şifrelemenin Sezar'dan farkı",
+   "Bilinen düz metin saldırısıyla anahtarı geri çıkarmak",
+   "Anahtar uzunluğu analizi (Kasiski / çakışma indeksi)"
+  ],
+  "vulns": [
+   {
+    "id": "short-repeating-key",
+    "name": "Kısa Tekrarlayan Anahtar",
+    "desc": "Her harf anahtarın aynı karakteriyle kaydırılır"
+   },
+   {
+    "id": "known-prefix",
+    "name": "Bilinen Başlangıç",
+    "desc": "CTFLAB{ ilk anahtar harflerini verir"
+   }
+  ]
+ },
+ "crypto-hash-crack": {
+  "learn": [
+   "hashid ile hash türünü tanımak (MD5, SHA1, SHA256)",
+   "John the Ripper ve hashcat ile sözlük saldırısı (rockyou.txt)",
+   "Hızlı hash'lerin parola saklamak için neden uygun olmadığı"
+  ],
+  "vulns": [
+   {
+    "id": "fast-unsalted-hash",
+    "name": "Hızlı ve Tuzsuz Hash",
+    "desc": "Saniyede milyarlarca deneme yapılabilir"
+   },
+   {
+    "id": "weak-passwords",
+    "name": "Zayıf Parolalar",
+    "desc": "Yaygın parolalar sözlükte bulunur"
+   }
+  ]
+ },
+ "crypto-rsa-small-e": {
+  "learn": [
+   "RSA'nın temelleri: n, e, c ve neden dolgu (padding) şart",
+   "m^e < n ise mod işlemi hiç devreye girmez; e'inci kök yeter",
+   "Python'da büyük tamsayı kökü (integer root) hesaplamak"
+  ],
+  "vulns": [
+   {
+    "id": "unpadded-rsa-small-e",
+    "name": "Dolgusuz RSA + Küçük e",
+    "desc": "Şifreli metin düz metnin e'inci kuvvetidir; kök alınca çıkar"
+   }
+  ]
+ },
+ "crypto-rsa-fermat": {
+  "learn": [
+   "n = p·q çarpanlarına ayrıldığında özel anahtarın nasıl hesaplandığı",
+   "Fermat çarpanlama yöntemi",
+   "Asal seçiminin neden bağımsız ve rastgele olması gerektiği"
+  ],
+  "vulns": [
+   {
+    "id": "primes-too-close-together",
+    "name": "Birbirine Yakın Asallar",
+    "desc": "p ve q yakınsa n, Fermat yöntemiyle hızla çarpanlanır"
+   }
+  ]
+ },
+ "crypto-xor-multibyte": {
+  "learn": [
+   "Tekrarlayan anahtarlı XOR'un anahtar uzunluğunu bulmak (Hamming mesafesi, xortool)",
+   "Her anahtar baytı için ayrı frekans analizi yapmak",
+   "Bilinen düz metin parçasıyla anahtarı doğrulamak"
+  ],
+  "vulns": [
+   {
+    "id": "short-repeating-key",
+    "name": "Kısa Tekrarlayan Anahtar",
+    "desc": "Anahtar uzunluğu bulunduktan sonra her sütun tek baytlık XOR'a iner"
+   }
+  ]
+ },
+ "crypto-two-time-pad": {
+  "learn": [
+   "One-Time Pad'in tek kullanımlık olması neden zorunlu",
+   "Aynı anahtarla iki mesaj şifrelenirse c1 ⊕ c2 = m1 ⊕ m2 olur",
+   "Crib dragging: bilinen kelimeyle mesajı kaydırarak çözmek"
+  ],
+  "vulns": [
+   {
+    "id": "key-reuse",
+    "name": "Anahtar Yeniden Kullanımı",
+    "desc": "Mükemmel gizlilik anahtar tekrarında tamamen çöker"
+   }
+  ]
+ },
+ "crypto-rsa-wiener": {
+  "learn": [
+   "Özel üs d küçükse RSA'nın nasıl kırıldığı",
+   "Sürekli kesirler (continued fractions) ile e/n yaklaşımı",
+   "Wiener saldırısının koşulu: d < n^(1/4)/3"
+  ],
+  "vulns": [
+   {
+    "id": "small-private-exponent-d",
+    "name": "Küçük Özel Üs (d)",
+    "desc": "Hızlı şifre çözme için d'yi küçük seçmek anahtarı ele verir"
+   }
+  ]
+ },
+ "crypto-rsa-hastad": {
+  "learn": [
+   "Aynı mesajın farklı alıcılara aynı küçük e ile gönderilmesi",
+   "Çin Kalan Teoremi (CRT) ile birleşik şifreli metni bulmak",
+   "Birleşik değerin tam küp kökünü almak"
+  ],
+  "vulns": [
+   {
+    "id": "unpadded-broadcast-h-stad",
+    "name": "Dolgusuz Yayın (Håstad)",
+    "desc": "e adet alıcı varsa mesaj CRT + e'inci kökle çıkar"
+   }
+  ]
+ },
+ "crypto-jwt-weak-key": {
+  "learn": [
+   "JWT yapısı: header.payload.signature (base64url)",
+   "HS256 imza anahtarını sözlükle kırmak (hashcat -m 16500 / john)",
+   "Anahtarı bulduktan sonra yetkiyi yükselten yeni token imzalamak"
+  ],
+  "vulns": [
+   {
+    "id": "weak-hmac-key",
+    "name": "Zayıf HMAC Anahtarı",
+    "desc": "Sözlükte bulunan gizli anahtar, token sahteciliğine izin verir"
+   }
+  ]
+ }
+}

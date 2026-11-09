@@ -1,0 +1,41 @@
+{
+ "metasploitable3win": {
+  "learn": [
+   "Windows sunucuda servis numaralandırma ve zincirleme saldırı",
+   "EternalBlue (MS17-010) mantığı ve Metasploit ile kullanımı",
+   "Uygulama sunucularında (Jenkins, GlassFish, ManageEngine) varsayılan/zayıf ayarlar"
+  ],
+  "vulns": [
+   {
+    "id": "eternalblue-ms17-010",
+    "name": "EternalBlue (MS17-010)",
+    "desc": "SMB üzerinden SYSTEM kabuğu"
+   },
+   {
+    "id": "jenkins-script-console",
+    "name": "Jenkins Script Console",
+    "desc": "Kimlik doğrulamasız yönetici paneli"
+   },
+   {
+    "id": "manageengine-desktop-central",
+    "name": "ManageEngine Desktop Central",
+    "desc": "Uzaktan kod çalıştırma"
+   },
+   {
+    "id": "glassfish-path-traversal",
+    "name": "GlassFish Path Traversal",
+    "desc": "Dosya okuma"
+   },
+   {
+    "id": "elasticsearch-and-snmp",
+    "name": "Elasticsearch ve SNMP",
+    "desc": "Eski sürüm RCE, varsayılan community string"
+   },
+   {
+    "id": "weak-passwords",
+    "name": "Zayıf Parolalar",
+    "desc": "MySQL, Tomcat ve Windows hesapları"
+   }
+  ]
+ }
+}

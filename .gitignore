@@ -1,0 +1,41 @@
+# ---- Everything below is generated, downloaded, or private. Only the code and the catalog are versioned. ----
+
+# Generated challenge folders, downloaded labs and archives (rebuilt by `ctf init` / `ctf install`)
+/0[1-9]-*/
+/drop-here/
+/*.desktop
+
+# Private material: SSH key, web password hash, proxy secret, VPN keys and peer configs, panel token
+/.system/ssh/
+/.system/remote/
+/.system/logs/
+/.system/config.env
+/.system/progress.json
+/.system/progress.json.*
+
+# Big or machine-specific data
+/.system/vm/
+/.system/downloads/
+/.system/runtime/
+/.system/backup-pre-en/
+/.system/solutions/
+/.system/catalog/custom.psv
+/.system/xml/*
+!/.system/xml/ctf-lab.xml
+!/.system/xml/ctf-nat.xml
+
+# Python / editors / OS
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+*.swp
+.DS_Store
+*.tar.gz
+*.qcow2
+*.iso
+*.ova
+*.vmdk
+
+# One-time migration helper of the author's old Turkish layout; not part of the project
+/.system/bin/migrate-to-en.sh

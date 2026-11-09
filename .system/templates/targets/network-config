@@ -1,0 +1,11 @@
+version: 2
+ethernets:
+  nat0:
+    match: {macaddress: "@MAC_NAT@"}
+    set-name: nat0
+    dhcp4: true
+  lab0:
+    match: {macaddress: "@MAC_LAB@"}
+    set-name: lab0
+    dhcp4: true
+    dhcp4-overrides: {use-routes: false, use-dns: false}

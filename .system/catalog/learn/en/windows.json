@@ -1,0 +1,41 @@
+{
+ "metasploitable3win": {
+  "learn": [
+   "Service enumeration and chained attacks on a Windows server",
+   "How EternalBlue (MS17-010) works and how to use it with Metasploit",
+   "Default/weak settings in application servers (Jenkins, GlassFish, ManageEngine)"
+  ],
+  "vulns": [
+   {
+    "id": "eternalblue-ms17-010",
+    "name": "EternalBlue (MS17-010)",
+    "desc": "SYSTEM shell over SMB"
+   },
+   {
+    "id": "jenkins-script-console",
+    "name": "Jenkins Script Console",
+    "desc": "Unauthenticated admin panel"
+   },
+   {
+    "id": "manageengine-desktop-central",
+    "name": "ManageEngine Desktop Central",
+    "desc": "Remote code execution"
+   },
+   {
+    "id": "glassfish-path-traversal",
+    "name": "GlassFish Path Traversal",
+    "desc": "File read"
+   },
+   {
+    "id": "elasticsearch-and-snmp",
+    "name": "Elasticsearch and SNMP",
+    "desc": "Old-version RCE, default community string"
+   },
+   {
+    "id": "weak-passwords",
+    "name": "Weak Passwords",
+    "desc": "MySQL, Tomcat and Windows accounts"
+   }
+  ]
+ }
+}

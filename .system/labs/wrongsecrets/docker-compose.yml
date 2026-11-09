@@ -1,0 +1,5 @@
+services:
+  wrongsecrets:
+    image: jeroenwillemsen/wrongsecrets:latest-no-vault
+    ports: ["8087:8080"]
+    restart: "no"

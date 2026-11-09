@@ -1,0 +1,175 @@
+{
+ "for-strings": {
+  "learn": [
+   "Identify an unknown file with file and strings",
+   "Read file signatures (magic bytes) and hexdumps",
+   "The first step of every investigation: look at a file before opening it"
+  ],
+  "vulns": [
+   {
+    "id": "embedded-plaintext-data",
+    "name": "Embedded Plaintext Data",
+    "desc": "Readable information hidden inside a binary file"
+   }
+  ]
+ },
+ "for-exif-comment": {
+  "learn": [
+   "Image metadata (EXIF, Comment) and how to use exiftool",
+   "Why metadata is a privacy risk",
+   "The first place to look in image forensics"
+  ],
+  "vulns": [
+   {
+    "id": "metadata-leak",
+    "name": "Metadata Leak",
+    "desc": "Information left in location, device, author and comment fields"
+   }
+  ]
+ },
+ "misc-qrcode": {
+  "learn": [
+   "Read QR codes with zbarimg and other non-phone methods",
+   "Repair damaged or rotated QR codes",
+   "QR content may itself be wrapped in another encoding"
+  ],
+  "vulns": [
+   {
+    "id": "visually-encoded-data",
+    "name": "Visually Encoded Data",
+    "desc": "Information stored as an image, but machine-readable"
+   }
+  ]
+ },
+ "for-zip-password": {
+  "learn": [
+   "Extract the hash of a password-protected ZIP with zip2john",
+   "Dictionary attacks with John the Ripper",
+   "Why archive passwords are weak"
+  ],
+  "vulns": [
+   {
+    "id": "weak-archive-password",
+    "name": "Weak Archive Password",
+    "desc": "A common password that is in the wordlist"
+   },
+   {
+    "id": "zipcrypto",
+    "name": "ZipCrypto",
+    "desc": "Legacy ZIP encryption is weak and cracks fast"
+   }
+  ]
+ },
+ "for-png-lsb": {
+  "learn": [
+   "Steganography: hiding data in the least significant bits (LSB)",
+   "Examine bit planes with zsteg and StegSolve",
+   "Detect changes that cannot be seen by eye"
+  ],
+  "vulns": [
+   {
+    "id": "lsb-steganography",
+    "name": "LSB Steganography",
+    "desc": "A message hidden in the last bits of the pixels"
+   }
+  ]
+ },
+ "for-zip-in-image": {
+  "learn": [
+   "Recognise file signatures (PK, PNG, JPG)",
+   "Extract embedded files with binwalk and foremost",
+   "Find data appended to the end of an image"
+  ],
+  "vulns": [
+   {
+    "id": "file-embedded-in-a-file",
+    "name": "File Embedded in a File",
+    "desc": "Extra data appended to a valid image"
+   }
+  ]
+ },
+ "for-pcap-login": {
+  "learn": [
+   "Inspect a network capture in Wireshark: filters and Follow TCP Stream",
+   "Capture credentials in plaintext protocols such as HTTP",
+   "Match requests to responses"
+  ],
+  "vulns": [
+   {
+    "id": "unencrypted-protocol",
+    "name": "Unencrypted Protocol",
+    "desc": "Passwords travel in plaintext over HTTP/FTP/Telnet"
+   }
+  ]
+ },
+ "for-web-log": {
+  "learn": [
+   "Read Apache/Nginx access logs and filter them with grep/awk",
+   "Spot the attacker's IP from request patterns (scans, SQLi, LFI traces)",
+   "How log analysis fits into incident response"
+  ],
+  "vulns": [
+   {
+    "id": "attack-traces",
+    "name": "Attack Traces",
+    "desc": "Suspicious parameters and repeated requests stay in the log"
+   }
+  ]
+ },
+ "for-deleted-file": {
+  "learn": [
+   "Understand that deleting a file does not destroy its contents",
+   "Recover deleted files from a disk image (testdisk, photorec, Sleuth Kit)",
+   "A basic look at file system structure"
+  ],
+  "vulns": [
+   {
+    "id": "insecure-deletion",
+    "name": "Insecure Deletion",
+    "desc": "The directory entry is gone, but the data remains in the blocks"
+   }
+  ]
+ },
+ "for-morse-audio": {
+  "learn": [
+   "Inspect audio as a spectrogram and waveform (Audacity, sox)",
+   "Decode Morse code from long and short pulses",
+   "How to approach messages hidden in audio"
+  ],
+  "vulns": [
+   {
+    "id": "message-encoded-in-audio",
+    "name": "Message Encoded in Audio",
+    "desc": "Information hidden in a visual/audio channel"
+   }
+  ]
+ },
+ "misc-brainfuck": {
+  "learn": [
+   "Recognise an esolang (esoteric programming language): Brainfuck",
+   "Run an interpreter, or write your own",
+   "The CTF reflex of identifying an unfamiliar language"
+  ],
+  "vulns": [
+   {
+    "id": "message-hidden-in-an-obscure-language",
+    "name": "Message Hidden in an Obscure Language",
+    "desc": "The obfuscation is undone by an interpreter"
+   }
+  ]
+ },
+ "misc-layered-encoding": {
+  "learn": [
+   "Peel off several encoding layers in order (base64, hex, ROT13...)",
+   "Use CyberChef's Magic and build recipes",
+   "Get in the habit of recognising the output at each layer"
+  ],
+  "vulns": [
+   {
+    "id": "layered-encoding",
+    "name": "Layered Encoding",
+    "desc": "More layers do not add secrecy; every layer can be reversed"
+   }
+  ]
+ }
+}

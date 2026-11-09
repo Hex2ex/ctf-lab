@@ -1,0 +1,175 @@
+{
+ "for-strings": {
+  "learn": [
+   "Bilinmeyen bir dosyayı file ve strings ile tanımak",
+   "Dosya imzaları (magic bytes) ve hexdump okumak",
+   "Her incelemenin ilk adımı: dosyayı açmadan önce ona bakmak"
+  ],
+  "vulns": [
+   {
+    "id": "embedded-plaintext-data",
+    "name": "Düz Metin Gömülü Veri",
+    "desc": "İkili dosyanın içinde okunabilir bilgi saklamak"
+   }
+  ]
+ },
+ "for-exif-comment": {
+  "learn": [
+   "Resim metadatası (EXIF, Comment) ve exiftool kullanımı",
+   "Metadata'nın gizlilik açısından neden tehlikeli olduğu",
+   "Görsel adli bilişimde ilk bakılacak yer"
+  ],
+  "vulns": [
+   {
+    "id": "metadata-leak",
+    "name": "Metadata Sızıntısı",
+    "desc": "Konum, cihaz, yazar ve yorum alanlarında kalan bilgiler"
+   }
+  ]
+ },
+ "misc-qrcode": {
+  "learn": [
+   "Karekod (QR) okuma: zbarimg ve telefon dışı yöntemler",
+   "Bozuk ya da döndürülmüş karekodu onarmak",
+   "QR içeriğinin başka bir kodlamayla sarılmış olabileceğini görmek"
+  ],
+  "vulns": [
+   {
+    "id": "visually-encoded-data",
+    "name": "Görsel Kodlanmış Veri",
+    "desc": "Bilgi resim olarak saklanmış ama makine okunabilir"
+   }
+  ]
+ },
+ "for-zip-password": {
+  "learn": [
+   "Parolalı ZIP'in hash'ini zip2john ile çıkarmak",
+   "John the Ripper ile sözlük saldırısı",
+   "Arşiv parolalarının neden zayıf olduğu"
+  ],
+  "vulns": [
+   {
+    "id": "weak-archive-password",
+    "name": "Zayıf Arşiv Parolası",
+    "desc": "Yaygın parola sözlükte"
+   },
+   {
+    "id": "zipcrypto",
+    "name": "ZipCrypto",
+    "desc": "Eski ZIP şifrelemesi zayıf ve hızlı kırılır"
+   }
+  ]
+ },
+ "for-png-lsb": {
+  "learn": [
+   "Steganografi: LSB (en düşük anlamlı bit) yöntemiyle veri gizleme",
+   "zsteg ve StegSolve ile bit düzlemlerini incelemek",
+   "Görsel olarak fark edilmeyen değişiklikleri tespit etmek"
+  ],
+  "vulns": [
+   {
+    "id": "lsb-steganography",
+    "name": "LSB Steganografisi",
+    "desc": "Piksellerin son bitlerinde saklanan mesaj"
+   }
+  ]
+ },
+ "for-zip-in-image": {
+  "learn": [
+   "Dosya imzalarını (PK, PNG, JPG) tanımak",
+   "binwalk ve foremost ile gömülü dosyaları çıkarmak",
+   "Bir resmin sonuna eklenmiş veriyi bulmak"
+  ],
+  "vulns": [
+   {
+    "id": "file-embedded-in-a-file",
+    "name": "Dosya İçine Gömülü Dosya",
+    "desc": "Geçerli bir resme ek veri bindirilmiş"
+   }
+  ]
+ },
+ "for-pcap-login": {
+  "learn": [
+   "Wireshark ile ağ yakalamasını incelemek: filtreler ve Follow TCP Stream",
+   "HTTP gibi açık metin protokollerde kimlik bilgisini yakalamak",
+   "İstek ve yanıtları ilişkilendirmek"
+  ],
+  "vulns": [
+   {
+    "id": "unencrypted-protocol",
+    "name": "Şifrelenmemiş Protokol",
+    "desc": "HTTP/FTP/Telnet trafiğinde parola düz metin akar"
+   }
+  ]
+ },
+ "for-web-log": {
+  "learn": [
+   "Apache/Nginx erişim günlüğünü okumak ve grep/awk ile süzmek",
+   "Saldırgan IP'sini istek örüntüsünden bulmak (tarama, SQLi, LFI izleri)",
+   "Olay müdahalesinde günlük analizi mantığı"
+  ],
+  "vulns": [
+   {
+    "id": "attack-traces",
+    "name": "Saldırı İzleri",
+    "desc": "Şüpheli parametreler ve tekrarlayan istekler günlükte kalır"
+   }
+  ]
+ },
+ "for-deleted-file": {
+  "learn": [
+   "Dosya silmenin içeriği yok etmediğini kavramak",
+   "Disk imajından silinmiş dosya kurtarma (testdisk, photorec, Sleuth Kit)",
+   "Dosya sistemi yapısına temel bakış"
+  ],
+  "vulns": [
+   {
+    "id": "insecure-deletion",
+    "name": "Güvenli Olmayan Silme",
+    "desc": "Dizin girdisi gider, veri bloklarda kalır"
+   }
+  ]
+ },
+ "for-morse-audio": {
+  "learn": [
+   "Ses dosyasını spektrogram ve dalga formu olarak incelemek (Audacity, sox)",
+   "Mors kodunu uzun/kısa darbelerden çözmek",
+   "Sese gömülü gizli mesajlara yaklaşım"
+  ],
+  "vulns": [
+   {
+    "id": "message-encoded-in-audio",
+    "name": "Ses İçinde Kodlanmış Mesaj",
+    "desc": "Bilgi görsel/duysal bir kanala saklanmış"
+   }
+  ]
+ },
+ "misc-brainfuck": {
+  "learn": [
+   "Esolang (egzotik programlama dili) tanımak: Brainfuck",
+   "Yorumlayıcı çalıştırmak ya da kendin yazmak",
+   "CTF'te tanıdık olmayan bir dili tespit etme refleksi"
+  ],
+  "vulns": [
+   {
+    "id": "message-hidden-in-an-obscure-language",
+    "name": "Anlaşılmaz Dilde Gizlenen Mesaj",
+    "desc": "Gizleme bir yorumlayıcıyla geri alınır"
+   }
+  ]
+ },
+ "misc-layered-encoding": {
+  "learn": [
+   "Birden çok kodlama katmanını sırayla soymak (base64, hex, ROT13...)",
+   "CyberChef ile 'Magic' ve zincir (recipe) oluşturmak",
+   "Her katmanda çıktıyı tanıma alışkanlığı"
+  ],
+  "vulns": [
+   {
+    "id": "layered-encoding",
+    "name": "Katmanlı Kodlama",
+    "desc": "Gizlilik katman sayısıyla artmaz; her katman geri alınabilir"
+   }
+  ]
+ }
+}

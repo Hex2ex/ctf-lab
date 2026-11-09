@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""Runs a command inside a VM through qemu-guest-agent (as root); no ssh needed.
+
+Usage: ctf-guest-exec <vm-name> [--timeout SEC] [--stdin FILE] -- <shell command>
+Prints the output live and exits with the exit code from inside the VM.
+"""
+import base64, json, subprocess, sys, time
+
+
+def agent(dom, payload, timeout=30):
+    r = subprocess.run(["virsh", "-c", "qemu:///system", "qemu-agent-command", dom, json.dumps(payload)],
+                       capture_output=True, text=True, timeout=timeout)
+    if r.returncode != 0:
+        raise RuntimeError(r.stderr.strip() or "guest agent error")
+    return json.loads(r.stdout)["return"]
+
+
+def main():
+    a = sys.argv[1:]
+    if len(a) < 3 or "--" not in a:
+        print(__doc__); sys.exit(2)
+    dom = a[0]; timeout = 900; stdin_file = None
+    i = 1
+    while a[i] != "--":
+        if a[i] in ("--timeout", "--zaman"): timeout = int(a[i + 1]); i += 2
+        elif a[i] == "--stdin": stdin_file = a[i + 1]; i += 2
+        else: print("unknown option:", a[i]); sys.exit(2)
+    command = " ".join(a[i + 1:])
+    args = {"path": "/bin/bash", "arg": ["-c", command], "capture-output": True}
+    if stdin_file:
+        with open(stdin_file, "rb") as f:
+            args["input-data"] = base64.b64encode(f.read()).decode()
+    pid = agent(dom, {"execute": "guest-exec", "arguments": args})["pid"]
+    end = time.time() + timeout
+    while time.time() < end:
+        st = agent(dom, {"execute": "guest-exec-status", "arguments": {"pid": pid}})
+        if st.get("exited"):
+            for k, f in (("out-data", sys.stdout), ("err-data", sys.stderr)):
+                if st.get(k):
+                    f.write(base64.b64decode(st[k]).decode(errors="replace")); f.flush()
+            sys.exit(st.get("exitcode", 1))
+        time.sleep(1)
+    print("TIMEOUT", file=sys.stderr); sys.exit(124)
+
+
+if __name__ == "__main__":
+    main()

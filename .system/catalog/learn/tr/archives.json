@@ -1,0 +1,113 @@
+{
+ "ctfwiki": {
+  "learn": [
+   "Konu başlıklarıyla düzenlenmiş gerçek CTF sorularını tek yerde çalışmak",
+   "Her kategoride (pwn, reverse, crypto, misc, web) temel örüntüleri tanımak",
+   "Çözemediğinde CTF Wiki'deki anlatımı okuyarak öğrenmek"
+  ],
+  "vulns": [
+   {
+    "id": "pwn",
+    "name": "Pwn",
+    "desc": "Bellek bozulması soruları",
+    "task": "Pwn'dan en az bir soru çöz"
+   },
+   {
+    "id": "reverse",
+    "name": "Reverse",
+    "desc": "Tersine mühendislik soruları",
+    "task": "Reverse'ten en az bir soru çöz"
+   },
+   {
+    "id": "crypto",
+    "name": "Crypto",
+    "desc": "Kriptografik zayıflıklar",
+    "task": "Crypto'dan en az bir soru çöz"
+   },
+   {
+    "id": "web",
+    "name": "Web",
+    "desc": "Web uygulama zafiyetleri",
+    "task": "Web'den en az bir soru çöz"
+   },
+   {
+    "id": "misc",
+    "name": "Misc",
+    "desc": "Karışık ve yaratıcı sorular",
+    "task": "Misc'ten en az bir soru çöz"
+   }
+  ]
+ },
+ "ductf25": {
+  "learn": [
+   "Gerçek bir CTF'in tüm kategorilerini Docker dosyaları ve çözüm yazılarıyla çalışmak",
+   "Zorluk seviyesine göre kendini ölçmek (beginner'dan zora)",
+   "Yarışma formatındaki soruların tasarımını ve ipuçlarını görmek"
+  ],
+  "vulns": [
+   {
+    "id": "beginner",
+    "name": "Beginner",
+    "desc": "Başlangıç soruları",
+    "task": "Beginner'dan en az bir soru çöz"
+   },
+   {
+    "id": "web",
+    "name": "Web",
+    "desc": "Web zafiyetleri",
+    "task": "Web'den en az bir soru çöz"
+   },
+   {
+    "id": "pwn-rev",
+    "name": "Pwn / Rev",
+    "desc": "Binary soruları",
+    "task": "Pwn ya da Rev'den en az bir soru çöz"
+   },
+   {
+    "id": "crypto",
+    "name": "Crypto",
+    "desc": "Kriptografi",
+    "task": "Crypto'dan en az bir soru çöz"
+   },
+   {
+    "id": "misc",
+    "name": "Misc",
+    "desc": "Karışık sorular",
+    "task": "Misc'ten en az bir soru çöz"
+   }
+  ]
+ },
+ "google": {
+  "learn": [
+   "Dünyanın en zor CTF'lerinden birinin sorularını ve çözümlerini incelemek",
+   "İleri seviye sömürü ve ters mühendislik tekniklerini çözüm yazılarından öğrenmek",
+   "Büyük takımların soru çözme yaklaşımlarını görmek"
+  ],
+  "vulns": [
+   {
+    "id": "beginner",
+    "name": "Beginner",
+    "desc": "Giriş seviyesi sorular",
+    "task": "Beginner'dan en az bir soru çöz"
+   },
+   {
+    "id": "web",
+    "name": "Web",
+    "desc": "İleri web sömürüleri",
+    "task": "Web'den en az bir soru çöz"
+   },
+   {
+    "id": "pwn-rev",
+    "name": "Pwn / Rev",
+    "desc": "Zor binary soruları",
+    "task": "Pwn ya da Rev'den en az bir soru çöz"
+   },
+   {
+    "id": "crypto",
+    "name": "Crypto",
+    "desc": "İleri kriptografi",
+    "task": "Crypto'dan en az bir soru çöz"
+   }
+  ]
+ }
+}

@@ -1,0 +1,5 @@
+services:
+  dvwa:
+    image: vulnerables/web-dvwa
+    ports: ["8081:80"]
+    restart: "no"

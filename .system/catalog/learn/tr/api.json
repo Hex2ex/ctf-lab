@@ -1,0 +1,147 @@
+{
+ "vampi": {
+  "learn": [
+   "REST API'lerde nesne düzeyi yetkilendirme (BOLA) hatasını kendi elinle sömürmek",
+   "Postman/Burp ile uç noktaları keşfedip istek gövdesini manipüle etmek",
+   "JWT ile oturum yönetiminin zayıf noktaları",
+   "OWASP API Security Top 10 maddelerinin küçük bir uygulamadaki karşılıkları"
+  ],
+  "vulns": [
+   {
+    "id": "bola-broken-object-level-authorization",
+    "name": "BOLA (Nesne Düzeyi Yetki Hatası)",
+    "desc": "Başka kullanıcının kitabını/verisini kimlik değiştirerek okumak"
+   },
+   {
+    "id": "mass-assignment",
+    "name": "Mass Assignment",
+    "desc": "Kayıt isteğine admin=true ekleyerek yetki yükseltmek"
+   },
+   {
+    "id": "sql-injection",
+    "name": "SQL Injection",
+    "desc": "Kitap arama uç noktasında sorgu manipülasyonu"
+   },
+   {
+    "id": "user-enumeration",
+    "name": "Kullanıcı Numaralandırma",
+    "desc": "Hata mesajı farkından kullanıcı adı bulmak"
+   },
+   {
+    "id": "excessive-data-exposure",
+    "name": "Aşırı Veri İfşası",
+    "desc": "Debug uç noktasının parola ve kullanıcı bilgisi sızdırması"
+   },
+   {
+    "id": "weak-jwt-key",
+    "name": "Zayıf JWT Anahtarı",
+    "desc": "Tahmin edilebilir imza anahtarıyla token üretmek"
+   },
+   {
+    "id": "missing-rate-limiting",
+    "name": "Hız Sınırı Yokluğu",
+    "desc": "Sınırsız deneme ile parola/kaynak tüketimi"
+   }
+  ]
+ },
+ "dvga": {
+  "learn": [
+   "GraphQL'in yapısı: şema, sorgu, mutasyon ve introspection",
+   "GraphQL'e özgü saldırılar: toplu istek (batching), alias ve derin sorgu ile DoS",
+   "Mutasyon üzerinden enjeksiyon ve sunucu tarafı komut çalıştırma",
+   "GraphQL IDE ve Burp eklentileri ile keşif"
+  ],
+  "vulns": [
+   {
+    "id": "introspection-enabled",
+    "name": "Introspection Açık",
+    "desc": "Tüm şemayı sorgulayıp gizli alanları bulmak"
+   },
+   {
+    "id": "brute-force-via-batching",
+    "name": "Batching ile Kaba Kuvvet",
+    "desc": "Tek istekte yüzlerce giriş/OTP denemesi"
+   },
+   {
+    "id": "deep-circular-query-dos",
+    "name": "Derin / Dairesel Sorgu (DoS)",
+    "desc": "İç içe ilişkilerle sunucuyu yormak"
+   },
+   {
+    "id": "os-command-injection",
+    "name": "OS Command Injection",
+    "desc": "importPaste gibi mutasyonlarda komut çalıştırma"
+   },
+   {
+    "id": "stored-xss",
+    "name": "Stored XSS",
+    "desc": "GraphQL ile kaydedilen içerikte script"
+   },
+   {
+    "id": "idor",
+    "name": "IDOR",
+    "desc": "Kimlik numarasını değiştirip başkasının verisini almak"
+   },
+   {
+    "id": "jwt-authorization-flaws",
+    "name": "JWT / Yetkilendirme Hataları",
+    "desc": "Eksik alan düzeyi yetki kontrolü"
+   }
+  ]
+ },
+ "crapi": {
+  "learn": [
+   "OWASP API Security Top 10'u gerçekçi bir araç-servis uygulamasında uçtan uca denemek",
+   "Mikroservis mimarisinde (web, mail, kimlik, topluluk) uç nokta keşfi",
+   "Mailhog ile uygulamanın gönderdiği e-postaları okumak (parola sıfırlama akışı)",
+   "Token ve OTP akışlarını saldırgan gözüyle incelemek"
+  ],
+  "vulns": [
+   {
+    "id": "bola",
+    "name": "BOLA",
+    "desc": "Başka kullanıcının araç konumunu ve raporlarını görmek"
+   },
+   {
+    "id": "broken-authentication",
+    "name": "Kırık Kimlik Doğrulama",
+    "desc": "OTP kaba kuvvet, zayıf JWT, parola sıfırlama zayıflığı"
+   },
+   {
+    "id": "excessive-data-exposure",
+    "name": "Aşırı Veri İfşası",
+    "desc": "Yanıtta gereğinden fazla kişisel bilgi"
+   },
+   {
+    "id": "missing-rate-limiting",
+    "name": "Hız Sınırı Yokluğu",
+    "desc": "OTP ve kupon denemelerinde sınır olmaması"
+   },
+   {
+    "id": "bfla",
+    "name": "BFLA",
+    "desc": "Normal kullanıcıyla yönetici işlevlerini çağırmak"
+   },
+   {
+    "id": "mass-assignment",
+    "name": "Mass Assignment",
+    "desc": "İstek gövdesine fazladan alan ekleyerek bakiye/rol değiştirmek"
+   },
+   {
+    "id": "ssrf",
+    "name": "SSRF",
+    "desc": "Mekanik iletişim formundan sunucuya dış istek attırmak"
+   },
+   {
+    "id": "nosql-sql-injection",
+    "name": "NoSQL / SQL Injection",
+    "desc": "Kupon doğrulama uç noktalarında enjeksiyon"
+   },
+   {
+    "id": "jwt-forgery",
+    "name": "JWT Sahteciliği",
+    "desc": "alg:none ya da anahtar karışıklığı ile token üretmek"
+   }
+  ]
+ }
+}

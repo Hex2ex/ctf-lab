@@ -1,0 +1,19 @@
+#!/bin/bash
+# Usage: ctf-download <id> <url> [file-name]
+# Every download goes into its own empty folder (downloads/<id>/); an interrupted download resumes.
+set -u
+SYS="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+id="$1"; url="$2"; name="${3:-}"
+d="$SYS/downloads/$id"; mkdir -p "$d"
+[ -n "$name" ] || name="$(basename "${url%%\?*}")"
+[ "$name" = download ] && name="$id.bin"
+if [ -f "$d/.done" ]; then echo "[$id] already downloaded"; exit 0; fi
+echo "[$id] downloading: $url"
+PROG=(-sS); [ -t 2 ] && PROG=(-#)   # progress bar on a terminal
+for i in 1 2 3 4 5 6; do
+  if curl "${PROG[@]}" -fL -C - --retry 3 --retry-delay 5 --connect-timeout 30 -o "$d/$name" "$url"; then
+    echo "$name" > "$d/.done"; echo "[$id] done: $(du -h "$d/$name" | cut -f1)"; exit 0
+  fi
+  echo "[$id] attempt $i failed, retrying..."; sleep 10
+done
+echo "[$id] ERROR: could not download" >&2; exit 1

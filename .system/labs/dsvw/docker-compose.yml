@@ -1,0 +1,5 @@
+services:
+  dsvw:
+    image: appsecco/dsvw
+    ports: ["8088:8000"]
+    restart: "no"

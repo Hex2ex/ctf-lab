@@ -1,0 +1,334 @@
+{
+ "basicpentesting1": {
+  "desc": "Sıfırdan sızma testi akışı: keşif → servis zafiyeti → parola/anahtar → root.",
+  "name": "Basic Pentesting 1"
+ },
+ "bob": {
+  "desc": "Kurumsal senaryo: web kabuğu, gizli notlar, GPG, yetki yükseltme.",
+  "name": "Bob 1.0.1"
+ },
+ "brainpan1": {
+  "desc": "Uzak servise tampon taşması (buffer overflow) exploiti yazma; OSCP tarzı. Bir Windows PE'yi analiz edip Linux servisine uyarlarsınız.",
+  "name": "Brainpan 1"
+ },
+ "bwapp": {
+  "desc": "100'den fazla web zafiyeti (OWASP Top 10 dahil) tek uygulamada.",
+  "name": "bWAPP"
+ },
+ "crapi": {
+  "desc": "Tam bir araç-servis uygulaması üzerinde OWASP API Top 10. Mail kutusu: 8025.",
+  "name": "OWASP crAPI"
+ },
+ "crypto-base-chain": {
+  "desc": "Base64/hex katmanlarını soymak.",
+  "name": "Kodlama Zinciri"
+ },
+ "crypto-caesar": {
+  "desc": "Klasik kaydırmalı şifre. Hepsini denemek yeter.",
+  "name": "Sezar Şifresi"
+ },
+ "crypto-hash-crack": {
+  "desc": "John/hashcat ile sözlük saldırısı.",
+  "name": "Hash Kırma"
+ },
+ "crypto-jwt-weak-key": {
+  "desc": "HS256 JWT imza anahtarını sözlükle kırmak.",
+  "name": "JWT — Zayıf Anahtar"
+ },
+ "crypto-rsa-fermat": {
+  "desc": "Fermat çarpanlama saldırısı.",
+  "name": "RSA — Yakın Asallar"
+ },
+ "crypto-rsa-hastad": {
+  "desc": "Håstad yayın saldırısı (CRT + küp kökü).",
+  "name": "RSA — Yayın (Håstad)"
+ },
+ "crypto-rsa-small-e": {
+  "desc": "m^e < n ise şifreyi kökle çözmek.",
+  "name": "RSA — Küçük e"
+ },
+ "crypto-rsa-wiener": {
+  "desc": "Wiener saldırısı (sürekli kesirler).",
+  "name": "RSA — Küçük Özel Üs"
+ },
+ "crypto-two-time-pad": {
+  "desc": "Aynı anahtarın iki kez kullanılması (crib dragging).",
+  "name": "İki Kez Kullanılan Anahtar"
+ },
+ "crypto-vigenere": {
+  "desc": "Bilinen düz metin saldırısı.",
+  "name": "Vigenère"
+ },
+ "crypto-xor-1byte": {
+  "desc": "XOR'un ilk adımı: kaba kuvvet + bilinen başlangıç.",
+  "name": "Tek Baytlık XOR"
+ },
+ "crypto-xor-multibyte": {
+  "desc": "Anahtar uzunluğu bulma + sütun sütun frekans analizi.",
+  "name": "Tekrarlayan Anahtarlı XOR"
+ },
+ "ctfwiki": {
+  "desc": "Konu başlıklarıyla düzenlenmiş pwn/reverse/crypto/misc/web örnek soruları (kaynak + binary).",
+  "name": "CTF Wiki challenges"
+ },
+ "dc1": {
+  "desc": "DC serisinin ilki: Drupal 7 → yetki yükseltme (SUID). 5 bayrak. Seri DC-9'a kadar zorlaşır.",
+  "name": "DC-1"
+ },
+ "dc2": {
+  "desc": "WordPress + cewl ile özel sözlük, kısıtlı kabuktan (rbash) kaçış, git ile yetki yükseltme.",
+  "name": "DC-2"
+ },
+ "dc3": {
+  "desc": "Joomla SQLi → parola kırma → yerel yetki yükseltme.",
+  "name": "DC-3"
+ },
+ "dc4": {
+  "desc": "Web formu kaba kuvvet (hydra), komut enjeksiyonu, teensy/sudo yapılandırması.",
+  "name": "DC-4"
+ },
+ "dc5": {
+  "desc": "LFI → log zehirleme ile RCE → screen SUID yetki yükseltme.",
+  "name": "DC-5"
+ },
+ "dc6": {
+  "desc": "WordPress (wpscan, rockyou ipucu) → eklenti RCE → nmap/backups betiği.",
+  "name": "DC-6"
+ },
+ "dc7": {
+  "desc": "OSINT ile ilk adım; Drupal + drush; cron/betik üzerinden yetki yükseltme.",
+  "name": "DC-7"
+ },
+ "dc8": {
+  "desc": "Drupal 7 SQLi → john → PHP kodu → exim4 yerel exploit.",
+  "name": "DC-8"
+ },
+ "dc9": {
+  "desc": "SQLi + LFI + port knocking (knockd) + sudo ile yetki yükseltme.",
+  "name": "DC-9"
+ },
+ "dsvw": {
+  "desc": "Tek dosyalık küçük uygulama: SQLi, XSS, LFI, SSRF, XXE gibi temel zafiyetler.",
+  "name": "Damn Small Vulnerable Web"
+ },
+ "ductf25": {
+  "desc": "web/pwn/rev/crypto/misc/beginner: Docker dosyaları ve çözüm yazılarıyla gerçek bir CTF'in tüm soruları.",
+  "name": "DownUnderCTF 2025"
+ },
+ "dvga": {
+  "desc": "GraphQL: introspection, batching saldırısı, DoS, enjeksiyon, IDOR.",
+  "name": "Damn Vulnerable GraphQL"
+ },
+ "dvna": {
+  "desc": "Node.js'te OWASP Top 10: enjeksiyon, SSRF, deserialization, yetki atlama.",
+  "name": "Damn Vulnerable NodeJS App"
+ },
+ "dvwa": {
+  "desc": "SQLi, XSS, komut enjeksiyonu, dosya yükleme. Zorluk seviyesi ayarlanabilir; web'e ilk adım.",
+  "name": "DVWA (Damn Vulnerable Web App)"
+ },
+ "for-deleted-file": {
+  "desc": "Silinmiş dosyayı disk imajından kurtarmak.",
+  "name": "Silinmiş Dosya"
+ },
+ "for-exif-comment": {
+  "desc": "Resim metadatası (EXIF/Comment).",
+  "name": "Fotoğrafın Notu"
+ },
+ "for-morse-audio": {
+  "desc": "Ses dosyasında Mors kodu.",
+  "name": "Ses Kaydı"
+ },
+ "for-pcap-login": {
+  "desc": "HTTP trafiğinde açık metin kimlik bilgisi (Wireshark).",
+  "name": "Ağ Trafiği"
+ },
+ "for-png-lsb": {
+  "desc": "LSB steganografisi (zsteg / StegSolve).",
+  "name": "Görünmeyen Mürekkep"
+ },
+ "for-strings": {
+  "desc": "`strings` / `file` ile temel inceleme.",
+  "name": "Gizemli Dosya"
+ },
+ "for-web-log": {
+  "desc": "Log analizi: saldırgan IP'sini ve sızıntıyı bulmak.",
+  "name": "Sunucu Günlüğü"
+ },
+ "for-zip-in-image": {
+  "desc": "Dosya içine gömülü dosya (binwalk / foremost).",
+  "name": "Resim Gibi Zip"
+ },
+ "for-zip-password": {
+  "desc": "ZIP parolasını sözlükle kırmak.",
+  "name": "Parolalı Zip"
+ },
+ "fristileaks": {
+  "desc": "Gizli dizinler, dosya yükleme filtresi, şifre çözme (base64/rot13) ve yetki yükseltme. Bu VM yalnızca belirli bir MAC adresiyle ağa bağlanır (ayarlı).",
+  "name": "FristiLeaks 1.3"
+ },
+ "fusion": {
+  "desc": "İleri exploit geliştirme: ASLR/NX/PIE/RELRO'yu aşma, ağ servislerinde exploit. Phoenix ve Protostar bitince.",
+  "name": "Exploit Education Fusion"
+ },
+ "google": {
+  "desc": "Dünyanın en zor CTF'lerinden biri: 2017'den bugüne tüm sorular ve çözümleri. İleri seviye.",
+  "name": "Google CTF arşivi"
+ },
+ "hackazon": {
+  "desc": "Modern e-ticaret + REST API; AJAX, WAF'lı akışlar, gerçekçi zafiyetler.",
+  "name": "Hackazon"
+ },
+ "how2heap": {
+  "desc": "glibc heap sömürü tekniklerinin çalışır örnekleri: tcache poisoning, house of *, fastbin dup, unsafe unlink.",
+  "name": "how2heap (glibc heap teknikleri)"
+ },
+ "jangow": {
+  "desc": "Web üzerinden komut çalıştırma, ters kabuk (reverse shell) ve yetki yükseltme.",
+  "name": "Jangow 1.0.1"
+ },
+ "juiceshop": {
+  "desc": "~100 meydan okuma, yıldızlı zorluk (1-6), skor tablosu. Modern JS uygulaması (Angular/Node).",
+  "name": "OWASP Juice Shop"
+ },
+ "kioptrix1": {
+  "desc": "Eski bir RedHat; Apache mod_ssl ve Samba zafiyetleri. Çok eski çekirdek: exploit derleme pratiği.",
+  "name": "Kioptrix Level 1"
+ },
+ "kioptrix3": {
+  "desc": "Web uygulaması (LotusCMS/Gallarific) → SQLi/RCE → yerel yetki yükseltme. Not: sitenin çalışması için /etc/hosts'a kioptrix3.com eklemek gerekir.",
+  "name": "Kioptrix Level 1.2 (#3)"
+ },
+ "lampiao": {
+  "desc": "Drupal (Drupalgeddon) + Dirty COW ile root. Klasik CVE zinciri.",
+  "name": "Lampiao"
+ },
+ "lazysysadmin": {
+  "desc": "Tembel sistem yöneticisi hataları: açık SMB paylaşımı, WordPress, zayıf yapılandırma.",
+  "name": "LazySysAdmin"
+ },
+ "metasploitable2": {
+  "desc": "Bilerek zafiyetli servislerle dolu klasik hedef: vsftpd, Samba, distcc, UnrealIRCd, Tomcat... Nmap + Metasploit öğrenmek için ideal.",
+  "name": "Metasploitable 2"
+ },
+ "metasploitable3ub": {
+  "desc": "Daha gerçekçi çok servisli Linux sunucu: ProFTPD, Apache Struts, Jenkins, Elasticsearch, Samba vb. Metasploit ile zincirleme saldırı.",
+  "name": "Metasploitable 3 (Ubuntu 14.04)"
+ },
+ "metasploitable3win": {
+  "desc": "Windows sunucu: EternalBlue (MS17-010), IIS, ManageEngine, Jenkins, SNMP, GlassFish, Elasticsearch, MySQL... KVM'de test edildi, çalışıyor; ilk açılışta servislerin gelmesi ~1-2 dk sürer.",
+  "name": "Metasploitable 3 (Windows Server 2008 R2)"
+ },
+ "misc-brainfuck": {
+  "desc": "Esolang (Brainfuck) çalıştırmak.",
+  "name": "Beyin Yakan Dil"
+ },
+ "misc-layered-encoding": {
+  "desc": "Çok katmanlı kodlama soyma (CyberChef).",
+  "name": "Katman Katman"
+ },
+ "misc-qrcode": {
+  "desc": "QR kod okuma (zbarimg).",
+  "name": "Karekod"
+ },
+ "mrrobot": {
+  "desc": "Dizi temalı; WordPress, anahtar (flag) avı ve yetki yükseltme. 3 bayrak.",
+  "name": "Mr-Robot: 1"
+ },
+ "mutillidae": {
+  "desc": "OWASP Top 10 zafiyetleri, ipuçları açılıp kapatılabilir; LDAP/SQL/XSS/SSRF.",
+  "name": "OWASP Mutillidae II"
+ },
+ "nebula": {
+  "desc": "Linux yetki yükseltme (level00-level19): SUID, PATH, ortam değişkenleri, yarış durumu (race), kod incelemesi.",
+  "name": "Exploit Education Nebula"
+ },
+ "nightmare": {
+  "desc": "Gerçek CTF'lerden toplanmış binary'ler, konu konu: tampon taşması, ROP, format string, heap, reverse engineering. Yazılı çözümlerle birlikte.",
+  "name": "Nightmare (Binary Exploitation / RE kursu)"
+ },
+ "nodegoat": {
+  "desc": "Node.js + MongoDB; NoSQLi, SSRF, ReDoS, yetkisiz erişim, kırık kimlik doğrulama.",
+  "name": "OWASP NodeGoat"
+ },
+ "phoenix": {
+  "desc": "Protostar'ın modern halı: 64-bit stack taşması, format string, heap, ağ. Modern korumalar.",
+  "name": "Exploit Education Phoenix (amd64)"
+ },
+ "protostar": {
+  "desc": "Klasik binary exploitation: stack taşması, format string, heap (stack0-7, format0-4, heap0-3, net0-4, final0-2). 32-bit.",
+  "name": "Exploit Education Protostar"
+ },
+ "pwn-format": {
+  "desc": "Format string ile yığından veri sızdırma.",
+  "name": "Pwn 2 — Format String"
+ },
+ "pwn-ret2win": {
+  "desc": "Stack taşması ile dönüş adresini ezmek.",
+  "name": "Pwn 1 — ret2win"
+ },
+ "pwnos2": {
+  "desc": "Web zafiyeti → veritabanı kimlik bilgileri → SSH → root. Sabit IP kullanır (10.10.10.100): ctf baslat Kali'ye 10.10.10.10/24 takma adresini kendiliğinden ekler.",
+  "name": "pWnOS 2.0"
+ },
+ "raven2": {
+  "desc": "PHPMailer RCE, MySQL UDF ile yetki yükseltme. 4 bayrak.",
+  "name": "Raven 2"
+ },
+ "rev-crackme-1": {
+  "desc": "Reverse'e giriş: strings / ltrace.",
+  "name": "Crackme 1 — Basit Parola"
+ },
+ "rev-crackme-2": {
+  "desc": "Dizideki XOR'lu veri: gdb / Ghidra.",
+  "name": "Crackme 2 — Gizlenmiş Bayrak"
+ },
+ "ropemporium": {
+  "desc": "ROP (Return-Oriented Programming) için 8 temel challenge; ret2win'den ret2csu'ya. x86/x86_64.",
+  "name": "ROP Emporium"
+ },
+ "sqlilabs": {
+  "desc": "65 aşamalı SQL enjeksiyonu: error/blind/time/second-order/WAF atlatma.",
+  "name": "SQLi-Labs"
+ },
+ "stapler": {
+  "desc": "Çok servisli (FTP, SMB, WordPress, MySQL...) bir hedef; birden fazla yoldan root.",
+  "name": "Stapler: 1"
+ },
+ "symfonos1": {
+  "desc": "SMB, WordPress eklenti LFI, SMTP log zehirleme, PATH ele geçirme.",
+  "name": "Symfonos 1"
+ },
+ "symfonos2": {
+  "desc": "SMB + FTP (ProFTPD) → SSH → Librenms yerel exploit; port yönlendirme (tünelleme) gerektirir.",
+  "name": "Symfonos 2"
+ },
+ "troll1": {
+  "desc": "Sizi oyalamaya çalışan \"troll\" ipuçları; FTP'de pcap analizi, gizli dizinler, küçük bir binary ve yetki yükseltme.",
+  "name": "Tr0ll 1"
+ },
+ "uploadlabs": {
+  "desc": "20 seviyede dosya yükleme filtresi atlatma ve web shell.",
+  "name": "Upload-Labs"
+ },
+ "vampi": {
+  "desc": "Flask REST API: BOLA, mass assignment, SQLi, kullanıcı numaralandırma.",
+  "name": "VAmPI (Zafiyetli REST API)"
+ },
+ "vulhub": {
+  "desc": "Log4Shell, Struts2, Spring, Tomcat, WordPress eklentileri, Redis/Mongo yetkisiz erişim vb. gerçek CVE'ler. Kullanım: ctf vulhub ara <kelime>",
+  "name": "Vulhub (300+ CVE ortamı)"
+ },
+ "webgoat": {
+  "desc": "Adım adım dersler: enjeksiyon, kimlik doğrulama, JWT, XXE, SSRF. WebWolf 9090'da.",
+  "name": "OWASP WebGoat"
+ },
+ "wrongsecrets": {
+  "desc": "Kodda, imajda, ortam değişkenlerinde saklanan sırları bulma (secret yönetimi hataları).",
+  "name": "OWASP WrongSecrets"
+ },
+ "zico2": {
+  "desc": "LFI/RFI, phpLiteAdmin, zip/tar sudo yetki yükseltme.",
+  "name": "Zico2"
+ }
+}

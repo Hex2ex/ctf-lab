@@ -1,0 +1,10 @@
+#!/bin/bash
+# Web terminal entry point (run by ttyd): starts Kali if needed, waits for SSH and opens a shell as kali.
+SYS="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+export LIBVIRT_DEFAULT_URI=qemu:///system
+OPT=(-i "$SYS/ssh/id_ed25519" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=5)
+if [ "$(virsh domstate ctf-kali 2>/dev/null)" != running ]; then
+  echo "Starting Kali..."; virsh start ctf-kali >/dev/null || { echo "Kali could not start."; sleep 30; exit 1; }
+fi
+for i in $(seq 1 60); do ssh "${OPT[@]}" -o BatchMode=yes kali@192.168.100.10 true 2>/dev/null && break; [ "$i" = 1 ] && echo "Waiting for Kali's SSH..."; sleep 2; done
+exec ssh "${OPT[@]}" -t kali@192.168.100.10

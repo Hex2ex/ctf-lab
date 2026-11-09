@@ -1,0 +1,40 @@
+#cloud-config
+hostname: targets
+manage_etc_hosts: true
+timezone: @TZ@
+ssh_pwauth: false
+users:
+  - name: lab
+    gecos: CTF Lab
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: false
+    # console login only; SSH has passwords off and needs the lab key
+    plain_text_passwd: lab
+    ssh_authorized_keys:
+      - @PUBKEY@
+package_update: true
+packages:
+  - docker.io
+  - docker-compose-v2
+  - git
+  - curl
+  - jq
+  - rsync
+  - unzip
+  - ca-certificates
+  - qemu-guest-agent
+  - python3
+write_files:
+  - path: /etc/sysctl.d/99-ctf.conf
+    content: |
+      vm.max_map_count=262144
+runcmd:
+  - [ sysctl, --system ]
+  - [ systemctl, enable, --now, qemu-guest-agent ]
+  - [ systemctl, enable, --now, docker ]
+  - [ usermod, -aG, docker, lab ]
+  - [ mkdir, -p, /opt/labs ]
+  - [ chown, "lab:lab", /opt/labs ]
+  - [ bash, -c, "git clone --depth 1 https://github.com/vulhub/vulhub.git /opt/vulhub && chown -R lab:lab /opt/vulhub; touch /var/lib/ctf-targets-ready" ]

@@ -1,0 +1,1119 @@
+#!/bin/bash
+# ctf — CTF-Lab management command.   Usage: ctf help
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../.." && pwd)"   # the repository root
+SYS="$ROOT/.system"
+CAT_MAIN="$SYS/catalog/labs.psv"
+CAT_CUSTOM="$SYS/catalog/custom.psv"
+CAT_GEN="$SYS/catalog/generated.psv"
+REMOTE="$SYS/remote"
+export LIBVIRT_DEFAULT_URI=qemu:///system
+export LC_ALL=${LC_ALL:-C.UTF-8}
+
+KEY="$SYS/ssh/id_ed25519"
+SSH_OPT=(-i "$KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+         -o LogLevel=ERROR -o BatchMode=yes -o ConnectTimeout=5 -o ServerAliveInterval=15)
+KALI_IP=192.168.100.10
+TARGETS_IP=192.168.100.20
+PANEL_PORT=8765
+mkdir -p "$SYS"/{logs,downloads,vm,xml,ssh,remote,runtime,solutions,src-challenges,catalog} 2>/dev/null && chmod 700 "$SYS/ssh" 2>/dev/null || true
+WEB_PORT=8443
+VNC_WS_PORT=5700
+TTYD_PORT=7681
+
+# ---------- helpers ----------
+color() { [ -t 1 ] && printf '\033[%sm%s\033[0m' "$1" "$2" || printf '%s' "$2"; }
+info() { printf '%s %s\n' "$(color '1;36' '›')" "$*"; }
+ok()   { printf '%s %s\n' "$(color '1;32' '✓')" "$*"; }
+warn() { printf '%s %s\n' "$(color '1;33' '!')" "$*" >&2; }
+err()  { printf '%s %s\n' "$(color '1;31' '✗')" "$*" >&2; }
+notify() { command -v notify-send >/dev/null 2>&1 && notify-send -a "CTF Lab" "$1" "${2:-}" 2>/dev/null || true; }
+
+cat_dir() { case "$1" in
+  web) echo "01-web";; linux) echo "02-linux";; windows) echo "03-windows";; pwn) echo "04-pwn-rev";;
+  crypto) echo "05-crypto";; forensics) echo "06-forensics";; api) echo "07-api";; archives) echo "08-archives";;
+  custom) echo "09-custom";; *) echo "99-other";; esac; }
+level_dir() { case "$1" in 1) echo "1-easy";; 2) echo "2-medium";; 3) echo "3-hard";; *) echo "0-unrated";; esac; }
+
+# ---------- catalog ----------
+catalog_line() { # id -> line
+  local s="" f; for f in "$CAT_MAIN" "$CAT_GEN" "$CAT_CUSTOM"; do [ -f "$f" ] || continue
+    s=$(awk -F'|' -v id="$1" '!/^#/ && $1==id {print; exit}' "$f"); [ -n "$s" ] && { printf '%s' "$s"; return 0; }; done; return 1; }
+catalog_load() { # id -> ID TYPE CAT LEVEL NAME SOURCE EXTRA DESC
+  local s; s=$(catalog_line "$1") || { err "not in the catalog: $1  (ctf list)"; return 1; }
+  IFS='|' read -r ID TYPE CAT LEVEL NAME SOURCE EXTRA DESC <<< "$s"; }
+extra() { local kv p; IFS=';' read -ra kv <<< "$EXTRA"; for p in "${kv[@]}"; do [ "${p%%=*}" = "$1" ] && { printf '%s' "${p#*=}"; return 0; }; done; return 1; }
+all_ids() { cat "$CAT_MAIN" "$CAT_GEN" "$CAT_CUSTOM" 2>/dev/null | awk -F'|' '!/^#/ && NF>=8 {print $1}'; }
+lab_dir() { if [ "$CAT" = custom ]; then echo "$ROOT/$(cat_dir "$CAT")/$ID"; else echo "$ROOT/$(cat_dir "$CAT")/$(level_dir "$LEVEL")/$ID"; fi; }
+
+# ---------- libvirt / ssh ----------
+dom() { echo "ctf-$1"; }
+dom_exists() { virsh dominfo "$1" >/dev/null 2>&1; }
+dom_running() { [ "$(virsh domstate "$1" 2>/dev/null)" = "running" ]; }
+vm_ip() { local mac; mac=$(virsh domiflist "$1" 2>/dev/null | awk '$3=="ctf-lab"{print $5; exit}'); [ -n "$mac" ] || return 1
+  virsh net-dhcp-leases ctf-lab --mac "$mac" 2>/dev/null | awk '/ipv4/{print $5}' | cut -d/ -f1 | tail -1; }
+tssh() { ssh "${SSH_OPT[@]}" "lab@$TARGETS_IP" "$@"; }
+kssh() { ssh "${SSH_OPT[@]}" "kali@$KALI_IP" "$@"; }
+wait_ssh() { # user ip seconds
+  local i; for ((i=0;i<${3:-120};i+=2)); do ssh "${SSH_OPT[@]}" "$1@$2" true 2>/dev/null && return 0; sleep 2; done; return 1; }
+
+# ---------- where the web labs run ----------
+# vm     the "targets" VM (own kernel, own network: the safest; reachable from the Kali VM)
+# docker the host's own Docker, every port bound to 127.0.0.1 (lighter, but the apps share your kernel)
+# The choice lives in .system/config.env (WEB_MODE=vm|docker|auto); `ctf mode` changes it.
+q() { printf '%q' "$1"; }
+config_load() { [ -f "$SYS/config.env" ] && . "$SYS/config.env" || true; WEB_MODE="${WEB_MODE:-auto}"; }
+config_set() { # KEY VALUE
+  touch "$SYS/config.env"; sed -i "/^$1=/d" "$SYS/config.env"; printf '%s=%q\n' "$1" "$2" >> "$SYS/config.env"; }
+web_init() {
+  [ -n "${WEB_KIND:-}" ] && return 0
+  config_load
+  WEB_KIND="$WEB_MODE"
+  if [ "$WEB_KIND" = auto ]; then
+    if dom_exists ctf-targets; then WEB_KIND=vm; elif command -v docker >/dev/null 2>&1; then WEB_KIND=docker; else WEB_KIND=none; fi
+  fi
+  case "$WEB_KIND" in
+    docker) WEB_ADDR=127.0.0.1; WEB_LABS="$SYS/runtime/labs"; WEB_BIND=127.0.0.1; WEB_VULHUB="$SYS/runtime/vulhub" ;;
+    *)      WEB_ADDR=$TARGETS_IP; WEB_LABS=/opt/labs; WEB_BIND=0.0.0.0; WEB_VULHUB=/opt/vulhub ;;
+  esac
+}
+web_sh() { # run a shell command string where the web labs live
+  case "$WEB_KIND" in vm) tssh "$1";; docker) bash -c "$1";; *) err "no web-lab runtime yet: ctf bootstrap targets  (VM)  or  ctf bootstrap docker"; return 1;; esac; }
+docker_bind_dir() { # docker mode: every compose file below $1 publishes on 127.0.0.1 only
+  find "$1" -maxdepth 6 \( -iname 'docker-compose.y*ml' -o -iname 'compose.y*ml' \) -print0 2>/dev/null | xargs -0 -r python3 "$SYS/bin/compose_bind.py" "$WEB_BIND" >/dev/null
+  find "$1" -maxdepth 6 \( -iname 'docker-compose.y*ml' -o -iname 'compose.y*ml' \) -print0 2>/dev/null | xargs -0 -r sed -i "s/$TARGETS_IP/$WEB_ADDR/g"; }   # e.g. WebGoat's WEBWOLF_HOST
+web_put() { # id: copy $SYS/labs/<id>/ to the labs host
+  local id="$1"
+  case "$WEB_KIND" in
+    vm) tssh "mkdir -p $WEB_LABS/$id" && rsync -a --delete -e "ssh ${SSH_OPT[*]}" "$SYS/labs/$id/" "lab@$TARGETS_IP:$WEB_LABS/$id/" ;;
+    docker) mkdir -p "$WEB_LABS/$id" && rsync -a --delete "$SYS/labs/$id/" "$WEB_LABS/$id/" && docker_bind_dir "$WEB_LABS/$id" ;;
+    *) web_sh x ;;
+  esac; }
+web_env() { # environment for lab start scripts (printed, to be placed in front of a command)
+  local e="LABS_DIR=$(q "$WEB_LABS") LISTEN_IP=$WEB_BIND"
+  [ "$WEB_KIND" = docker ] && e+=" CTF_BIND_TOOL=$(q "$SYS/bin/compose_bind.py")"
+  printf '%s' "$e"; }
+docker_exposure_check() { # docker mode: stop any lab container that is published on ALL interfaces (fail closed)
+  [ "$WEB_KIND" = docker ] || return 0
+  local c wd lab bad=0
+  for c in $(docker ps -q); do
+    wd=$(docker inspect -f '{{index .Config.Labels "com.docker.compose.project.working_dir"}}' "$c" 2>/dev/null)
+    lab=$(docker inspect -f '{{index .Config.Labels "ctf-lab"}}' "$c" 2>/dev/null)
+    case "$wd" in "$WEB_LABS"/*|"$WEB_VULHUB"/*) ;; *) [ -n "$lab" ] || continue ;; esac
+    if docker port "$c" 2>/dev/null | grep -qE -- '-> (0\.0\.0\.0|\[::\]):'; then
+      err "refusing: $(docker inspect -f '{{.Name}}' "$c") is published on ALL interfaces (your network could reach it). Stopping it."
+      docker stop "$c" >/dev/null 2>&1; bad=1
+    fi
+  done
+  return $bad; }
+web_up() {
+  case "$WEB_KIND" in
+    vm)
+      dom_exists ctf-targets || { err "the targets VM is not defined (ctf bootstrap targets)"; return 1; }
+      dom_running ctf-targets || { info "Starting the targets VM..."; virsh start ctf-targets >/dev/null || return 1; }
+      wait_ssh lab "$TARGETS_IP" 120 || { err "cannot SSH into the targets VM"; return 1; }
+      tssh 'docker info >/dev/null 2>&1' || { info "Preparing Docker (first boot)..."; local i; for i in $(seq 1 60); do tssh 'docker info >/dev/null 2>&1' && break; sleep 3; done; } ;;
+    docker)
+      docker info >/dev/null 2>&1 || { err "Docker is not running (sudo systemctl start docker; your user must be in the 'docker' group)"; return 1; }
+      docker compose version >/dev/null 2>&1 || { err "the 'docker compose' plugin is missing"; return 1; }
+      mkdir -p "$WEB_LABS" ;;
+    *) err "no web-lab runtime yet. Pick one:  ctf bootstrap targets (VM, safest)   or   ctf bootstrap docker"; return 1 ;;
+  esac; }
+kali_up() {
+  dom_exists ctf-kali || { err "the Kali VM is not set up. Options: ctf bootstrap kali   |   or use your own machine over WireGuard: ctf vpn add <name>"; return 1; }
+  dom_running ctf-kali || { info "Starting Kali..."; virsh start ctf-kali >/dev/null || return 1; }
+}
+kali_window() {
+  command -v virt-viewer >/dev/null || { warn "virt-viewer is not installed"; return 0; }
+  pgrep -f "virt-viewer.*ctf-kali" >/dev/null && return 0
+  setsid nohup virt-viewer --connect qemu:///system --attach ctf-kali >/dev/null 2>&1 < /dev/null &
+}
+kali_fix_dirs() { # one-time: rename the old Turkish ~/CTF folders inside Kali (idempotent)
+  kssh 'cd ~/CTF 2>/dev/null || exit 0
+    for p in gelen:inbox calisma:work sunucu:linux binary:pwn kripto:crypto ctfarsiv:archives; do
+      o=${p%%:*}; n=${p#*:}; [ -d "$o" ] && [ ! -e "$n" ] && mv "$o" "$n"; done
+    for d in */1-Başlangıç */2-Orta */3-İleri; do [ -d "$d" ] || continue
+      case "$d" in *1-Başlangıç) n=${d%/*}/1-easy;; *2-Orta) n=${d%/*}/2-medium;; *) n=${d%/*}/3-hard;; esac
+      [ -e "$n" ] || mv "$d" "$n"; done
+    [ -f OKU-BENI.txt ] && mv OKU-BENI.txt README.txt
+    grep -q " targets" /etc/hosts || echo "192.168.100.20 targets" | sudo -n tee -a /etc/hosts >/dev/null 2>&1
+    true' 2>/dev/null || true; }
+
+# ---------- VM install ----------
+extract() { # archive target-dir
+  case "${1,,}" in
+    *.ova|*.box|*.tar|*.tar.*|*.tgz|*.txz) bsdtar -xf "$1" -C "$2" ;;
+    *) 7z x -y -bso0 -bsp0 -o"$2" "$1" ;;
+  esac; }
+find_disks() { find "$1" -type f \( -iname '*.vmdk' -o -iname '*.vdi' -o -iname '*.qcow2' -o -iname '*.vhd' -o -iname '*.vhdx' -o -iname '*.img' -o -iname '*.raw' \) \
+    ! -iname '*-flat.vmdk' ! -iname '*-s[0-9][0-9][0-9].vmdk' ! -iname '*-f[0-9][0-9][0-9].vmdk' ! -iname '*-delta.vmdk' | sort; }
+vm_extract_convert() { # id archive
+  local id="$1" archive="$2" vd="$SYS/vm/$1" tmp n=0 d; mkdir -p "$vd"
+  tmp=$(mktemp -d "$vd/extract.XXXXXX") || return 1
+  info "Extracting: $(basename "$archive")"
+  extract "$archive" "$tmp" || { err "could not extract the archive"; rm -rf "$tmp"; return 1; }
+  local depth disks
+  for depth in 1 2 3; do
+    disks=$(find_disks "$tmp"); [ -n "$disks" ] && break
+    while IFS= read -r inner; do
+      [ -n "$inner" ] || continue; d=$(mktemp -d "$tmp/inner.XXXXXX"); info "inner archive: $(basename "$inner")"
+      extract "$inner" "$d" && rm -f "$inner"
+    done < <(find "$tmp" -type f \( -iname '*.ova' -o -iname '*.zip' -o -iname '*.7z' -o -iname '*.rar' -o -iname '*.tar' -o -iname '*.tar.gz' -o -iname '*.tgz' -o -iname '*.tar.xz' -o -iname '*.box' \))
+  done
+  disks=$(find_disks "$tmp")
+  [ -n "$disks" ] || { err "no disk image found in the archive"; rm -rf "$tmp"; return 1; }
+  while IFS= read -r disk; do
+    info "Converting disk ($(du -h "$disk" | cut -f1)): $(basename "$disk")"
+    qemu-img convert -O qcow2 "$disk" "$vd/base-$n.qcow2" || { err "conversion failed"; rm -rf "$tmp"; return 1; }
+    n=$((n+1))
+  done <<< "$disks"
+  local kern ini; kern=$(find "$tmp" -type f -name 'vmlinuz*' | head -1); ini=$(find "$tmp" -type f -name 'initrd*' | head -1)
+  [ -n "$kern" ] && [ -n "$ini" ] && { cp "$kern" "$vd/vmlinuz"; cp "$ini" "$vd/initrd"; info "direct kernel boot detected (vmlinuz+initrd)"; }
+  rm -rf "$tmp"; echo "$n" > "$vd/disk-count"
+}
+make_overlay() { # id  (work-N.qcow2 on top of base-N: resettable without touching the base)
+  local vd="$SYS/vm/$1" n i; n=$(cat "$vd/disk-count")
+  for ((i=0;i<n;i++)); do rm -f "$vd/work-$i.qcow2"; qemu-img create -q -f qcow2 -F qcow2 -b "$vd/base-$i.qcow2" "$vd/work-$i.qcow2"; done; }
+vm_define() { # id  (TYPE, EXTRA must be loaded)
+  local id="$1" vd="$SYS/vm/$1" ram vcpu bus nic mac cpu args=() n i
+  ram=$(extra ram || echo 1024); vcpu=$(extra vcpu || echo 1); bus=$(extra bus || echo sata); nic=$(extra nic || echo e1000); mac=$(extra mac || true); cpu=$(extra cpu || echo host-model)
+  local slot; slot=$(extra nic_slot || true)
+  args=(--connect qemu:///system --name "$(dom "$id")" --memory "$ram" --vcpus "$vcpu" --cpu "$cpu" --machine pc --osinfo generic
+        --network "network=ctf-lab,model=$nic${mac:+,mac=$mac}${slot:+,address.type=pci,address.domain=0,address.bus=0,address.slot=$slot,address.function=0}" --graphics spice,listen=none --video vga --sound none --rng none
+        --noautoconsole --dry-run --print-xml)
+  [ "$(extra nohotplug || true)" = 1 ] && args+=(--qemu-commandline="-global PIIX4_PM.acpi-root-pci-hotplug=off")   # keep the path-based NIC name (enp0sN)
+  if [ "$TYPE" = iso ]; then
+    args+=(--disk "path=$vd/boot.iso,device=cdrom,bus=ide,readonly=on" --disk "path=$vd/extra-disk.qcow2,format=qcow2,bus=$bus" --boot cdrom,hd --import)
+    [ -f "$vd/extra-disk.qcow2" ] || qemu-img create -q -f qcow2 "$vd/extra-disk.qcow2" 4G
+  else
+    n=$(cat "$vd/disk-count"); args+=(--import)
+    [ -f "$vd/vmlinuz" ] && args+=(--boot "kernel=$vd/vmlinuz,initrd=$vd/initrd,kernel_args=$(extra kargs || echo root=/dev/vda1)")
+    for ((i=0;i<n;i++)); do args+=(--disk "path=$vd/work-$i.qcow2,format=qcow2,bus=$bus"); done
+  fi
+  local xml="$SYS/xml/$(dom "$id").xml"
+  virt-install "${args[@]}" > "$xml" 2> "$SYS/logs/virt-install-$id.err" || { err "virt-install: $(head -3 "$SYS/logs/virt-install-$id.err")"; return 1; }
+  virsh define "$xml" >/dev/null
+}
+
+cmd_install() { # id
+  catalog_load "$1" || return 1
+  case "$TYPE" in
+    vm|iso)
+      if dom_exists "$(dom "$ID")"; then ok "$NAME is already installed"; return 0; fi
+      info "Installing $NAME ($TYPE)"
+      local vd="$SYS/vm/$ID"; mkdir -p "$vd"
+      [ -f "$SYS/downloads/$ID/.done" ] || "$SYS/bin/ctf-download" "$ID" "$SOURCE" "$(extra fname || true)" || return 1
+      local archive; archive="$SYS/downloads/$ID/$(cat "$SYS/downloads/$ID/.done")"
+      if [ "$TYPE" = iso ]; then ln -sf "$archive" "$vd/boot.iso"
+      else [ -f "$vd/disk-count" ] || vm_extract_convert "$ID" "$archive" || return 1; make_overlay "$ID"; fi
+      vm_define "$ID" || return 1
+      ok "$NAME installed → ctf start $ID" ;;
+    repo)
+      local target; target="$(lab_dir)"; mkdir -p "$(dirname "$target")"
+      if [ -f "$target/.source" ] || [ -d "$target/.git" ]; then ok "$NAME is already downloaded"; return 0; fi
+      case "$SOURCE" in repo:*) ok "$NAME: cloned on the targets VM at first start"; return 0;; esac
+      info "Cloning $NAME"
+      local tmpk; tmpk=$(mktemp -d "$(dirname "$target")/.clone.XXXXXX")
+      if git clone --depth 1 -q "$SOURCE" "$tmpk/r"; then
+        local rev; rev=$(git -C "$tmpk/r" rev-parse HEAD 2>/dev/null || echo unknown)
+        mkdir -p "$target"; rm -rf "$tmpk/r/.git"; ( shopt -s dotglob; mv "$tmpk"/r/* "$target"/ ); rm -rf "$tmpk"
+        printf 'url=%s\ncommit=%s\ndate=%s\n' "$SOURCE" "$rev" "$(date +%F)" > "$target/.source"
+        [ "$CAT" = archives ] && python3 "$SYS/bin/gen_archive_index.py" "$ID" >/dev/null 2>&1
+        ok "$NAME → $target"
+      else rm -rf "$tmpk"; err "could not clone: $SOURCE"; return 1; fi ;;
+    files)
+      local target base n names; target="$(lab_dir)"; mkdir -p "$target"
+      base="${SOURCE%%,*}"; base="${base%/*}"
+      IFS=',' read -ra names <<< "$(basename "${SOURCE%%,*}" .zip),${SOURCE#*,}"
+      for n in "${names[@]}"; do
+        "$SYS/bin/ctf-download" "$ID-$n" "$base/$n.zip" "$n.zip" >/dev/null 2>&1 || { warn "could not download: $n"; continue; }
+        if [ ! -d "$target/$n" ]; then mkdir -p "$target/$n"; 7z x -y -bso0 -bsp0 -o"$target/$n" "$SYS/downloads/$ID-$n/$n.zip"; fi
+      done
+      ok "$NAME → $target" ;;
+    local) ok "$NAME is ready: $(lab_dir)" ;;
+    docker|vulhub) ok "$NAME: runs on the targets VM (ctf start $ID)" ;;
+    *) err "unknown type: $TYPE"; return 1 ;;
+  esac
+}
+
+# ---------- start / stop ----------
+docker_print_url() { local port url setup login; port=$(extra port || true); url=$(extra url || true); setup=$(extra setup || true); login=$(extra login || true)
+  [ -n "$port" ] && { echo "  Address:   http://$WEB_ADDR:$port${url}$( [ "$WEB_KIND" = vm ] && echo "      (from Kali: http://targets:$port${url})" || echo "      (docker mode: reachable from this computer only)")"; }
+  [ -n "$login" ] && echo "  Login:     $login"
+  [ -n "$setup" ] && echo "  First use: run the setup/database step at http://$WEB_ADDR:$port${setup}"; }
+tcp_alive() { # for VMs that drop ICMP: any answer to a TCP SYN (open OR refused/RST) = alive. A timeout = dead.
+  local p t0 t1; for p in 22 80 21 445 111 443 8080 3306; do t0=$(date +%s%N)
+    timeout 1 bash -c "echo >/dev/tcp/$1/$p" 2>/dev/null && return 0
+    t1=$(date +%s%N); [ $(( (t1 - t0) / 1000000 )) -lt 400 ] && return 0; done; return 1; }
+is_alive() { ping -c1 -W1 "$1" >/dev/null 2>&1 || ip neigh show "$1" 2>/dev/null | grep -q REACHABLE || tcp_alive "$1"; }
+wait_ip() { # id, seconds. Waits for an IP; if none, sends Enter every 30 s (Ubuntu's GRUB "recordfail" menu waits forever)
+  local ip="" i; for ((i=0;i<${2:-60};i+=2)); do
+    ip=$(vm_ip "$(dom "$1")" || true)
+    [ -n "$ip" ] && is_alive "$ip" && { echo "$ip"; return 0; }
+    [ "$i" -ge 28 ] && [ $((i % 30)) -lt 2 ] && virsh send-key "$(dom "$1")" KEY_ENTER >/dev/null 2>&1
+    sleep 2
+  done; return 1; }
+vm_try_compat() { # unknown VM: try NIC / disk controller combinations in turn, keep the first one that gets an IP
+  local id="$1" d; d=$(dom "$1"); local ram vcpu old_extra="$EXTRA" b n r ip combo
+  vcpu=$(extra vcpu || echo 1)
+  info "No IP. Trying hardware compatibility (NIC / disk controller)..." >&2
+  # modern → old (old systems want IDE + pcnet/rtl8139 and little RAM; they boot slowly, hence 90 s)
+  for combo in "sata e1000 1024 hp0" "sata rtl8139 1024" "ide e1000 512" "ide rtl8139 512" "ide pcnet 256" "sata virtio 1024" "sata e1000e 1024"; do
+    local hp; read -r b n r hp <<< "$combo"; ram=$r; info "  trying: disk=$b nic=$n ram=${r}MB" >&2
+    dom_running "$d" && virsh destroy "$d" >/dev/null 2>&1; virsh undefine "$d" --nvram >/dev/null 2>&1
+    EXTRA="ram=$ram;vcpu=$vcpu;bus=$b;nic=$n${hp:+;nohotplug=1}"; vm_define "$id" || continue
+    virsh start "$d" >/dev/null 2>&1 || continue
+    if ip=$(wait_ip "$id" 90); then
+      ok "Found a working combination: disk=$b nic=$n ram=${r}MB${hp:+ (hotplug off)} → $ip" >&2
+      [ "$CAT" = custom ] && python3 - "$CAT_CUSTOM" "$id" "ram=$ram;vcpu=$vcpu;bus=$b;nic=$n${hp:+;nohotplug=1}" <<'PY'
+import sys; p,i,ex=sys.argv[1:4]; L=open(p,encoding="utf-8").read().splitlines()
+L=[("|".join(x.split("|")[:6]+[ex]+x.split("|")[7:]) if x.startswith(i+"|") else x) for x in L]; open(p,"w",encoding="utf-8").write("\n".join(L)+"\n")
+PY
+      echo "$ip"; return 0
+    fi
+  done
+  EXTRA="$old_extra"; return 1
+}
+cmd_redefine() { catalog_load "$1" || return 1; local d; d=$(dom "$ID"); dom_running "$d" && virsh destroy "$d" >/dev/null 2>&1
+  virsh undefine "$d" --nvram >/dev/null 2>&1; vm_define "$ID" && ok "$NAME redefined (with catalog settings)"; }
+cmd_compat() { catalog_load "$1" || return 1; case "$TYPE" in vm|iso) ;; *) err "only for VMs"; return 1;; esac
+  dom_exists "$(dom "$ID")" || cmd_install "$ID" || return 1
+  vm_try_compat "$ID" >/dev/null && ok "$NAME is on the network → $(vm_ip "$(dom "$ID")")" || err "no combination got a DHCP IP (the VM may use a static IP). Console: ctf console $ID"; }
+cmd_start() { # id [--open]
+  local open=0; case "${2:-}" in --open|--ac) open=1;; esac
+  catalog_load "$1" || return 1
+  case "$TYPE" in
+    docker)
+      web_up || return 1
+      info "Starting $NAME ($( [ "$WEB_KIND" = vm ] && echo "on the targets VM" || echo "local Docker, 127.0.0.1 only"))"
+      web_put "$ID" || return 1
+      local env L; env=$(web_env); L=$(q "$WEB_LABS")
+      if [ -f "$SYS/labs/$ID/start.sh" ]; then web_sh "$env bash $L/$ID/start.sh" || return 1
+      else web_sh "cd $L/$ID && docker compose up -d" || return 1; fi
+      docker_exposure_check || return 1
+      local port; port=$(extra port || true)
+      local up=1
+      if [ -n "$port" ]; then local i; up=0; for i in $(seq 1 60); do curl -s -o /dev/null --max-time 2 "http://$WEB_ADDR:$port$(extra url || true)" && { up=1; break; }; sleep 2; done; fi
+      if [ $up = 1 ]; then ok "$NAME is running"; else warn "$NAME started but :$port did not answer within 2 minutes. Check: docker logs <container>$( [ "$WEB_KIND" = vm ] && echo " (inside the VM: ctf ssh targets)")"; fi
+      docker_print_url
+      if [ $open = 1 ]; then
+        [ "$WEB_KIND" = vm ] && { kali_up && kali_window; }
+        [ -n "$port" ] && { setsid nohup xdg-open "http://$WEB_ADDR:$port$(extra url || true)" >/dev/null 2>&1 < /dev/null & }
+      fi
+      notify "$NAME is ready" "http://$WEB_ADDR:${port:-}" ;;
+    vulhub)
+      web_up || return 1; ok "Vulhub is ready: ctf vulhub search <word> | ctf vulhub start <path>" ;;
+    vm|iso)
+      dom_exists "$(dom "$ID")" || cmd_install "$ID" || return 1
+      if dom_running "$(dom "$ID")"; then ok "$NAME is already running"; else virsh start "$(dom "$ID")" >/dev/null || return 1; fi
+      info "Waiting for an IP (DHCP)..."; local ip=""
+      case "$ID" in custom-*) ip=$(wait_ip "$ID" 60 || true); [ -z "$ip" ] && ip=$(vm_try_compat "$ID" | tail -1 || true) ;;
+        *) if [ -n "$(extra static_ip || true)" ]; then ip=$(wait_ip "$ID" 20 || true); else ip=$(wait_ip "$ID" "$(extra wait || echo 120)" || true); fi ;; esac
+      if [ -n "$ip" ]; then ok "$NAME is running → IP: $ip"; elif [ -n "$(extra static_ip || true)" ]; then ok "$NAME is running (static IP)"; else warn "No IP. The VM may use a static IP. In Kali: nmap -sn 192.168.100.0/24   |  try hardware compatibility: ctf compat $ID"; fi
+      local sip kal; sip=$(extra static_ip || true); kal=$(extra kali_alias || true)
+      if [ -n "$sip" ]; then
+        warn "This VM does not use DHCP; its static IP is: $sip"
+        if [ -n "$kal" ] && kali_up && wait_ssh kali "$KALI_IP" 90; then
+          "$SYS/bin/ctf-guest-exec" ctf-kali -- "ip addr add $kal dev eth1 2>/dev/null; ip -4 -br addr show eth1 | grep -q ${kal%%/*}" && ok "Added an alias to Kali ($kal on eth1) → you can reach the target directly: $sip"
+        fi
+      fi
+      [ -n "$ip" ] && echo "  Note: on old/heavy VMs services can take 30-90 s to come up fully (there is no DNS on the lab network)."
+      local g; g=$(extra login || true); [ -n "$g" ] && echo "  Login (if any): $g"
+      [ "$(extra experimental || true)" = 1 ] && warn "Experimental VM: the first boot may take a while; console: ctf console $ID"
+      [ $open = 1 ] && { kali_up && kali_window; }
+      notify "$NAME is ready" "${ip:-waiting for IP}" ;;
+    *) err "$NAME is not a runnable lab (type: $TYPE). Files: $(lab_dir)"; return 1 ;;
+  esac
+}
+cmd_stop() {
+  catalog_load "$1" || return 1
+  case "$TYPE" in
+    docker) web_up || return 1
+      local L; L=$(q "$WEB_LABS")
+      if [ -f "$SYS/labs/$ID/stop.sh" ]; then web_sh "$(web_env) bash $L/$ID/stop.sh"; else web_sh "cd $L/$ID && docker compose down"; fi; ok "$NAME stopped" ;;
+    vm|iso) local d; d=$(dom "$ID"); dom_running "$d" || { ok "$NAME is already off"; return 0; }
+      virsh shutdown "$d" >/dev/null 2>&1; local i; for i in $(seq 1 10); do dom_running "$d" || break; sleep 2; done
+      dom_running "$d" && virsh destroy "$d" >/dev/null; ok "$NAME stopped" ;;
+    *) err "nothing to stop";; esac
+}
+cmd_reset() { # VM back to its first state (work disk is recreated); for docker, volumes are removed
+  catalog_load "$1" || return 1
+  case "$TYPE" in
+    vm) local d; d=$(dom "$ID"); dom_running "$d" && virsh destroy "$d" >/dev/null; make_overlay "$ID" && ok "$NAME is back to its first state" ;;
+    iso) local d; d=$(dom "$ID"); dom_running "$d" && virsh destroy "$d" >/dev/null; rm -f "$SYS/vm/$ID/extra-disk.qcow2"; qemu-img create -q -f qcow2 "$SYS/vm/$ID/extra-disk.qcow2" 4G; ok "$NAME was reset" ;;
+    docker) web_up || return 1; web_sh "cd $(q "$WEB_LABS")/$ID 2>/dev/null && docker compose down -v"; ok "$NAME cleaned up with its data (start it again for a clean state)" ;;
+    *) err "nothing to reset";; esac
+}
+cmd_ip() { catalog_load "$1" || return 1
+  case "$TYPE" in docker) echo "$WEB_ADDR  (port: $(extra port || echo '?'))";; vm|iso) vm_ip "$(dom "$ID")" || echo "(not running)";; *) echo "-";; esac; }
+cmd_console() { catalog_load "$1" || return 1; setsid nohup virt-viewer --connect qemu:///system --attach "$(dom "$ID")" >/dev/null 2>&1 < /dev/null & }
+
+# ---------- status / list ----------
+lab_state() { # -> installed|running|stopped|not-installed|ready
+  case "$TYPE" in
+    vm|iso) if ! dom_exists "$(dom "$ID")"; then echo "not-installed"; elif dom_running "$(dom "$ID")"; then echo "running"; else echo "stopped"; fi ;;
+    docker) if [ -n "${DOCKER_ACTIVE:-}" ] && grep -qx "$ID" <<< "$DOCKER_ACTIVE"; then echo "running"; else echo "stopped"; fi ;;
+    repo|files|local) [ -e "$(lab_dir)" ] && echo "installed" || echo "not-installed" ;;
+    vulhub) echo "ready" ;;
+  esac; }
+docker_active_list() {
+  case "$WEB_KIND" in vm) dom_running ctf-targets || return 0;; docker) docker info >/dev/null 2>&1 || return 0;; *) return 0;; esac
+  web_sh 'docker ps --format "{{.Label \"com.docker.compose.project\"}}"' 2>/dev/null | sort -u || true; }
+cmd_list() { # [category]
+  DOCKER_ACTIVE=$(docker_active_list); local id
+  printf '%-22s %-7s %-10s %-6s %s\n' ID TYPE CATEGORY LEVEL "STATE  —  NAME"
+  for id in $(all_ids); do catalog_load "$id" || continue
+    [ -n "${1:-}" ] && [ "$CAT" != "$1" ] && continue
+    printf '%-22s %-7s %-10s %-6s %s  —  %s\n' "$ID" "$TYPE" "$CAT" "$LEVEL" "$(lab_state)" "$NAME"
+  done | sort -k3,3 -k4,4n -k1,1
+}
+cmd_status() {
+  local as_json=0; [ "${1:-}" = "--json" ] && as_json=1
+  DOCKER_ACTIVE=$(docker_active_list)
+  local ks ts; ks=$(virsh domstate ctf-kali 2>/dev/null || echo missing)
+  case "$WEB_KIND" in docker) docker info >/dev/null 2>&1 && ts=running || ts=stopped;; none) ts=missing;; *) ts=$(virsh domstate ctf-targets 2>/dev/null || echo missing);; esac
+  if [ $as_json = 1 ]; then
+    { python3 -c 'import json,sys; print(json.dumps({"kali":{"state":sys.argv[1],"ip":sys.argv[3] or "192.168.100.10"},"targets":{"state":sys.argv[2],"ip":sys.argv[5]},"web":{"mode":sys.argv[4],"addr":sys.argv[5]}}))' \
+        "$ks" "$ts" "$(vm_ip ctf-kali 2>/dev/null || true)" "$WEB_KIND" "$WEB_ADDR"
+      local id; for id in $(all_ids); do catalog_load "$id" || continue
+        printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$ID" "$TYPE" "$CAT" "$LEVEL" "$NAME" "$(lab_state)" "$( [ "$TYPE" = docker ] && echo "$(extra port || true)" || echo "")" "$DESC" "$(lab_dir)"
+      done; } | python3 -c '
+import sys,json
+top=json.loads(sys.stdin.readline()); labs=[]; root=sys.argv[1]
+for l in sys.stdin:
+    a=l.rstrip("\n").split("\t")
+    if len(a)<9: continue
+    d=a[8][len(root)+1:] if a[8].startswith(root+"/") else ""
+    labs.append(dict(id=a[0],type=a[1],category=a[2],level=int(a[3]) if a[3].isdigit() else 0,name=a[4],state=a[5],port=a[6],desc=a[7],dir=d))
+print(json.dumps(dict(top,labs=labs),ensure_ascii=False))' "$ROOT"
+    return
+  fi
+  echo "$(color 1 'Virtual machines')"
+  printf '  Kali      : %-10s  %s\n' "$ks" "$( [ "$ks" = running ] && echo "ssh: ctf ssh kali | address $KALI_IP")"
+  printf '  Web labs  : %-10s  %s\n' "$ts" "$(case "$WEB_KIND" in vm) [ "$ts" = running ] && echo "targets VM — http://targets ($TARGETS_IP)";; docker) echo "local Docker — http://$WEB_ADDR:<port> (this computer only)";; *) echo "not set up — ctf bootstrap targets|docker";; esac)"
+  echo; echo "$(color 1 'Running labs')"
+  local id any=0; for id in $(all_ids); do catalog_load "$id" || continue; [ "$(lab_state)" = running ] || continue; any=1
+    case "$TYPE" in docker) printf '  %-18s http://%s:%s%s\n' "$ID" "$WEB_ADDR" "$(extra port || true)" "$(extra url || true)";;
+                   *) printf '  %-18s IP: %s\n' "$ID" "$(vm_ip "$(dom "$ID")" || echo ?)";; esac; done
+  [ $any = 0 ] && echo "  (none)  →  ctf list  |  ctf start <id>"
+  if [ "$WEB_KIND" = vm ] && dom_running ctf-targets; then local kp; kp=$(tssh 'docker ps --format "{{.Names}}\t{{.Ports}}"' 2>/dev/null | sed -E 's/0\.0\.0\.0:([0-9]+)->[0-9]+\/tcp(, \[::\]:[0-9]+->[0-9]+\/tcp)?/:\1/g')
+    [ -n "$kp" ] && { echo; echo "$(color 1 "Containers running on targets (address: http://$WEB_ADDR:<port>)")"; echo "$kp" | sed 's/^/  /'; }; fi
+  [ -f "$REMOTE/enabled" ] && { echo; echo "$(color 1 'Remote access')"; cmd_remote_urls | sed 's/^/  /'; }
+  return 0
+}
+
+# ---------- Vulhub ----------
+cmd_vulhub() {
+  web_up || return 1
+  if [ "$WEB_KIND" = docker ] && [ ! -d "$WEB_VULHUB" ]; then
+    info "Cloning Vulhub (once, ~300 MB)..."; git clone --depth 1 https://github.com/vulhub/vulhub.git "$WEB_VULHUB" || return 1
+  fi
+  local V; V=$(q "$WEB_VULHUB")
+  case "${1:-}" in start|baslat|stop|durdur|read|oku)
+    [[ "${2:-}" =~ ^[A-Za-z0-9._/-]+$ && "${2:-}" != *..* ]] || { err "give an environment path, e.g. log4j/CVE-2021-44228"; return 1; } ;; esac
+  case "${1:-}" in
+    search|ara) shift; web_sh "cd $V && find . -mindepth 2 -maxdepth 3 -name docker-compose.yml -printf '%h\n' | sed 's|^\./||' | grep -i -- '${*:-.}' | sort" ;;
+    start|baslat) [ "$WEB_KIND" = docker ] && docker_bind_dir "$WEB_VULHUB/$2"
+      web_sh "cd $V/$2 && docker compose up -d && docker compose ps" && docker_exposure_check && ok "Address: http://$WEB_ADDR:<port above>" ;;
+    stop|durdur) web_sh "cd $V/$2 && docker compose down -v" ;;
+    read|oku) web_sh "cat $V/$2/README*.md 2>/dev/null | head -60" ;;
+    *) echo "usage: ctf vulhub search <word> | start <path> | stop <path> | read <path>   (e.g. ctf vulhub search log4j)";;
+  esac; }
+
+# ---------- Kali ----------
+cmd_kali() {
+  case "${1:-start}" in
+    start|ac|baslat) kali_up || { notify "Kali could not start" "check with ctf status"; return 1; }; kali_window; ok "Kali is up (user: kali / password: kali)";;
+    boot) kali_up && ok "Kali is booting (user: kali / password: kali)";;
+    stop|durdur) virsh shutdown ctf-kali >/dev/null && ok "Kali is shutting down";;
+    force-stop|zorla-durdur) virsh destroy ctf-kali >/dev/null;;
+    setup|hazirla) kali_setup;;
+    backup|yedekle) dom_running ctf-kali && { err "shut Kali down first: ctf kali stop"; return 1; }
+      cp --sparse=always "$SYS/vm/kali/kali.qcow2" "$SYS/vm/kali/kali-clean.qcow2" && ok "Kali backup updated (the current state now counts as 'clean')";;
+    reset|sifirla) case "${2:-}" in --yes|--evet) ;; *) warn "ALL your work inside Kali is deleted and it returns to the clean install. If you are sure: ctf kali reset --yes"; return 1;; esac
+      [ -f "$SYS/vm/kali/kali-clean.qcow2" ] || { err "no backup"; return 1; }
+      dom_running ctf-kali && virsh destroy ctf-kali >/dev/null
+      cp --sparse=always "$SYS/vm/kali/kali-clean.qcow2" "$SYS/vm/kali/kali.qcow2" && ok "Kali is back to its clean state → ctf kali";;
+    *) echo "usage: ctf kali [start|boot|stop|force-stop|setup|backup|reset --yes]";; esac; }
+kali_setup() {
+  kali_up || return 1
+  kali_locale
+  local tmp; tmp=$(mktemp); sed -e "s|@@PUBKEY@@|$(cat "$KEY.pub")|" -e "s|@@TZ@@|$KALI_TZ|" -e "s|@@KEYMAP@@|$KALI_KM|" -e "s|@@XKBOPT@@|$KALI_XKB|" "$SYS/bin/kali-setup.sh" > "$tmp"
+  "$SYS/bin/ctf-guest-exec" ctf-kali --stdin "$tmp" -- 'cat > /root/kali-setup.sh && chmod +x /root/kali-setup.sh' && rm -f "$tmp"
+  "$SYS/bin/ctf-guest-exec" ctf-kali -- 'rm -f /var/lib/ctf-setup.state; setsid nohup /root/kali-setup.sh >/dev/null 2>&1 < /dev/null &'
+  ok "Kali setup started in the background. Follow it with: ctf kali-log"; }
+cmd_kali_log() { "$SYS/bin/ctf-guest-exec" ctf-kali -- "f=/var/log/ctf-setup.log; [ -f \$f ] || f=/var/log/ctf-hazirla.log; tail -${1:-25} \$f | cut -c1-200; echo; cat /var/lib/ctf-setup.state /var/lib/ctf-hazirla.durum 2>/dev/null"; }
+cmd_ssh() { case "${1:-kali}" in kali) exec ssh "${SSH_OPT[@]}" -o BatchMode=no "kali@$KALI_IP";; targets|hedefler) [ "$WEB_KIND" = vm ] || { err "there is no targets VM (docker mode)"; return 1; }; exec ssh "${SSH_OPT[@]}" -o BatchMode=no "lab@$TARGETS_IP";; *) echo "ctf ssh [kali|targets]";; esac; }
+
+# ---------- file transfer ----------
+cmd_send() { # files/folders -> Kali ~/CTF/inbox
+  kali_up || return 1; wait_ssh kali "$KALI_IP" 90 || { err "Kali SSH is not ready"; return 1; }
+  kali_fix_dirs; kssh 'mkdir -p ~/CTF/inbox'
+  local f; for f in "$@"; do [ -e "$f" ] || { err "missing: $f"; continue; }
+    rsync -a -e "ssh ${SSH_OPT[*]}" "$f" "kali@$KALI_IP:CTF/inbox/" && ok "Sent to Kali: $(basename "$f")  →  ~/CTF/inbox/"; done; }
+cmd_sync() { # library files (repo/files/local) -> Kali ~/CTF/<category>/
+  kali_up || return 1; wait_ssh kali "$KALI_IP" 90 || { err "Kali SSH is not ready"; return 1; }
+  kali_fix_dirs
+  local id; for id in $(all_ids); do catalog_load "$id" || continue; case "$TYPE" in repo|files|local) ;; *) continue;; esac
+    [ -e "$(lab_dir)" ] || continue; info "sync: $ID"
+    kssh "mkdir -p ~/CTF/$CAT/$(level_dir "$LEVEL")" && rsync -a --delete --exclude .git --exclude README.tr.md -e "ssh ${SSH_OPT[*]}" "$(lab_dir)/" "kali@$KALI_IP:CTF/$CAT/$(level_dir "$LEVEL")/$ID/"; done; ok "Kali ~/CTF/ is up to date"; }
+
+# ---------- desktop layout ----------
+write_readme() { # after catalog_load
+  [ "$TYPE" = local ] && return 0   # generated challenges get CHALLENGE.md from the generator
+  local d; d="$(lab_dir)"; mkdir -p "$d"
+  local f="$d/README.md"
+  [ "$TYPE" = repo ] && [ -f "$d/README.md" ] && ! grep -q '^<!-- ctf-lab -->' "$d/README.md" && f="$d/LAB.md"   # do not overwrite the upstream README
+  {
+    echo "<!-- ctf-lab -->"; echo "# $NAME"; echo
+    echo "| | |"; echo "|---|---|"
+    echo "| Category | $(cat_dir "$CAT") |"; echo "| Level | $(level_dir "$LEVEL") |"; echo "| Type | $TYPE |"; echo
+    echo "## What it teaches"; echo; echo "$DESC"; echo
+    echo "Details, tasks and flag submission: open the lab panel → **Details** (or \`ctf info $ID\`)."; echo
+    case "$TYPE" in
+      docker) echo "## Running"; echo; echo "- From the desktop: **Start.desktop** (double click) — the targets VM and Kali come up on their own."; echo "- Terminal: \`ctf start $ID\`  /  stop with \`ctf stop $ID\`  /  clean start with \`ctf reset $ID\`"; echo
+        echo "## Connecting"; echo; echo "- Address: \`http://$WEB_ADDR:$(extra port || echo '?')$(extra url || true)\`$( [ "$WEB_KIND" = vm ] && echo " (from Kali: \`http://targets:$(extra port || echo '?')$(extra url || true)\`)" || echo " (docker mode: reachable from this computer only)")"
+        [ -n "$(extra login || true)" ] && echo "- Login: \`$(extra login)\`"
+        [ -n "$(extra setup || true)" ] && echo "- First use: run the setup step at \`http://$WEB_ADDR:$(extra port)$(extra setup)\`."
+        echo "- This lab is on the isolated network; it has no access to the internet or your home network." ;;
+      vm|iso) echo "## Running"; echo; echo "- From the desktop: **Start.desktop** (double click) — the VM and Kali come up and the IP is reported."; echo "- Terminal: \`ctf start $ID\`  /  \`ctf ip $ID\`  /  \`ctf console $ID\`  /  \`ctf stop $ID\`"; echo "- **Broke it?** \`ctf reset $ID\` returns the VM to its first state."; echo
+        echo "## Finding the target"; echo; echo "In a real CTF you don't know the target's IP in advance. In Kali:"; echo; echo '```'; echo "nmap -sn 192.168.100.0/24      # live hosts (.10 Kali, .20 targets, .100+ boot2root VMs)"; echo "nmap -sC -sV -p- <target-ip>"; echo '```'
+        [ -n "$(extra login || true)" ] && { echo; echo "Known account (only when given upfront): \`$(extra login)\`"; }
+        echo; echo "**Old SSH server?** Modern clients reject old algorithms; add:"; echo; echo '```'; echo "ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedAlgorithms=+ssh-rsa -o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 user@<ip>"; echo '```' ;;
+      repo|files) echo "## Usage"; echo; echo "This folder holds the working files. In Kali: \`~/CTF/$CAT/$(level_dir "$LEVEL")/$ID\` (kept in sync by \`ctf sync\`)."; echo "Run binaries **inside Kali**, not on the host."
+        [ "$CAT" = archives ] && echo "Challenge list by category: [INDEX.md](INDEX.md)."; echo ;;
+      vulhub) echo "## Usage"; echo; echo '```'; echo "ctf vulhub search log4j          # search environments"; echo "ctf vulhub read log4j/CVE-2021-44228"; echo "ctf vulhub start log4j/CVE-2021-44228"; echo "ctf vulhub stop log4j/CVE-2021-44228"; echo '```'; echo; echo "Each environment's port is in its compose file; address: \`http://$WEB_ADDR:<port>\`." ;;
+    esac
+  } > "$f"
+}
+write_launcher() { # dir name exec icon
+  local f="$1/$2.desktop"
+  cat > "$f" <<EOF
+[Desktop Entry]
+Type=Application
+Name=$2
+Exec=$3
+Terminal=true
+Icon=${4:-applications-system}
+Categories=Utility;
+EOF
+  chmod +x "$f"; }
+write_root_launcher() { # name exec icon terminal comment
+  cat > "$ROOT/$1.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=$1
+Comment=$5
+Exec=$2
+Icon=$3
+Terminal=$4
+Categories=Utility;Security;
+EOF
+  chmod +x "$ROOT/$1.desktop"; }
+inbox_prepare() { # drop-here + .processed + README.txt (recreated if deleted)
+  mkdir -p "$ROOT/drop-here/.processed"
+  [ -f "$ROOT/drop-here/README.txt" ] || cat > "$ROOT/drop-here/README.txt" <<'EOT'
+Drop a new CTF here and the lab does the rest. (Do not delete this folder!)
+
+  - VM (.ova .ovf .vmdk .qcow2 .vdi .iso, also inside zip/7z/tar) -> installed and started under "09-custom"
+  - folder with a docker-compose.yml -> run on the targets VM
+  - any other file (pwn binary, pcap, image...) -> copied to ~/CTF/inbox/ inside Kali
+
+You get a desktop notification when it's done. Processed files move to .processed/.
+If something fails the file is renamed FAILED-<name>; log: .system/logs/import.log
+EOT
+}
+cmd_layout() { # (re)generate desktop folders, READMEs and launchers
+  local id; inbox_prepare
+  for id in $(all_ids); do catalog_load "$id" || continue
+    local d; d="$(lab_dir)"; mkdir -p "$d"; write_readme
+    case "$TYPE" in
+      docker|vm|iso) write_launcher "$d" "Start" "$SYS/bin/ctf-term start $ID --open" media-playback-start
+                     write_launcher "$d" "Stop" "$SYS/bin/ctf-term stop $ID" media-playback-stop
+                     write_launcher "$d" "Reset" "$SYS/bin/ctf-term reset $ID" view-refresh ;;
+    esac
+  done
+  write_root_launcher "Start Kali" "$SYS/bin/ctf kali" utilities-terminal false "CTF attack machine (Kali Linux VM)"
+  write_root_launcher "Lab Panel" "$SYS/bin/ctf-panel-open" preferences-system false "Start/stop every lab from one place"
+  write_root_launcher "Web Kali" "$SYS/bin/ctf web-kali --open" web-browser false "Kali desktop in the browser (noVNC)"
+  write_root_launcher "Lab Status" "$SYS/bin/ctf-term status" dialog-information true "What is running?"
+  mkdir -p "$HOME/.local/share/applications"
+  cp "$ROOT/Start Kali.desktop" "$ROOT/Lab Panel.desktop" "$ROOT/Web Kali.desktop" "$HOME/.local/share/applications/"
+  ok "Desktop layout updated: $ROOT"; }
+
+# ---------- import (drop-here) ----------
+slug() { echo "$1" | tr 'A-Z' 'a-z' | sed -E 's/\.(tar\.(gz|xz|bz2)|[a-z0-9]+)$//' | tr -c 'a-z0-9\n' '-' | sed -E 's/-+/-/g; s/^-//; s/-$//' | cut -c1-30; }
+list_contents() { # archive contents (one path per line)
+  case "${1,,}" in *.tar|*.tar.*|*.tgz|*.txz|*.ova|*.box) bsdtar -tf "$1" 2>/dev/null;; *) 7z l -slt -ba "$1" 2>/dev/null | awk -F' = ' '$1=="Path"{print $2}';; esac; }
+custom_register() { # id type name extra desc
+  mkdir -p "$SYS/catalog"; [ -f "$CAT_CUSTOM" ] || echo "# CTFs the user added through drop-here (generated automatically)" > "$CAT_CUSTOM"
+  grep -q "^$1|" "$CAT_CUSTOM" || echo "$1|$2|custom|0|$3|dropped|$4|$5" >> "$CAT_CUSTOM"; }
+cmd_import() { # file|folder
+  local f="$1"; [ -e "$f" ] || { err "missing: $f"; return 1; }
+  local name; name=$(basename "$f"); local s; s=$(slug "$name"); local id="custom-$s"
+  local kind="file" contents=""
+  if [ -d "$f" ]; then contents=$(cd "$f" && find . -maxdepth 4 -type f | head -500)
+  else contents=$(list_contents "$f"); fi
+  local lower="${name,,}"
+  if   [[ "$lower" == *.ova || "$lower" == *.vmdk || "$lower" == *.vdi || "$lower" == *.qcow2 || "$lower" == *.vhd || "$lower" == *.vhdx ]]; then kind=vm
+  elif [[ "$lower" == *.iso ]]; then kind=iso
+  elif grep -qiE '(^|/)(docker-compose\.ya?ml|compose\.ya?ml|Dockerfile)$' <<< "$contents"; then kind=docker
+  elif [ -f "$f" ] && [[ "$lower" == *.tar ]] && grep -qx 'manifest.json' <<< "$contents"; then kind=dockertar
+  elif grep -qiE '\.(vmdk|vdi|qcow2|ova|vhdx?)$' <<< "$contents"; then kind=vm
+  fi
+  info "Recognised: $name → $kind"
+  case "$kind" in
+    vm|iso)
+      mkdir -p "$SYS/downloads/$id"; local target="$SYS/downloads/$id/$name"
+      if [ -d "$f" ]; then 7z a -bso0 -bsp0 "$target.zip" "$f" >/dev/null; target="$target.zip"; name="$name.zip"; else cp -f "$f" "$target"; fi
+      echo "$name" > "$SYS/downloads/$id/.done"
+      custom_register "$id" "$kind" "${name%.*} (my CTF)" "ram=1024;bus=sata;nic=e1000" "Added through drop-here: $name"
+      cmd_install "$id" || return 1; cmd_layout >/dev/null; cmd_start "$id" --open ;;
+    docker)
+      web_up || return 1; local ld="$SYS/labs/$id"; rm -rf "$ld"; mkdir -p "$ld/src"
+      if [ -d "$f" ]; then cp -a "$f/." "$ld/src/"; else extract "$f" "$ld/src"; fi
+      local top; top=$(find "$ld/src" -maxdepth 4 \( -iname 'docker-compose.y*ml' -o -iname 'compose.y*ml' \) | awk '{print gsub("/","/"), $0}' | sort -n | cut -d' ' -f2- | head -1)   # shallowest
+      [ -n "$top" ] || top=$(find "$ld/src" -maxdepth 4 -iname Dockerfile | awk '{print gsub("/","/"), $0}' | sort -n | cut -d' ' -f2- | head -1)
+      top=$(dirname "$top"); local rel="${top#$ld/}"
+      printf '#!/bin/bash\ncd "${LABS_DIR:-/opt/labs}/%s/%s" || exit 1\nif [ -f docker-compose.yml ] || [ -f docker-compose.yaml ] || [ -f compose.yml ] || [ -f compose.yaml ]; then docker compose -p %s up -d --build\nelse\n  docker build -t %s . && docker rm -f %s >/dev/null 2>&1\n  pubs=$(grep -ihE "^[[:space:]]*EXPOSE" Dockerfile | sed -E "s/^[[:space:]]*EXPOSE[[:space:]]+//I" | tr " " "\\n" | sed -E "s#/.*##" | grep -E "^[0-9]+$" | sed "s/^/-p ${LISTEN_IP:-0.0.0.0}::/" | xargs)\n  docker run -d --name %s --label com.docker.compose.project=%s --label ctf-lab=1 $pubs %s\nfi\ndocker ps --format "{{.Names}}  {{.Ports}}" | grep -v "^$" | head -20\n' "$id" "$rel" "$id" "$id" "$id" "$id" "$id" "$id" > "$ld/start.sh"
+      printf '#!/bin/bash\ncd "${LABS_DIR:-/opt/labs}/%s/%s" && { docker compose -p %s down -v 2>/dev/null || docker rm -f %s; }\n' "$id" "$rel" "$id" "$id" > "$ld/stop.sh"
+      chmod +x "$ld"/*.sh
+      custom_register "$id" docker "${name%.*} (my CTF)" "port=" "Added through drop-here (docker): $name"
+      cmd_layout >/dev/null
+      web_put "$id" && web_sh "$(web_env) bash $(q "$WEB_LABS")/$id/start.sh" && docker_exposure_check \
+        && { ok "Running. Ports are shown above (address: http://$WEB_ADDR:<port>)"; notify "$name is running" "http://$WEB_ADDR"; } ;;
+    dockertar)
+      web_up || return 1; info "docker load..."
+      case "$WEB_KIND" in
+        vm) rsync -a -e "ssh ${SSH_OPT[*]}" "$f" "lab@$TARGETS_IP:/tmp/$name" && tssh "docker load -i /tmp/$name && rm -f /tmp/$name && docker images | head -5" ;;
+        *) docker load -i "$f" && docker images | head -5 ;;
+      esac
+      warn "Image loaded. Run it bound to the lab address:  docker run -d -p $WEB_BIND::<container-port> <image>$( [ "$WEB_KIND" = vm ] && echo "   (inside the VM: ctf ssh targets)")" ;;
+    file)
+      cmd_send "$f" && notify "CTF file is in Kali" "~/CTF/inbox/$name" ;;
+  esac
+}
+cmd_watch_install() { # run the drop-here watcher in the background (systemd user service)
+  local u="$HOME/.config/systemd/user"; mkdir -p "$u"
+  printf '[Unit]\nDescription=CTF-Lab drop-here watcher\n\n[Service]\nExecStart=%s/bin/ctf watch\nRestart=always\nRestartSec=5\n\n[Install]\nWantedBy=default.target\n' "$SYS" > "$u/ctf-watch.service"
+  systemctl --user daemon-reload && systemctl --user enable --now ctf-watch.service && ok "drop-here watcher is running (systemctl --user status ctf-watch)"; }
+cmd_watch() { # watches the drop-here folder (systemd user service)
+  local box="$ROOT/drop-here" processed="$ROOT/drop-here/.processed"; inbox_prepare
+  info "Watching: $box"
+  local self="$SYS/bin/ctf" self_m; self_m=$(stat -c %Y "$self")
+  while true; do
+    [ "$(stat -c %Y "$self")" != "$self_m" ] && { info "ctf was updated, restarting the watcher"; exec "$self" watch; }
+    [ -d "$processed" ] || inbox_prepare
+    local f
+    for f in "$box"/* "$box"/.[!.]*; do
+      [ -e "$f" ] || continue
+      case "$(basename "$f")" in .processed|README.txt|FAILED-*) continue;; esac
+      case "$f" in *.part|*.crdownload|*.tmp) continue;; esac
+      # finished copying? (unchanged for the last few seconds, stable size)
+      local s1 s2; s1=$(du -sb "$f" | cut -f1); sleep 3; s2=$(du -sb "$f" | cut -f1)
+      [ "$s1" = "$s2" ] && [ $(( $(date +%s) - $(stat -c %Y "$f") )) -ge 5 ] || continue
+      info "New CTF: $(basename "$f")"; notify "New CTF found" "$(basename "$f")"
+      if cmd_import "$f" >> "$SYS/logs/import.log" 2>&1; then mv -f "$f" "$processed/"; notify "CTF is ready" "$(basename "$f")"
+      else notify "Import failed" "$(basename "$f") — log: .system/logs/import.log"; mv -f "$f" "$box/FAILED-$(basename "$f")"; fi
+    done
+    sleep 4
+  done
+}
+
+cmd_remove() { # only CTFs the user dropped (custom-*): VM + files + desktop folder + record
+  case "${1:-}" in custom-*) ;; *) err "you can only remove CTFs you dropped yourself (custom-...). List: ctf list custom"; return 1;; esac
+  catalog_load "$1" || return 1
+  local d; d=$(dom "$ID"); dom_running "$d" && virsh destroy "$d" >/dev/null 2>&1
+  virsh undefine "$d" --nvram >/dev/null 2>&1
+  if [ "$TYPE" = docker ]; then web_init; { [ "$WEB_KIND" = docker ] || { [ "$WEB_KIND" = vm ] && dom_running ctf-targets; }; } \
+    && web_sh "cd $(q "$WEB_LABS")/$ID 2>/dev/null && { $(web_env) bash stop.sh; cd /; rm -rf $(q "$WEB_LABS")/$ID; }" >/dev/null 2>&1; fi
+  rm -rf "$SYS/vm/$ID" "$SYS/downloads/$ID" "$SYS/labs/$ID" "$(lab_dir)" "$SYS/xml/$d.xml"
+  sed -i "/^$ID|/d" "$CAT_CUSTOM"; ok "$ID removed (VM, disks and desktop folder)"; }
+
+cmd_pull() { # pre-download every Docker lab image (in the background)
+  web_up || return 1
+  local L; L=$(q "$WEB_LABS")
+  case "$WEB_KIND" in
+    vm) tssh "mkdir -p $WEB_LABS" && rsync -a -e "ssh ${SSH_OPT[*]}" "$SYS/labs/" "lab@$TARGETS_IP:$WEB_LABS/" || return 1 ;;
+    *) mkdir -p "$WEB_LABS" && rsync -a "$SYS/labs/" "$WEB_LABS/" && docker_bind_dir "$WEB_LABS" || return 1 ;;
+  esac
+  web_sh "nohup bash -c 'for f in $L/*/docker-compose.yml; do echo \"== \$f\"; docker compose -f \$f pull 2>&1 | tail -1; done; echo DONE' > /tmp/ctf-prepull.log 2>&1 < /dev/null &"
+  ok "Pulling images in the background. Progress: ctf pull-log"; }
+cmd_pull_log() { web_up && web_sh 'cat /tmp/ctf-prepull.log; docker images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | sort | head -40'; }
+
+# flag / done / undo / info / progress: logic lives in bin/progress.py (the panel uses the same module)
+progress_py() { python3 "$SYS/bin/progress.py" "$@"; }
+cmd_solution() { local f="$SYS/solutions/$1.md"; [ -f "$f" ] && { warn "You are about to read the solution. Sure? 5 s..."; sleep 5; cat "$f"; } || err "no solution: $1"; }
+
+cmd_panel() { exec python3 "$SYS/bin/panel.py" "$@"; }
+
+# ---------- web Kali + remote access ----------
+remote_env() { [ -f "$REMOTE/remote.env" ] && . "$REMOTE/remote.env"; }
+lan_ips() { ip -4 -o addr show scope global 2>/dev/null | awk '{print $2, $4}' | grep -vE '^(virbr|docker|br-|veth|wg-ctf)' | awk '{split($2,a,"/"); print a[1]}'; }
+cmd_remote_urls() {
+  local ip; echo "Panel + web Kali (HTTPS, user 'ctf'):"
+  echo "  https://localhost:$WEB_PORT/"
+  for ip in $(lan_ips); do echo "  https://$ip:$WEB_PORT/"; done
+  echo "  https://192.168.100.1:$WEB_PORT/   (over WireGuard)"
+  echo "Kali desktop:  /kali/vnc.html      Kali terminal:  /term/"; }
+remote_write_config() {
+  remote_env
+  local hosts="localhost 127.0.0.1 192.168.100.1 $(hostname).local $(lan_ips | tr '\n' ' ')" h sites=""
+  for h in $hosts; do sites="${sites:+$sites, }https://$h:$WEB_PORT"; done
+  mkdir -p "$REMOTE/caddy-data"
+  cat > "$REMOTE/Caddyfile" <<EOF
+# Generated by 'ctf remote enable' — do not edit by hand (it is rewritten).
+{
+	admin off
+	auto_https disable_redirects
+	skip_install_trust
+	storage file_system $REMOTE/caddy-data
+	default_sni localhost
+}
+$sites {
+	tls internal
+	basic_auth {
+		ctf $CTF_PASS_HASH
+	}
+	header -Server
+	handle /kali/websockify {
+		rewrite * /
+		reverse_proxy 127.0.0.1:$VNC_WS_PORT
+	}
+	handle_path /kali/* {
+		root * $REMOTE/novnc
+		file_server
+	}
+	redir /kali /kali/vnc.html?path=kali/websockify&autoconnect=1&resize=scale&reconnect=1 302
+	handle /term/* {
+		reverse_proxy 127.0.0.1:$TTYD_PORT
+	}
+	handle {
+		reverse_proxy 127.0.0.1:$PANEL_PORT {
+			header_up Host 127.0.0.1:$PANEL_PORT
+			header_up X-CTF-Proxy $CTF_PROXY_SECRET
+		}
+	}
+}
+EOF
+  chmod 600 "$REMOTE/Caddyfile"
+}
+remote_units() { # user services: panel, caddy, ttyd
+  local u="$HOME/.config/systemd/user"; mkdir -p "$u"
+  cat > "$u/ctf-panel.service" <<EOF
+[Unit]
+Description=CTF-Lab web panel (127.0.0.1:$PANEL_PORT)
+
+[Service]
+ExecStart=/usr/bin/python3 $SYS/bin/panel.py --quiet
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+EOF
+  cat > "$u/ctf-caddy.service" <<EOF
+[Unit]
+Description=CTF-Lab HTTPS entry point (panel, web Kali) on :$WEB_PORT
+After=ctf-panel.service
+
+[Service]
+ExecStart=/usr/bin/caddy run --config $REMOTE/Caddyfile --adapter caddyfile
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+EOF
+  cat > "$u/ctf-ttyd.service" <<EOF
+[Unit]
+Description=CTF-Lab web terminal into Kali (127.0.0.1:$TTYD_PORT)
+
+[Service]
+ExecStart=/usr/bin/ttyd -i 127.0.0.1 -p $TTYD_PORT -b /term -W -O -t titleFixed=Kali -t fontSize=15 $SYS/bin/ctf-kali-shell
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+EOF
+  systemctl --user daemon-reload; }
+novnc_fetch() {
+  [ -f "$REMOTE/novnc/vnc.html" ] && return 0
+  local v=1.5.0 tmp; tmp=$(mktemp -d)
+  info "Downloading noVNC $v"
+  curl -fsSL "https://github.com/novnc/noVNC/archive/refs/tags/v$v.tar.gz" -o "$tmp/novnc.tgz" || { err "could not download noVNC"; rm -rf "$tmp"; return 1; }
+  mkdir -p "$REMOTE/novnc" && tar -xzf "$tmp/novnc.tgz" -C "$REMOTE/novnc" --strip-components=1 && rm -rf "$tmp"
+  ok "noVNC → $REMOTE/novnc"; }
+xml_add_vnc() { # file vnc-port websocket-port: adds a localhost-only VNC display next to SPICE (used by the web Kali)
+  python3 - "$1" "$2" "$3" <<'PY'
+import sys, xml.etree.ElementTree as ET
+p, port, ws = sys.argv[1:4]; t = ET.parse(p); dev = t.getroot().find("devices")
+for g in dev.findall("graphics"):
+    if g.get("type") == "vnc": dev.remove(g)
+g = ET.SubElement(dev, "graphics", {"type": "vnc", "port": port, "autoport": "no", "websocket": ws, "listen": "127.0.0.1"})
+ET.SubElement(g, "listen", {"type": "address", "address": "127.0.0.1"})
+t.write(p)
+PY
+}
+kali_vnc_ensure() { # adds a localhost-only VNC (with QEMU's built-in websocket) to the Kali VM, next to SPICE
+  virsh dumpxml --inactive ctf-kali 2>/dev/null | grep -q "websocket='$VNC_WS_PORT'" && return 0
+  info "Adding a localhost VNC display to Kali (port 5910, websocket $VNC_WS_PORT)"
+  local x; x=$(mktemp); virsh dumpxml --inactive ctf-kali > "$x" || return 1
+  xml_add_vnc "$x" 5910 "$VNC_WS_PORT" || return 1
+  virsh define "$x" >/dev/null && cp "$x" "$SYS/xml/kali.xml"; rm -f "$x"
+  dom_running ctf-kali && warn "Kali is running: the web desktop works after the next Kali restart (ctf kali stop, then ctf kali)."
+  return 0; }
+cmd_remote() {
+  case "${1:-status}" in
+    enable)
+      local m; for m in caddy ttyd; do command -v $m >/dev/null || { err "$m is missing. Run once: sudo bash $SYS/bin/host-setup.sh"; return 1; }; done
+      mkdir -p "$REMOTE"; chmod 700 "$REMOTE"
+      remote_env; [ -n "${CTF_PASS_HASH:-}" ] || cmd_remote password || return 1
+      novnc_fetch || return 1; kali_vnc_ensure || return 1
+      remote_write_config; remote_units
+      systemctl --user enable --now ctf-panel.service ctf-caddy.service ctf-ttyd.service >/dev/null 2>&1
+      systemctl --user restart ctf-panel.service ctf-caddy.service ctf-ttyd.service
+      touch "$REMOTE/enabled"; sleep 1
+      systemctl --user is-active --quiet ctf-caddy.service || { err "caddy did not start: journalctl --user -u ctf-caddy -n 30"; return 1; }
+      ok "Remote access is on."; cmd_remote_urls
+      echo "The certificate is self-signed: the browser warns once, accept it."
+      echo "To join the lab network from your own machine: ctf vpn add <name>" ;;
+    disable)
+      systemctl --user disable --now ctf-caddy.service ctf-ttyd.service >/dev/null 2>&1; rm -f "$REMOTE/enabled"; ok "Remote access is off (the local panel still works)." ;;
+    password)
+      command -v caddy >/dev/null || { err "caddy is missing. Run once: sudo bash $SYS/bin/host-setup.sh"; return 1; }
+      local p1 p2; read -rsp "New password for the web user 'ctf': " p1; echo; read -rsp "Again: " p2; echo
+      [ "$p1" = "$p2" ] || { err "the passwords do not match"; return 1; }
+      [ ${#p1} -ge 8 ] || { err "use at least 8 characters"; return 1; }
+      local h; h=$(printf '%s\n%s\n' "$p1" "$p1" | caddy hash-password 2>/dev/null | tail -1) || true
+      [[ "$h" == \$2* ]] || { err "could not hash the password"; return 1; }
+      mkdir -p "$REMOTE"; chmod 700 "$REMOTE"; remote_env
+      local sec="${CTF_PROXY_SECRET:-$(head -c 24 /dev/urandom | base64 | tr -d '/+=')}"
+      umask 077; printf "CTF_PASS_HASH='%s'\nCTF_PROXY_SECRET='%s'\n" "$h" "$sec" > "$REMOTE/remote.env"
+      ok "Password saved."
+      [ -f "$REMOTE/enabled" ] && { remote_write_config; systemctl --user restart ctf-caddy.service ctf-panel.service; }
+      return 0 ;;
+    status)
+      if [ -f "$REMOTE/enabled" ]; then ok "Remote access: on"; cmd_remote_urls
+        local s; for s in ctf-panel ctf-caddy ctf-ttyd; do printf '  %-10s %s\n' "$s" "$(systemctl --user is-active $s.service 2>/dev/null)"; done
+      else echo "Remote access: off   (turn it on: ctf remote enable)"; fi ;;
+    urls) cmd_remote_urls ;;
+    *) echo "usage: ctf remote [enable|disable|password|status]";; esac; }
+cmd_web_kali() {
+  [ -f "$REMOTE/enabled" ] || { err "remote access is off; turn it on first: ctf remote enable"; return 1; }
+  kali_vnc_ensure; kali_up || return 1
+  systemctl --user start ctf-panel.service ctf-caddy.service ctf-ttyd.service 2>/dev/null
+  ok "Web Kali: https://localhost:$WEB_PORT/kali   terminal: https://localhost:$WEB_PORT/term/"
+  [ "${1:-}" = --open ] && { setsid nohup xdg-open "https://localhost:$WEB_PORT/kali" >/dev/null 2>&1 < /dev/null & }
+  return 0; }
+
+# ---------- WireGuard: join the lab network from your own machine ----------
+WG_DIR="$REMOTE/wg"
+vpn_endpoint() { local ip; ip=$(lan_ips | head -1); echo "${CTF_VPN_ENDPOINT:-${ip:-<this-pc-ip>}}"; }
+vpn_sync() { [ -f "$WG_DIR/peers.tsv" ] || : > "$WG_DIR/peers.tsv"; sudo -n /usr/local/bin/ctf-vpn-helper sync < "$WG_DIR/peers.tsv"; }
+cmd_vpn() {
+  command -v wg >/dev/null || { err "wireguard-tools is missing. Run once: sudo bash $SYS/bin/host-setup.sh"; return 1; }
+  [ -x /usr/local/bin/ctf-vpn-helper ] || { err "the VPN helper is not installed. Run once: sudo bash $SYS/bin/host-setup.sh"; return 1; }
+  mkdir -p "$WG_DIR"; chmod 700 "$REMOTE" "$WG_DIR"; touch "$WG_DIR/peers.tsv"
+  case "${1:-list}" in
+    add)
+      local name="${2:-}"; [[ "$name" =~ ^[a-z0-9][a-z0-9-]{0,20}$ ]] || { err "name: lowercase letters, digits, '-' (max 21)"; return 1; }
+      grep -q "^$name	" "$WG_DIR/peers.tsv" && { err "$name already exists (ctf vpn show $name)"; return 1; }
+      local n ip=""; for n in $(seq 210 250); do grep -q "	192.168.100.$n	" "$WG_DIR/peers.tsv" || { ip=192.168.100.$n; break; }; done
+      [ -n "$ip" ] || { err "no free address left (210-250)"; return 1; }
+      local priv pub spub; priv=$(wg genkey); pub=$(printf '%s' "$priv" | wg pubkey)
+      spub=$(sudo -n /usr/local/bin/ctf-vpn-helper pubkey) || { err "the VPN server is not set up. Run: sudo bash $SYS/bin/host-setup.sh"; return 1; }
+      printf '%s\t%s\t%s\n' "$name" "$ip" "$pub" >> "$WG_DIR/peers.tsv"
+      umask 077; cat > "$WG_DIR/$name.conf" <<EOF
+# CTF-Lab VPN — $name. Gives this machine the lab address $ip.
+# Only lab traffic (192.168.100.0/24) goes through the tunnel; the rest of your traffic is untouched.
+[Interface]
+PrivateKey = $priv
+Address = $ip/32
+
+[Peer]
+PublicKey = $spub
+Endpoint = $(vpn_endpoint):51820
+AllowedIPs = 192.168.100.0/24
+PersistentKeepalive = 25
+EOF
+      vpn_sync || { err "could not apply the peer"; return 1; }
+      ok "Peer $name → $ip.  Config: $WG_DIR/$name.conf"
+      command -v qrencode >/dev/null && [ -t 1 ] && qrencode -t ansiutf8 < "$WG_DIR/$name.conf"
+      echo "Linux: sudo wg-quick up ./$name.conf   |   Windows/macOS/phone: import into the WireGuard app"
+      echo "Then: nmap -sn 192.168.100.0/24, the panel is at https://192.168.100.1:$WEB_PORT/" ;;
+    remove|rm)
+      local name="${2:-}"; grep -q "^$name	" "$WG_DIR/peers.tsv" || { err "no such peer: $name"; return 1; }
+      sed -i "/^$name	/d" "$WG_DIR/peers.tsv"; rm -f "$WG_DIR/$name.conf"; vpn_sync && ok "$name removed" ;;
+    list|ls)
+      if [ "${2:-}" = --json ]; then python3 -c 'import json,sys
+rows=[l.rstrip("\n").split("\t") for l in open(sys.argv[1]) if l.strip()]
+print(json.dumps([{"name":r[0],"ip":r[1]} for r in rows if len(r)>=3]))' "$WG_DIR/peers.tsv"; return; fi
+      [ -s "$WG_DIR/peers.tsv" ] || { echo "No VPN peers yet: ctf vpn add <name>"; return 0; }
+      printf '%-22s %s\n' NAME ADDRESS; awk -F'\t' '{printf "%-22s %s\n", $1, $2}' "$WG_DIR/peers.tsv"
+      echo; sudo -n /usr/local/bin/ctf-vpn-helper status 2>/dev/null | sed 's/^/  /' ;;
+    show) [ -f "$WG_DIR/${2:-}.conf" ] || { err "no such peer: ${2:-}"; return 1; }
+      cat "$WG_DIR/$2.conf"; command -v qrencode >/dev/null && [ -t 1 ] && qrencode -t ansiutf8 < "$WG_DIR/$2.conf"; return 0 ;;
+    *) echo "usage: ctf vpn [add <name>|remove <name>|list|show <name>]";; esac; }
+
+# ---------- init + bootstrap: set up the pieces you want ----------
+ensure_key() {
+  [ -f "$KEY" ] && return 0
+  mkdir -p "$SYS/ssh"; chmod 700 "$SYS/ssh"
+  ssh-keygen -q -t ed25519 -N "" -C "ctf-lab" -f "$KEY" && ok "SSH key created ($KEY): used only between this PC and the lab VMs"; }
+need_space() { # path GB
+  local free; free=$(df -Pk "$1" | awk 'NR==2{print int($4/1024/1024)}')
+  [ "${free:-0}" -ge "$2" ] || { err "not enough free disk space under $1: need about $2 GB, have ${free:-0} GB"; return 1; }; }
+host_mem_mb() { awk '/^MemTotal/{print int($2/1024)}' /proc/meminfo; }
+clamp() { local v=$1; [ "$v" -lt "$2" ] && v=$2; [ "$v" -gt "$3" ] && v=$3; echo "$v"; }
+require_libvirt() {
+  command -v virsh >/dev/null 2>&1 && command -v virt-install >/dev/null 2>&1 || { err "libvirt/virt-install are missing. Run once: sudo bash $SYS/bin/host-setup.sh"; return 1; }
+  { virsh net-info ctf-lab >/dev/null 2>&1 && virsh net-info ctf-nat >/dev/null 2>&1; } || { err "the lab networks are missing. Run once: sudo bash $SYS/bin/host-setup.sh"; return 1; }
+  [ -e /dev/kvm ] || warn "/dev/kvm is missing: VMs will be very slow (turn on virtualization in the BIOS/UEFI)"
+  return 0; }
+kali_locale() { # time zone + keyboard for Kali and the targets VM (override in .system/config.env)
+  config_load
+  KALI_TZ="${KALI_TIMEZONE:-$(timedatectl show -p Timezone --value 2>/dev/null || true)}"
+  # legacy aliases (e.g. "Turkey") are unknown to newer tzdata: map them to the canonical name (Europe/Istanbul) by file content
+  local tab=/usr/share/zoneinfo/zone1970.tab z canon=""
+  if [ -n "$KALI_TZ" ] && [ -r "$tab" ] && ! awk '!/^#/{print $3}' "$tab" | grep -qx -- "$KALI_TZ"; then
+    for z in $(awk '!/^#/{print $3}' "$tab"); do cmp -s "/usr/share/zoneinfo/$z" "/usr/share/zoneinfo/$KALI_TZ" 2>/dev/null && { canon=$z; break; }; done
+    [ -n "$canon" ] && KALI_TZ=$canon
+  fi
+  KALI_TZ="${KALI_TZ:-UTC}"
+  local km=us; case "${LANG:-}" in tr_*) km=tr,us;; esac
+  KALI_KM="${KALI_KEYMAP:-$km}"; KALI_XKB=""; case "$KALI_KM" in *,*) KALI_XKB=grp:alt_shift_toggle;; esac; }
+fetch_verified() { # id base-url name-regex  → FETCH_PATH (SHA-256 checked against the publisher's SHA256SUMS)
+  local id="${1:?}" base="$2" pat="$3" line hash name d="${SYS:?}/downloads/${1:?}"
+  line=$(curl -fsSL "$base/SHA256SUMS" | awk -v pat="$pat" '{n=$2; sub(/^\*/,"",n); if (n ~ pat) {print $1, n; exit}}')
+  [ -n "$line" ] || { err "could not read $base/SHA256SUMS (no internet?)"; return 1; }
+  hash=${line%% *}; name=${line#* }
+  if [ -f "$d/.done" ] && [ -f "$d/.verified" ]; then FETCH_PATH="$d/$(cat "$d/.done")"; return 0; fi
+  rm -f "${d:?}/.done"
+  "$SYS/bin/ctf-download" "$id" "$base/$name" "$name" || return 1
+  info "Verifying SHA-256..."
+  if ! printf '%s  %s\n' "$hash" "$d/$name" | sha256sum -c --status -; then
+    err "checksum mismatch for $name: deleted it, run the command again"; rm -f "${d:?}/${name:?}" "${d:?}/.done"; return 1; fi
+  touch "$d/.verified"; FETCH_PATH="$d/$name"; }
+config_show() { config_load; printf '  web labs mode : %s (resolved: %s)\n' "$WEB_MODE" "$WEB_KIND"; }
+
+cmd_init() { # the part that needs no VM at all
+  info "Preparing the files part of the lab (no VM needed)"
+  local t missing=()
+  for t in python3 7z mkfs.ext4 debugfs rsync curl git ssh-keygen; do command -v "$t" >/dev/null 2>&1 || missing+=("$t"); done
+  [ ${#missing[@]} -eq 0 ] || { err "missing tools: ${missing[*]}  (see README → Requirements)"; return 1; }
+  for t in qrencode convert gcc; do command -v "$t" >/dev/null 2>&1 || warn "optional tool missing: $t (a generated challenge is skipped or built later)"; done
+  ensure_key
+  python3 "$SYS/bin/gen_challenges.py" || return 1
+  "$SYS/bin/ctf-build-challenges" || warn "could not build the pwn/rev binaries now; run: ctf build-challenges"
+  python3 "$SYS/bin/gen_archive_index.py" >/dev/null 2>&1 || true
+  cmd_layout
+  mkdir -p "$HOME/.local/bin" && ln -sfn "$SYS/bin/ctf" "$HOME/.local/bin/ctf"
+  case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) warn "add ~/.local/bin to your PATH to use plain 'ctf' (or run $SYS/bin/ctf)";; esac
+  ok "Done. Crypto, forensics and pwn/rev challenges are in the numbered folders; try: ctf list"; }
+
+cmd_mode() { # ctf mode [vm|docker|auto]
+  case "${1:-}" in
+    vm|docker|auto) config_set WEB_MODE "$1"; ok "web labs will use: $1" ;;
+    "") config_show ;;
+    *) echo "usage: ctf mode [vm|docker|auto]" ;; esac; }
+
+bootstrap_docker() {
+  command -v docker >/dev/null 2>&1 || { err "Docker is not installed (install docker + the compose plugin, then: sudo systemctl enable --now docker)"; return 1; }
+  docker info >/dev/null 2>&1 || { err "cannot talk to Docker: is it running, and is your user in the 'docker' group?"; return 1; }
+  docker compose version >/dev/null 2>&1 || { err "the 'docker compose' plugin is missing"; return 1; }
+  config_set WEB_MODE docker; mkdir -p "$SYS/runtime/labs"
+  ok "Docker mode is on: web labs run in your local Docker, every port bound to 127.0.0.1."
+  echo "  • Attack from this computer (browser, Burp, your own tools): http://127.0.0.1:<port>"
+  echo "  • The apps are deliberately vulnerable and share your kernel; use the targets VM (ctf bootstrap targets) if that worries you."
+  echo "  • Pre-download the images (optional):  ctf pull"; }
+
+bootstrap_targets() {
+  local sfx="${CTF_BOOT_SUFFIX:-}" name="ctf-targets${CTF_BOOT_SUFFIX:-}"   # CTF_BOOT_SUFFIX is a test hook: builds a side-by-side copy
+  require_libvirt || return 1
+  dom_exists "$name" && { ok "$name already exists"; return 0; }
+  ensure_key; kali_locale
+  local vd="$SYS/vm/targets$sfx"; mkdir -p "$vd"
+  need_space "$SYS" 30 || return 1
+  info "targets VM: Ubuntu 24.04 cloud image (~0.6 GB), SHA-256 verified"
+  fetch_verified ubuntu-cloud "https://cloud-images.ubuntu.com/noble/current" '^noble-server-cloudimg-amd64[.]img$' || return 1
+  if [ ! -f "$vd/targets.qcow2" ]; then
+    qemu-img convert -O qcow2 "$FETCH_PATH" "$vd/targets.qcow2" && qemu-img resize -q "$vd/targets.qcow2" "${TARGETS_DISK_GB:-60}G" || { err "could not prepare the disk"; return 1; }
+  fi
+  local mlab=52:54:00:c7:f0:20 mnat=52:54:00:c7:f0:21 pub f; [ -n "$sfx" ] && { mlab=52:54:00:c7:f0:2a; mnat=52:54:00:c7:f0:2b; }
+  pub=$(cat "$KEY.pub")
+  for f in user-data meta-data network-config; do
+    sed -e "s|@TZ@|$KALI_TZ|g" -e "s|@PUBKEY@|$pub|g" -e "s|@MAC_LAB@|$mlab|g" -e "s|@MAC_NAT@|$mnat|g" "$SYS/templates/targets/$f" > "$vd/$f"; done
+  if command -v xorriso >/dev/null 2>&1; then ( cd "$vd" && xorriso -as mkisofs -quiet -o seed.iso -V cidata -J -r user-data meta-data network-config >/dev/null 2>&1 )
+  elif command -v genisoimage >/dev/null 2>&1; then ( cd "$vd" && genisoimage -quiet -output seed.iso -volid cidata -joliet -rock user-data meta-data network-config )
+  else err "xorriso (libisoburn) or genisoimage is needed to build the cloud-init seed"; return 1; fi
+  local mem cpus; mem=${TARGETS_RAM_MB:-$(clamp $(( $(host_mem_mb) / 5 )) 2048 8192)}; cpus=${TARGETS_VCPUS:-$(clamp $(( $(nproc) / 4 )) 2 4)}
+  local xml="$SYS/xml/$name.xml"
+  virt-install --connect qemu:///system --name "$name" --memory "$mem" --vcpus "$cpus" --cpu host-passthrough --osinfo generic --import --boot hd \
+    --disk "path=$vd/targets.qcow2,format=qcow2,bus=virtio" --disk "path=$vd/seed.iso,device=cdrom,bus=sata" \
+    --network "network=ctf-nat,model=virtio,mac=$mnat" --network "network=ctf-lab,model=virtio,mac=$mlab" \
+    --graphics spice,listen=none --video virtio --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 --rng /dev/urandom \
+    --noautoconsole --dry-run --print-xml > "$xml" 2> "$SYS/logs/virt-install-$name.err" \
+    || { err "virt-install: $(head -3 "$SYS/logs/virt-install-$name.err")"; return 1; }
+  virsh define "$xml" >/dev/null || return 1
+  ok "$name defined ($mem MB RAM, $cpus vCPUs, ${TARGETS_DISK_GB:-60} GB disk)"
+  [ -n "$sfx" ] && return 0
+  config_set WEB_MODE vm
+  info "First boot installs Docker and clones Vulhub (3-10 minutes)..."
+  virsh start "$name" >/dev/null || return 1
+  wait_ssh lab "$TARGETS_IP" 240 || { err "the VM is up but SSH did not answer; check: virsh console $name"; return 1; }
+  local i; for i in $(seq 1 180); do tssh 'test -f /var/lib/ctf-targets-ready' 2>/dev/null && break; sleep 5; done
+  tssh 'test -f /var/lib/ctf-targets-ready' 2>/dev/null && ok "targets VM is ready. Try: ctf start dvwa" || warn "still installing; follow with: ctf ssh targets, then: cloud-init status --wait"; }
+
+bootstrap_kali() {
+  local nosetup=0; [ "${1:-}" = --no-setup ] && nosetup=1
+  local sfx="${CTF_BOOT_SUFFIX:-}" name="ctf-kali${CTF_BOOT_SUFFIX:-}"
+  require_libvirt || return 1
+  dom_exists "$name" && { ok "$name already exists"; return 0; }
+  ensure_key; kali_locale
+  local vd="$SYS/vm/kali$sfx"; mkdir -p "$vd"
+  need_space "$SYS" 45 || return 1
+  info "Kali: the official QEMU image (~3.6 GB), resumable and SHA-256 verified"
+  fetch_verified kali-image "https://cdimage.kali.org/current" 'kali-linux-.*-qemu-amd64[.]7z$' || return 1
+  if [ ! -f "$vd/kali.qcow2" ]; then
+    info "Extracting..."; local tmp img; tmp=$(mktemp -d "$vd/extract.XXXXXX")
+    7z x -y -bso0 -bsp0 -o"$tmp" "$FETCH_PATH" || { err "could not extract the image"; rm -rf "${tmp:?}"; return 1; }
+    img=$(find "$tmp" -name '*.qcow2' | head -1); [ -n "$img" ] || { err "no .qcow2 inside the archive"; rm -rf "${tmp:?}"; return 1; }
+    mv "$img" "$vd/kali.qcow2"; rm -rf "${tmp:?}"
+  fi
+  local mem cpus; mem=${KALI_RAM_MB:-$(clamp $(( $(host_mem_mb) / 3 )) 3072 8192)}; cpus=${KALI_VCPUS:-$(clamp $(( $(nproc) / 2 )) 2 6)}
+  local mlab=52:54:00:c7:f0:10 mnat=52:54:00:c7:f0:11 vp=5910 wp="$VNC_WS_PORT"; [ -n "$sfx" ] && { mlab=52:54:00:c7:f0:1a; mnat=52:54:00:c7:f0:1b; vp=5911; wp=5701; }
+  local xml="$SYS/xml/$name.xml"
+  virt-install --connect qemu:///system --name "$name" --memory "$mem" --vcpus "$cpus" --cpu host-passthrough --osinfo generic --import --boot hd \
+    --disk "path=$vd/kali.qcow2,format=qcow2,bus=virtio" \
+    --network "network=ctf-nat,model=virtio,mac=$mnat" --network "network=ctf-lab,model=virtio,mac=$mlab" \
+    --graphics spice,listen=none --video virtio --channel unix,target.type=virtio,target.name=org.qemu.guest_agent.0 \
+    --channel spicevmc,target.type=virtio,target.name=com.redhat.spice.0 --rng /dev/urandom \
+    --noautoconsole --dry-run --print-xml > "$xml" 2> "$SYS/logs/virt-install-$name.err" \
+    || { err "virt-install: $(head -3 "$SYS/logs/virt-install-$name.err")"; return 1; }
+  xml_add_vnc "$xml" "$vp" "$wp" || return 1
+  virsh define "$xml" >/dev/null || return 1
+  ok "$name defined ($mem MB RAM, $cpus vCPUs)"
+  [ -n "$sfx" ] && return 0
+  rm -rf "${SYS:?}/downloads/kali-image"   # the 3.6 GB archive is no longer needed
+  virsh start "$name" >/dev/null || return 1
+  info "Booting Kali; waiting for its guest agent (up to 5 minutes)..."
+  local i up=0; for i in $(seq 1 100); do "$SYS/bin/ctf-guest-exec" "$name" --timeout 5 -- true >/dev/null 2>&1 && { up=1; break; }; sleep 3; done
+  if [ $up = 0 ]; then
+    warn "the guest agent did not answer. On the Kali console (user kali / password kali) run: sudo apt install -y qemu-guest-agent && sudo systemctl enable --now qemu-guest-agent   then: ctf kali setup"
+  elif [ $nosetup = 1 ]; then ok "Kali is up. Install the CTF tools with: ctf kali setup"
+  else ok "Kali is up. Installing the CTF tools (this takes a while; it keeps going in the background)"; kali_setup; fi; }
+
+bootstrap_status() {
+  config_show
+  printf '  files part    : %s\n' "$( [ -f "$CAT_GEN" ] && [ -d "$ROOT/05-crypto" ] && echo "ready (ctf init was run)" || echo "not prepared → ctf init")"
+  printf '  Kali VM       : %s\n' "$( dom_exists ctf-kali && echo "defined ($(virsh domstate ctf-kali 2>/dev/null))" || echo "not set up → ctf bootstrap kali   (or join with your own machine: ctf vpn add <name>)")"
+  printf '  targets VM    : %s\n' "$( dom_exists ctf-targets && echo "defined ($(virsh domstate ctf-targets 2>/dev/null))" || echo "not set up → ctf bootstrap targets")"
+  printf '  local Docker  : %s\n' "$( docker info >/dev/null 2>&1 && echo "available → ctf bootstrap docker" || echo "not available")"
+  printf '  KVM networks  : %s\n' "$( virsh net-info ctf-lab >/dev/null 2>&1 && echo ready || echo "missing → sudo bash $SYS/bin/host-setup.sh")"; }
+
+cmd_bootstrap() {
+  case "${1:-}" in
+    kali) shift; bootstrap_kali "$@" ;;
+    targets) bootstrap_targets ;;
+    docker) bootstrap_docker ;;
+    all) shift; cmd_init && bootstrap_targets && bootstrap_kali "$@" ;;
+    status) bootstrap_status ;;
+    *) cat <<'EOF'
+ctf bootstrap — set up only the pieces you want (nothing here is all-or-nothing)
+
+  ctf init                  files only, no VM: crypto/forensics/pwn challenges, archives, panel     (always do this first)
+  ctf bootstrap docker      web labs (DVWA, Juice Shop...) in your local Docker, bound to 127.0.0.1 only
+  ctf bootstrap targets     web labs in a dedicated VM (safest; reachable from the Kali VM)       ~0.6 GB download
+  ctf bootstrap kali        the Kali attack VM (official image, then installs the CTF tools)      ~3.6 GB download
+  ctf bootstrap all         init + targets + kali
+  ctf bootstrap status      what is set up on this computer
+
+VMs need libvirt/KVM first:  sudo bash .system/bin/host-setup.sh   (once).
+boot2root machines (DC-1, Metasploitable...) are VMs too, but need neither of the two VMs above.
+Your own Kali? Skip 'bootstrap kali' and join the lab network instead: ctf vpn add <name>.
+EOF
+      ;;
+  esac; }
+
+cmd_build_challenges() { "$SYS/bin/ctf-build-challenges"; }
+
+cmd_help() { cat <<'EOF'
+ctf — CTF-Lab management
+
+Getting started (nothing is all-or-nothing):
+  ctf init                    prepare the files part (challenges, folders)       ctf bootstrap status   what is set up
+  ctf bootstrap docker|targets|kali|all   set up web labs (Docker or VM) and/or the Kali VM      ctf mode [vm|docker]
+Everyday:
+  ctf kali                    start Kali (with a window)            ctf ssh [kali|targets]
+  ctf web-kali [--open]       Kali in the browser (needs ctf remote enable)
+  ctf list [category]         every lab (web linux windows pwn crypto forensics api archives custom)
+  ctf start <id> [--open]     start a lab (--open: also opens the Kali window/browser)
+  ctf stop <id>               ctf reset <id>   (VM back to its first state / docker data wiped)
+  ctf status [--json]         what is running      ctf ip <id>      ctf console <id>
+  ctf compat <id>             if a VM gets no network, try NIC/disk combinations automatically
+  ctf panel                   web panel (browser)
+  ctf info <id>               what you will learn, vulnerabilities, tasks           ctf progress   overall progress
+  ctf flag <id> [task] <flag> verify a flag (you can also submit flags in the panel)  ctf solution <id> (spoiler!)
+  ctf done <id> <task> [note] mark a task whose flag cannot be verified, as your claim  ctf undo <id> <task>
+Files:
+  ctf send <file...>          copy into Kali ~/CTF/inbox/
+  ctf import <file>           run the drop-here logic by hand
+  ctf sync                    sync the library files into Kali ~/CTF/
+Remote access (other computers):
+  ctf remote enable|disable|password|status   HTTPS panel + web Kali on port 8443 (user 'ctf')
+  ctf vpn add <name> | remove <name> | list | show <name>   join the lab network with WireGuard
+Install / maintenance:
+  ctf install <id>|all        download + convert to VM + define    ctf remove custom-<name>  (fully remove a CTF you dropped)
+  ctf vulhub search|read|start|stop ...
+  ctf layout                  regenerate the desktop folders/READMEs/launchers
+  ctf kali setup              install the CTF tools into Kali     ctf kali-log
+  ctf kali reset --yes        return Kali to its clean state (your work in it is deleted)   ctf kali backup
+  ctf build-challenges        compile the generated pwn/rev binaries (inside Kali)
+EOF
+}
+
+# ---------- main ----------
+k="${1:-help}"; [ $# -gt 0 ] && shift
+case "$k" in   # Turkish aliases from the old version keep working
+  yardim) k=help;; durum) k=status;; liste) k=list;; kur) k=install;; baslat|ac) k=start;; durdur) k=stop;;
+  sifirla) k=reset;; retanimla) k=redefine;; uyum) k=compat;; konsol) k=console;; gonder) k=send;; senkron) k=sync;;
+  yapi) k=layout;; ice-aktar) k=import;; izle) k=watch;; sil) k=remove;; cek) k=pull;; cek-log) k=pull-log;;
+  bayrak) k=flag;; bitti) k=done;; geri-al) k=undo;; bilgi) k=info;; ilerleme) k=progress;; cozum) k=solution;;
+esac
+case "$k" in start|stop|reset|ip|status|list|ls|layout|install|import|remove|pull|pull-log|vulhub|ssh|bootstrap|mode|init) web_init ;; esac
+case "$k" in
+  help|-h|--help) cmd_help ;;
+  status) cmd_status "$@" ;;
+  list|ls) cmd_list "$@" ;;
+  install) if [ "${1:-}" = all ] || [ "${1:-}" = hepsi ]; then for i in $(all_ids); do cmd_install "$i" || warn "skipped: $i"; done; cmd_layout; else cmd_install "$1" && cmd_layout >/dev/null; fi ;;
+  start) cmd_start "$@" ;;
+  stop) cmd_stop "$@" ;;
+  reset) cmd_reset "$@" ;;
+  ip) cmd_ip "$@" ;;
+  redefine) cmd_redefine "$@" ;;
+  compat) cmd_compat "$@" ;;
+  console) cmd_console "$@" ;;
+  kali) cmd_kali "$@" ;;
+  kali-log) cmd_kali_log "$@" ;;
+  web-kali) cmd_web_kali "$@" ;;
+  remote) cmd_remote "$@" ;;
+  vpn) cmd_vpn "$@" ;;
+  ssh) cmd_ssh "$@" ;;
+  send) cmd_send "$@" ;;
+  sync) cmd_sync ;;
+  vulhub) cmd_vulhub "$@" ;;
+  layout) cmd_layout ;;
+  import) cmd_import "$@" ;;
+  watch) if [ "${1:-}" = --install ]; then cmd_watch_install; else cmd_watch; fi ;;
+  remove) cmd_remove "$@" ;;
+  pull) cmd_pull ;;
+  pull-log) cmd_pull_log ;;
+  flag|done|undo|info|progress) progress_py "$k" "$@" ;;
+  solution) cmd_solution "$@" ;;
+  panel) cmd_panel "$@" ;;
+  build-challenges) cmd_build_challenges ;;
+  bootstrap) cmd_bootstrap "$@" ;;
+  init) cmd_init ;;
+  mode) cmd_mode "$@" ;;
+  *) err "unknown command: $k"; cmd_help; exit 1 ;;
+esac

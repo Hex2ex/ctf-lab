@@ -1,0 +1,27 @@
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install tools used by the challenge generator
+        run: sudo apt-get update && sudo apt-get install -y p7zip-full e2fsprogs qrencode shellcheck
+      - name: Unit tests (no VM, no network)
+        run: python3 -I -m unittest discover -s .system/tests -v
+      - name: Shell syntax (fails the build on a syntax error)
+        run: |
+          for f in .system/bin/* .system/labs/*/*.sh; do
+            [ -f "$f" ] || continue
+            if head -1 "$f" | grep -q 'bash'; then bash -n "$f" || { echo "syntax error in $f"; exit 1; }; fi
+          done
+      - name: Shellcheck (errors only; informational)
+        continue-on-error: true
+        run: shellcheck -S error .system/bin/ctf .system/bin/host-setup.sh .system/bin/ctf-vpn-helper .system/bin/kali-setup.sh .system/bin/ctf-download
+      - name: The generator runs without VMs
+        run: python3 .system/bin/gen_challenges.py

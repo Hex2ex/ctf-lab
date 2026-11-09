@@ -1,0 +1,113 @@
+{
+ "ctfwiki": {
+  "learn": [
+   "Work through real CTF challenges organised by topic, all in one place",
+   "Recognise the basic patterns in each category (pwn, reverse, crypto, misc, web)",
+   "When you get stuck, learn from the write-up on CTF Wiki"
+  ],
+  "vulns": [
+   {
+    "id": "pwn",
+    "name": "Pwn",
+    "desc": "Memory corruption challenges",
+    "task": "Solve at least one pwn challenge"
+   },
+   {
+    "id": "reverse",
+    "name": "Reverse",
+    "desc": "Reverse engineering challenges",
+    "task": "Solve at least one reverse challenge"
+   },
+   {
+    "id": "crypto",
+    "name": "Crypto",
+    "desc": "Cryptographic weaknesses",
+    "task": "Solve at least one crypto challenge"
+   },
+   {
+    "id": "web",
+    "name": "Web",
+    "desc": "Web application vulnerabilities",
+    "task": "Solve at least one web challenge"
+   },
+   {
+    "id": "misc",
+    "name": "Misc",
+    "desc": "Mixed and creative challenges",
+    "task": "Solve at least one misc challenge"
+   }
+  ]
+ },
+ "ductf25": {
+  "learn": [
+   "Work through every category of a real CTF, with Docker files and write-ups",
+   "Measure yourself by difficulty (from beginner to hard)",
+   "See how competition challenges and their hints are designed"
+  ],
+  "vulns": [
+   {
+    "id": "beginner",
+    "name": "Beginner",
+    "desc": "Beginner challenges",
+    "task": "Solve at least one beginner challenge"
+   },
+   {
+    "id": "web",
+    "name": "Web",
+    "desc": "Web vulnerabilities",
+    "task": "Solve at least one web challenge"
+   },
+   {
+    "id": "pwn-rev",
+    "name": "Pwn / Rev",
+    "desc": "Binary challenges",
+    "task": "Solve at least one pwn or rev challenge"
+   },
+   {
+    "id": "crypto",
+    "name": "Crypto",
+    "desc": "Cryptography",
+    "task": "Solve at least one crypto challenge"
+   },
+   {
+    "id": "misc",
+    "name": "Misc",
+    "desc": "Mixed challenges",
+    "task": "Solve at least one misc challenge"
+   }
+  ]
+ },
+ "google": {
+  "learn": [
+   "Study the challenges and solutions of one of the world's hardest CTFs",
+   "Learn advanced exploitation and reverse engineering techniques from write-ups",
+   "See how top teams approach challenges"
+  ],
+  "vulns": [
+   {
+    "id": "beginner",
+    "name": "Beginner",
+    "desc": "Entry-level challenges",
+    "task": "Solve at least one beginner challenge"
+   },
+   {
+    "id": "web",
+    "name": "Web",
+    "desc": "Advanced web exploitation",
+    "task": "Solve at least one web challenge"
+   },
+   {
+    "id": "pwn-rev",
+    "name": "Pwn / Rev",
+    "desc": "Hard binary challenges",
+    "task": "Solve at least one pwn or rev challenge"
+   },
+   {
+    "id": "crypto",
+    "name": "Crypto",
+    "desc": "Advanced cryptography",
+    "task": "Solve at least one crypto challenge"
+   }
+  ]
+ }
+}

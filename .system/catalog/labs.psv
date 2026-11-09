@@ -1,0 +1,72 @@
+# CTF-Lab catalog. Fields are separated by '|':
+#   id | type | category | level | name | source | extra | description
+# type:     vm (download → qcow2 → libvirt)   iso (VM booted from a live ISO)   docker (compose on the targets VM)
+#           repo (git clone)   files (download zip files)   local (generated challenge)   vulhub (special)
+# category: web linux windows pwn crypto forensics api archives custom
+# level:    1=easy  2=medium  3=hard  (0=unrated)
+# extra:    key=value;key=value
+#           vm/iso: ram vcpu bus nic mac cpu nic_slot nohotplug kargs fname wait static_ip kali_alias experimental login
+#           docker: port url login setup
+# Turkish names/descriptions for the panel live in i18n/tr-labs.json.
+#
+# ---- WEB (Docker, runs on the targets VM) ----
+dvwa|docker|web|1|DVWA (Damn Vulnerable Web App)|vulnerables/web-dvwa|port=8081;login=admin/password;setup=/setup.php|SQLi, XSS, command injection, file upload. Adjustable difficulty; the first step into web hacking.
+bwapp|docker|web|1|bWAPP|raesene/bwapp|port=8082;login=bee/bug;setup=/install.php|Over 100 web vulnerabilities (including the OWASP Top 10) in one application.
+mutillidae|docker|web|1|OWASP Mutillidae II|webpwnized/mutillidae|port=8084;setup=/set-up-database.php|OWASP Top 10 vulnerabilities with hints you can switch on and off; LDAP/SQL/XSS/SSRF.
+webgoat|docker|web|1|OWASP WebGoat|webgoat/webgoat|port=8080;url=/WebGoat|Step-by-step lessons: injection, authentication, JWT, XXE, SSRF. WebWolf runs on 9090.
+sqlilabs|docker|web|1|SQLi-Labs|acgpiano/sqli-labs|port=8085;setup=/sql-connections/setup-db.php|SQL injection in 65 stages: error/blind/time/second-order/WAF bypass.
+uploadlabs|docker|web|1|Upload-Labs|c0ny1/upload-labs|port=8086|File upload filter bypasses and web shells across 20 levels.
+dsvw|docker|web|1|Damn Small Vulnerable Web|appsecco/dsvw|port=8088|A tiny single-file app with the basics: SQLi, XSS, LFI, SSRF, XXE.
+juiceshop|docker|web|2|OWASP Juice Shop|bkimminich/juice-shop|port=3000|~100 challenges rated by stars (1-6) with a score board. A modern JS app (Angular/Node).
+dvna|docker|web|2|Damn Vulnerable NodeJS App|appsecco/dvna:sqlite|port=8089|The OWASP Top 10 in Node.js: injection, SSRF, deserialization, authorization bypass.
+hackazon|docker|web|2|Hackazon|ianwijaya/hackazon|port=8091|A modern e-commerce site + REST API; AJAX, WAF-protected flows, realistic bugs.
+wrongsecrets|docker|web|2|OWASP WrongSecrets|jeroenwillemsen/wrongsecrets:latest-no-vault|port=8087|Find secrets hidden in code, images and environment variables (secret management mistakes).
+nodegoat|docker|web|2|OWASP NodeGoat|repo:OWASP/NodeGoat|port=4000|Node.js + MongoDB; NoSQLi, SSRF, ReDoS, unauthorized access, broken authentication.
+vulhub|vulhub|web|3|Vulhub (300+ CVE environments)|https://github.com/vulhub/vulhub.git|port=varies|Real CVEs: Log4Shell, Struts2, Spring, Tomcat, WordPress plugins, unauthenticated Redis/Mongo and more. Usage: ctf vulhub search <word>
+# ---- API / MOBILE / CLOUD ----
+vampi|docker|api|1|VAmPI (Vulnerable REST API)|erev0s/vampi|port=5000|A Flask REST API: BOLA, mass assignment, SQLi, user enumeration.
+dvga|docker|api|2|Damn Vulnerable GraphQL|dolevf/dvga|port=5013|GraphQL: introspection, batching attacks, DoS, injection, IDOR.
+crapi|docker|api|2|OWASP crAPI|repo:OWASP/crAPI|port=8888;url=/|The OWASP API Top 10 on a complete vehicle-service app. Mailbox on 8025.
+# ---- LINUX SERVERS (boot2root VMs) ----
+metasploitable2|vm|linux|1|Metasploitable 2|https://sourceforge.net/projects/metasploitable/files/Metasploitable2/metasploitable-linux-2.0.0.zip/download|ram=512;bus=ide;nic=e1000;fname=metasploitable2.zip;login=msfadmin/msfadmin|The classic target full of deliberately vulnerable services: vsftpd, Samba, distcc, UnrealIRCd, Tomcat... Ideal for learning Nmap + Metasploit.
+kioptrix1|vm|linux|1|Kioptrix Level 1|https://download.vulnhub.com/kioptrix/Kioptrix_Level_1.rar|ram=256;bus=ide;nic=pcnet;wait=180|An old RedHat with Apache mod_ssl and Samba bugs. Very old kernel: practise compiling exploits.
+kioptrix3|vm|linux|1|Kioptrix Level 1.2 (#3)|https://download.vulnhub.com/kioptrix/KVM3.rar|ram=512;bus=ide;nic=e1000;fname=kioptrix3.rar|Web application (LotusCMS/Gallarific) → SQLi/RCE → local privilege escalation. Note: add kioptrix3.com to /etc/hosts for the site to work.
+mrrobot|vm|linux|1|Mr-Robot: 1|https://download.vulnhub.com/mrrobot/mrRobot.ova|ram=1024|TV-show themed; WordPress, a hunt for keys (flags) and privilege escalation. 3 flags.
+basicpentesting1|vm|linux|1|Basic Pentesting 1|https://download.vulnhub.com/basicpentesting/basic_pentesting_1.ova|ram=1024|A pentest from scratch: recon → service bug → password/key → root.
+lazysysadmin|vm|linux|1|LazySysAdmin|https://download.vulnhub.com/lazysysadmin/Lazysysadmin.zip|ram=1024|Mistakes of a lazy sysadmin: open SMB share, WordPress, weak configuration.
+troll1|vm|linux|1|Tr0ll 1|https://download.vulnhub.com/tr0ll/Tr0ll.rar|ram=512;bus=ide|"Troll" hints that try to waste your time; pcap analysis from FTP, hidden directories, a small binary and privilege escalation.
+lampiao|vm|linux|1|Lampiao|https://download.vulnhub.com/lampiao/Lampiao.zip|ram=1024|Drupal (Drupalgeddon) + Dirty COW to root. A classic CVE chain.
+jangow|vm|linux|1|Jangow 1.0.1|https://download.vulnhub.com/jangow/jangow-01-1.0.1.ova|ram=1024;nic_slot=0x11;nohotplug=1|Command execution through the web, a reverse shell and privilege escalation.
+dc1|vm|linux|1|DC-1|https://download.vulnhub.com/dc/DC-1.zip|ram=1024|First of the DC series: Drupal 7 → privilege escalation (SUID). 5 flags. The series gets harder up to DC-9.
+dc2|vm|linux|1|DC-2|https://download.vulnhub.com/dc/DC-2.zip|ram=1024|WordPress + a custom wordlist with cewl, escaping a restricted shell (rbash), privilege escalation with git.
+dc3|vm|linux|1|DC-3|https://download.vulnhub.com/dc/DC-3-2.zip|ram=1024|Joomla SQLi → password cracking → local privilege escalation.
+dc4|vm|linux|2|DC-4|https://download.vulnhub.com/dc/DC-4.zip|ram=1024|Web form brute force (hydra), command injection, teehee/sudo configuration.
+dc5|vm|linux|2|DC-5|https://download.vulnhub.com/dc/DC-5.zip|ram=1024|LFI → RCE through log poisoning → privilege escalation via SUID screen.
+dc6|vm|linux|2|DC-6|https://download.vulnhub.com/dc/DC-6.zip|ram=1024|WordPress (wpscan, rockyou hint) → plugin RCE → nmap/backup script.
+dc7|vm|linux|2|DC-7|https://download.vulnhub.com/dc/DC-7.zip|ram=1024|First step through OSINT; Drupal + drush; privilege escalation through cron/a script.
+dc8|vm|linux|2|DC-8|https://download.vulnhub.com/dc/DC-8.zip|ram=1024|Drupal 7 SQLi → john → PHP code → local exim4 exploit.
+dc9|vm|linux|2|DC-9|https://download.vulnhub.com/dc/DC-9.zip|ram=1024|SQLi + LFI + port knocking (knockd) + privilege escalation with sudo.
+stapler|vm|linux|2|Stapler: 1|https://download.vulnhub.com/stapler/Stapler.zip|ram=1024|A multi-service target (FTP, SMB, WordPress, MySQL...); several paths to root.
+fristileaks|vm|linux|2|FristiLeaks 1.3|https://download.vulnhub.com/fristileaks/FristiLeaks_1.3.ova|ram=1024;mac=08:00:27:a5:a6:76|Hidden directories, an upload filter, decoding (base64/rot13) and privilege escalation. This VM only joins the network with a specific MAC address (already set).
+zico2|vm|linux|2|Zico2|https://download.vulnhub.com/zico/zico2.ova|ram=1024|LFI/RFI, phpLiteAdmin, privilege escalation with sudo zip/tar.
+raven2|vm|linux|2|Raven 2|https://download.vulnhub.com/raven/Raven2.ova|ram=1024|PHPMailer RCE, privilege escalation with a MySQL UDF. 4 flags.
+symfonos1|vm|linux|2|Symfonos 1|https://download.vulnhub.com/symfonos/symfonos1.7z|ram=1024|SMB, WordPress plugin LFI, SMTP log poisoning, PATH hijacking.
+pwnos2|vm|linux|2|pWnOS 2.0|https://download.vulnhub.com/pwnos/pWnOS_v2.0.7z|ram=512;bus=ide;static_ip=10.10.10.100;kali_alias=10.10.10.10/24|Web bug → database credentials → SSH → root. Uses a static IP (10.10.10.100): ctf start adds the alias 10.10.10.10/24 to Kali automatically.
+bob|vm|linux|2|Bob 1.0.1|https://download.vulnhub.com/bob/Bob_v1.0.1.ova|ram=1024|A corporate scenario: web shell, hidden notes, GPG, privilege escalation.
+metasploitable3ub|vm|linux|2|Metasploitable 3 (Ubuntu 14.04)|https://vagrantcloud.com/rapid7/boxes/metasploitable3-ub1404/versions/0.1.12-weekly/providers/virtualbox/unknown/vagrant.box|ram=2048;vcpu=2;nic=e1000;fname=msf3-ub1404.box;login=vagrant/vagrant|A more realistic multi-service Linux server: ProFTPD, Apache Struts, Jenkins, Elasticsearch, Samba and more. Chained attacks with Metasploit.
+nebula|iso|linux|1|Exploit Education Nebula|https://github.com/ExploitEducation/Nebula/releases/download/v5.0.0/exploit-exercises-nebula-5.iso|ram=512;fname=nebula.iso;login=level00/level00|Linux privilege escalation (level00-level19): SUID, PATH, environment variables, races, code review.
+symfonos2|vm|linux|3|Symfonos 2|https://download.vulnhub.com/symfonos/symfonos2.7z|ram=1024|SMB + FTP (ProFTPD) → SSH → LibreNMS local exploit; needs port forwarding (tunnelling).
+brainpan1|vm|linux|3|Brainpan 1|https://download.vulnhub.com/brainpan/Brainpan.zip|ram=512|Write a remote buffer overflow exploit; OSCP style. Analyse a Windows PE and adapt the exploit to a Linux service.
+# ---- WINDOWS ----
+metasploitable3win|vm|windows|2|Metasploitable 3 (Windows Server 2008 R2)|https://vagrantcloud.com/rapid7/boxes/metasploitable3-win2k8/versions/0.1.0-weekly/providers/virtualbox/unknown/vagrant.box|ram=4096;vcpu=2;bus=ide;nic=e1000;wait=420;fname=msf3-win2k8.box;login=vagrant/vagrant|Windows server: EternalBlue (MS17-010), IIS, ManageEngine, Jenkins, SNMP, GlassFish, Elasticsearch, MySQL... Tested and working on KVM; services take ~1-2 min to come up on first boot.
+# ---- PWN / REVERSE ----
+protostar|iso|pwn|2|Exploit Education Protostar|https://github.com/ExploitEducation/Protostar/releases/download/v2.0.0/exploit-exercises-protostar-2.iso|ram=512;fname=protostar.iso;login=user/user|Classic binary exploitation: stack overflows, format strings, heap (stack0-7, format0-4, heap0-3, net0-4, final0-2). 32-bit.
+fusion|iso|pwn|3|Exploit Education Fusion|https://github.com/ExploitEducation/Fusion/releases/download/v2.0.0/exploit-exercises-fusion-2.iso|ram=1024;fname=fusion.iso;login=fusion/godmode|Advanced exploit development: defeat ASLR/NX/PIE/RELRO, exploit network services. Do it after Phoenix and Protostar.
+phoenix|vm|pwn|2|Exploit Education Phoenix (amd64)|https://github.com/ExploitEducation/Phoenix/releases/download/v1.0.0-alpha-3/exploit-education-phoenix-amd64-v1.0.0-alpha-3.tar.xz|ram=1024;bus=virtio;nic=virtio;kargs=root=/dev/vda1;fname=phoenix.tar.xz;login=user/user|The modern version of Protostar: 64-bit stack overflows, format strings, heap, network. Modern protections.
+nightmare|repo|pwn|1|Nightmare (Binary Exploitation / RE course)|https://github.com/guyinatuxedo/nightmare.git||Binaries collected from real CTFs, topic by topic: buffer overflows, ROP, format strings, heap, reverse engineering. With written solutions.
+ropemporium|files|pwn|2|ROP Emporium|https://ropemporium.com/binary/ret2win.zip,split,callme,write4,badchars,fluff,pivot,ret2csu||8 core challenges for return-oriented programming, from ret2win to ret2csu. x86/x86_64.
+how2heap|repo|pwn|3|how2heap (glibc heap techniques)|https://github.com/shellphish/how2heap.git||Working examples of glibc heap exploitation: tcache poisoning, house of *, fastbin dup, unsafe unlink.
+# ---- REAL CTF ARCHIVES (mixed web+pwn+crypto+rev+forensics+misc) ----
+ctfwiki|repo|archives|1|CTF Wiki challenges|https://github.com/ctf-wiki/ctf-challenges.git||Example pwn/reverse/crypto/misc/web challenges organised by topic (source + binaries). See INDEX.md.
+ductf25|repo|archives|2|DownUnderCTF 2025|https://github.com/DownUnderCTF/Challenges_2025_Public.git||Every challenge of a real CTF (web/pwn/rev/crypto/misc/beginner) with Docker files and write-ups. See INDEX.md.
+google|repo|archives|3|Google CTF archive|https://github.com/google/google-ctf.git||One of the world's hardest CTFs: every challenge and solution since 2017. Hard. See INDEX.md.

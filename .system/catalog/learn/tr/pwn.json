@@ -1,0 +1,341 @@
+{
+ "protostar": {
+  "learn": [
+   "Yığın (stack) tabanlı tampon taşmasının temelleri: değişkeni ezmek, dönüş adresini ele geçirmek",
+   "gdb ile bellek düzenini incelemek, shellcode yazmak",
+   "Format string, heap ve ağ servisi exploit'lerine giriş (32-bit, korumasız)"
+  ],
+  "vulns": [
+   {
+    "id": "stack-buffer-overflow",
+    "name": "Stack Buffer Overflow",
+    "desc": "stack0-7: değişken ezme, EIP kontrolü, ret2libc"
+   },
+   {
+    "id": "format-string",
+    "name": "Format String",
+    "desc": "format0-4: yığından okuma, adrese yazma"
+   },
+   {
+    "id": "heap-vulnerabilities",
+    "name": "Heap Zafiyetleri",
+    "desc": "heap0-3: işaretçi ve unlink istismarı"
+   },
+   {
+    "id": "network-service-exploits",
+    "name": "Ağ Servisi Exploit'leri",
+    "desc": "net0-4: soket üzerinden gelen veriyi ayrıştırma hataları"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "stack",
+    "name": "Stack seviyeleri (stack0 – stack7)"
+   },
+   {
+    "id": "format",
+    "name": "Format string seviyeleri (format0 – format4)"
+   },
+   {
+    "id": "heap",
+    "name": "Heap seviyeleri (heap0 – heap3)"
+   },
+   {
+    "id": "net",
+    "name": "Ağ seviyeleri (net0 – net4)"
+   },
+   {
+    "id": "final",
+    "name": "Final seviyeleri (final0 – final2)"
+   }
+  ]
+ },
+ "phoenix": {
+  "learn": [
+   "Protostar'ın 64-bit ve modern korumalı karşılığı: NX, ASLR, canary, PIE",
+   "Korumaları tek tek aşmak: bilgi sızdırma, ROP",
+   "Ağ servisi exploit'lerini 64-bit ortamda yazmak"
+  ],
+  "vulns": [
+   {
+    "id": "stack-overflow-64-bit",
+    "name": "Stack Overflow (64-bit)",
+    "desc": "stack-zero – stack-six"
+   },
+   {
+    "id": "format-string",
+    "name": "Format String",
+    "desc": "format-zero – format-four"
+   },
+   {
+    "id": "heap-vulnerabilities",
+    "name": "Heap Zafiyetleri",
+    "desc": "heap-zero – heap-three"
+   },
+   {
+    "id": "network-and-final-levels",
+    "name": "Ağ ve Final Seviyeleri",
+    "desc": "Gerçek servis mantığı içeren exploit'ler"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "stack",
+    "name": "Stack seviyeleri (stack-zero – stack-six)"
+   },
+   {
+    "id": "format",
+    "name": "Format string seviyeleri (format-zero – format-four)"
+   },
+   {
+    "id": "heap",
+    "name": "Heap seviyeleri (heap-zero – heap-three)"
+   },
+   {
+    "id": "net",
+    "name": "Ağ seviyeleri (net-zero – net-two)"
+   },
+   {
+    "id": "final",
+    "name": "Final seviyeleri (final-zero – final-two)"
+   }
+  ]
+ },
+ "fusion": {
+  "learn": [
+   "ASLR, NX, PIE ve RELRO koruma kombinasyonlarını aşmak",
+   "Ağ servisinde uzaktan exploit geliştirmek",
+   "Kriptografik ve mantıksal hatalar içeren gerçekçi servisler"
+  ],
+  "vulns": [
+   {
+    "id": "bypassing-protections",
+    "name": "Korumaların Aşılması",
+    "desc": "Bilgi sızdırma + ROP ile ASLR/NX atlatma"
+   },
+   {
+    "id": "remote-buffer-overflow",
+    "name": "Uzaktan Tampon Taşması",
+    "desc": "Ağ üzerinden gelen veriyle yığın taşması"
+   },
+   {
+    "id": "format-string-and-heap",
+    "name": "Format String ve Heap",
+    "desc": "İleri seviye bellek bozulması"
+   }
+  ],
+  "tasks": [
+   {
+    "id": "level00-06",
+    "name": "Level 00 – 06"
+   },
+   {
+    "id": "level07-13",
+    "name": "Level 07 – 13"
+   },
+   {
+    "id": "level14-20",
+    "name": "Level 14 – 20"
+   }
+  ]
+ },
+ "nightmare": {
+  "learn": [
+   "Konu konu ilerleyen binary exploitation ve reverse engineering kursu",
+   "Gerçek CTF sorularını yazılı çözümleriyle birlikte çalışmak",
+   "Ghidra/gdb/pwntools'u gerçek sorularla pekiştirmek"
+  ],
+  "vulns": [
+   {
+    "id": "reverse-engineering",
+    "name": "Reverse Engineering",
+    "desc": "Crackme ve anahtar doğrulama mantığını tersine çevirmek",
+    "task": "Reverse engineering bölümünden bir soru çöz"
+   },
+   {
+    "id": "buffer-overflow",
+    "name": "Tampon Taşması",
+    "desc": "Stack overflow ile akış denetimi",
+    "task": "Tampon taşması bölümünden bir soru çöz"
+   },
+   {
+    "id": "format-string",
+    "name": "Format String",
+    "desc": "printf zafiyeti",
+    "task": "Format string bölümünden bir soru çöz"
+   },
+   {
+    "id": "rop",
+    "name": "ROP",
+    "desc": "Return-oriented programming",
+    "task": "ROP bölümünden bir soru çöz"
+   },
+   {
+    "id": "heap",
+    "name": "Heap",
+    "desc": "glibc heap istismarı",
+    "task": "Heap bölümünden bir soru çöz"
+   }
+  ]
+ },
+ "ropemporium": {
+  "learn": [
+   "ROP (Return-Oriented Programming) tekniğini basitten karmaşığa 8 adımda öğrenmek",
+   "Gadget bulma (ropper, ROPgadget) ve zincir kurma",
+   "Çağrı kuralları: x86 yığın argümanları ve x86_64 register argümanları"
+  ],
+  "vulns": [
+   {
+    "id": "ret2win-and-split",
+    "name": "ret2win ve split",
+    "desc": "Tek fonksiyona dönüş, argüman geçirme",
+    "task": "ret2win ve split'i çöz"
+   },
+   {
+    "id": "callme",
+    "name": "callme",
+    "desc": "Birden çok fonksiyonu sırayla çağırmak",
+    "task": "callme'yi çöz"
+   },
+   {
+    "id": "write4",
+    "name": "write4",
+    "desc": "Bellekte yazma ilkeli ile string yerleştirme",
+    "task": "write4'ü çöz"
+   },
+   {
+    "id": "badchars",
+    "name": "badchars",
+    "desc": "Filtrelenen baytları atlatma",
+    "task": "badchars'ı çöz"
+   },
+   {
+    "id": "fluff",
+    "name": "fluff",
+    "desc": "Garip gadget'larla yazma",
+    "task": "fluff'ı çöz"
+   },
+   {
+    "id": "pivot",
+    "name": "pivot",
+    "desc": "Yığını başka bir bölgeye taşımak",
+    "task": "pivot'u çöz"
+   },
+   {
+    "id": "ret2csu",
+    "name": "ret2csu",
+    "desc": "__libc_csu_init gadget'larıyla argüman kontrolü",
+    "task": "ret2csu'yu çöz"
+   }
+  ]
+ },
+ "how2heap": {
+  "learn": [
+   "glibc heap yönetiminin (malloc/free, tcache, fastbin, unsorted bin) iç yapısı",
+   "Heap istismar tekniklerinin çalışır örneklerini derleyip gdb ile adım adım izlemek",
+   "Teknik hangi glibc sürümünde çalışır, hangisinde yamalandı?"
+  ],
+  "vulns": [
+   {
+    "id": "fastbin-tcache-dup",
+    "name": "Fastbin / Tcache Dup",
+    "desc": "Çift free ile aynı bloğu iki kez almak",
+    "task": "fastbin_dup ve tcache_dup örneklerini çalıştır ve anla"
+   },
+   {
+    "id": "tcache-poisoning",
+    "name": "Tcache Poisoning",
+    "desc": "Bağlı liste işaretçisini bozup keyfi adrese ayırma",
+    "task": "tcache poisoning örneğini çalıştır ve anla"
+   },
+   {
+    "id": "unsafe-unlink",
+    "name": "Unsafe Unlink",
+    "desc": "Unlink makrosunu işaretçi yazmak için kullanmak",
+    "task": "unsafe_unlink örneğini çalıştır ve anla"
+   },
+   {
+    "id": "house-of-force-spirit",
+    "name": "House of Force / Spirit",
+    "desc": "Top chunk boyutunu ya da sahte chunk'ı kullanmak",
+    "task": "house_of_force ve house_of_spirit'i çalıştır ve anla"
+   }
+  ]
+ },
+ "rev-crackme-1": {
+  "learn": [
+   "Bir ELF dosyasını file, strings ve ltrace ile tanımak",
+   "Parola karşılaştırmasını dinamik izlemeyle yakalamak",
+   "Tersine mühendisliğin ilk adımı: çalıştırmadan önce bakmak"
+  ],
+  "vulns": [
+   {
+    "id": "plaintext-password",
+    "name": "Düz Metin Parola",
+    "desc": "Parola ikili dosyada okunabilir dizgi olarak duruyor"
+   },
+   {
+    "id": "traceable-strcmp",
+    "name": "strcmp İzlenebilir",
+    "desc": "ltrace karşılaştırılan değeri gösteriyor"
+   }
+  ]
+ },
+ "rev-crackme-2": {
+  "learn": [
+   "Ghidra ile derlenmiş kodu okumak, gdb ile adım adım izlemek",
+   "XOR gibi basit gizlemeleri tanıyıp tersine çevirmek",
+   "Dizilerdeki kodlanmış veriyi statik analizle çözmek"
+  ],
+  "vulns": [
+   {
+    "id": "xor-obfuscated-flag",
+    "name": "XOR ile Gizlenmiş Bayrak",
+    "desc": "Anahtar ikilinin içinde; gizleme geri alınabilir"
+   },
+   {
+    "id": "static-analysis-is-enough",
+    "name": "Statik Analiz Yeterli",
+    "desc": "Programı çalıştırmadan da bayrak çıkarılabilir"
+   }
+  ]
+ },
+ "pwn-ret2win": {
+  "learn": [
+   "Yığın tampon taşmasının nasıl çalıştığı: dönüş adresini ezmek",
+   "pwntools ile offset bulma (cyclic) ve exploit yazma",
+   "Korumasız (canary/PIE yok) bir binary'de akış denetimini ele geçirmek"
+  ],
+  "vulns": [
+   {
+    "id": "stack-buffer-overflow",
+    "name": "Stack Buffer Overflow",
+    "desc": "Sınır denetimsiz okuma ile dönüş adresinin ezilmesi"
+   },
+   {
+    "id": "unprotected-binary",
+    "name": "Korumasız Binary",
+    "desc": "Stack canary ve PIE kapalı: win() adresi sabit"
+   }
+  ]
+ },
+ "pwn-format": {
+  "learn": [
+   "printf(kullanıcı_girdisi) zafiyetinin nasıl oluştuğu",
+   "%p / %x / %s ile yığındaki değerleri sızdırmak",
+   "Doğrudan parametre erişimi (%7$s gibi) ve sızan değerden bayrağı okumak"
+  ],
+  "vulns": [
+   {
+    "id": "format-string",
+    "name": "Format String",
+    "desc": "Biçim belirteçleri yığından veri okutur"
+   },
+   {
+    "id": "information-leak",
+    "name": "Bilgi Sızıntısı",
+    "desc": "Bayrak bellekte durduğu için okunabiliyor"
+   }
+  ]
+ }
+}

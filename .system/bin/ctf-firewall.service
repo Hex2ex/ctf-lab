@@ -1,0 +1,12 @@
+[Unit]
+Description=CTF-Lab firewall rules for the lab networks and WireGuard (Docker compatible)
+After=network.target docker.service libvirtd.service virtnetworkd.service
+PartOf=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/ctf-firewall.sh
+
+[Install]
+WantedBy=multi-user.target docker.service

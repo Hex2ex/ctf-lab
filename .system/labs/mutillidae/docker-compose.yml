@@ -1,0 +1,15 @@
+services:
+  database:
+    image: webpwnized/mutillidae:database
+    networks: [datanet]
+  directory:
+    image: webpwnized/mutillidae:ldap
+    networks: [ldapnet]
+  www:
+    image: webpwnized/mutillidae:www
+    depends_on: [database, directory]
+    ports: ["8084:80"]
+    networks: [datanet, ldapnet]
+networks:
+  datanet:
+  ldapnet:

@@ -1,0 +1,190 @@
+{
+ "crypto-caesar": {
+  "learn": [
+   "How shift ciphers (Caesar/ROT) work",
+   "Brute force a tiny key space (only 25 possibilities)",
+   "Quick solutions with CyberChef or the tr command"
+  ],
+  "vulns": [
+   {
+    "id": "tiny-key-space",
+    "name": "Tiny Key Space",
+    "desc": "Every key can be tried in seconds"
+   },
+   {
+    "id": "preserved-letter-frequencies",
+    "name": "Preserved Letter Frequencies",
+    "desc": "Frequency analysis gives away the key directly"
+   }
+  ]
+ },
+ "crypto-base-chain": {
+  "learn": [
+   "The difference between encoding and encryption",
+   "Recognise Base64 and hex layers and peel them off in order",
+   "Automatic detection with CyberChef's Magic"
+  ],
+  "vulns": [
+   {
+    "id": "mistaking-encoding-for-encryption",
+    "name": "Mistaking Encoding for Encryption",
+    "desc": "Base64/hex can be reversed; they provide no secrecy"
+   }
+  ]
+ },
+ "crypto-xor-1byte": {
+  "learn": [
+   "Properties of XOR: a ⊕ k ⊕ k = a",
+   "Brute force all 256 possibilities",
+   "Confirm the key with the known plaintext prefix (CTFLAB{)"
+  ],
+  "vulns": [
+   {
+    "id": "single-byte-key",
+    "name": "Single-Byte Key",
+    "desc": "Only 256 possibilities"
+   },
+   {
+    "id": "predictable-plaintext",
+    "name": "Predictable Plaintext",
+    "desc": "The flag format gives away the key"
+   }
+  ]
+ },
+ "crypto-vigenere": {
+  "learn": [
+   "How polyalphabetic ciphers differ from Caesar",
+   "Recover the key with a known-plaintext attack",
+   "Key length analysis (Kasiski / index of coincidence)"
+  ],
+  "vulns": [
+   {
+    "id": "short-repeating-key",
+    "name": "Short Repeating Key",
+    "desc": "Each letter is shifted by the same key character"
+   },
+   {
+    "id": "known-prefix",
+    "name": "Known Prefix",
+    "desc": "CTFLAB{ reveals the first key letters"
+   }
+  ]
+ },
+ "crypto-hash-crack": {
+  "learn": [
+   "Identify hash types with hashid (MD5, SHA1, SHA256)",
+   "Dictionary attacks with John the Ripper and hashcat (rockyou.txt)",
+   "Why fast hashes are unsuitable for storing passwords"
+  ],
+  "vulns": [
+   {
+    "id": "fast-unsalted-hash",
+    "name": "Fast, Unsalted Hash",
+    "desc": "Billions of guesses per second are possible"
+   },
+   {
+    "id": "weak-passwords",
+    "name": "Weak Passwords",
+    "desc": "Common passwords are in the wordlist"
+   }
+  ]
+ },
+ "crypto-rsa-small-e": {
+  "learn": [
+   "RSA basics: n, e, c, and why padding is essential",
+   "If m^e < n the modulus never kicks in, so the e-th root is enough",
+   "Compute big-integer roots in Python"
+  ],
+  "vulns": [
+   {
+    "id": "unpadded-rsa-small-e",
+    "name": "Unpadded RSA + Small e",
+    "desc": "The ciphertext is the plaintext to the e-th power; take the root"
+   }
+  ]
+ },
+ "crypto-rsa-fermat": {
+  "learn": [
+   "How the private key is computed once n = p·q is factored",
+   "Fermat's factorisation method",
+   "Why primes must be chosen independently and at random"
+  ],
+  "vulns": [
+   {
+    "id": "primes-too-close-together",
+    "name": "Primes Too Close Together",
+    "desc": "If p and q are close, Fermat factors n quickly"
+   }
+  ]
+ },
+ "crypto-xor-multibyte": {
+  "learn": [
+   "Find the key length of repeating-key XOR (Hamming distance, xortool)",
+   "Run separate frequency analysis for each key byte",
+   "Confirm the key with a known plaintext fragment"
+  ],
+  "vulns": [
+   {
+    "id": "short-repeating-key",
+    "name": "Short Repeating Key",
+    "desc": "Once the key length is known, each column becomes single-byte XOR"
+   }
+  ]
+ },
+ "crypto-two-time-pad": {
+  "learn": [
+   "Why a one-time pad must only be used once",
+   "Encrypting two messages with the same key gives c1 ⊕ c2 = m1 ⊕ m2",
+   "Crib dragging: slide a known word across the message to decrypt it"
+  ],
+  "vulns": [
+   {
+    "id": "key-reuse",
+    "name": "Key Reuse",
+    "desc": "Perfect secrecy collapses completely when the key is reused"
+   }
+  ]
+ },
+ "crypto-rsa-wiener": {
+  "learn": [
+   "How RSA breaks when the private exponent d is small",
+   "Approximate e/n with continued fractions",
+   "The condition for Wiener's attack: d < n^(1/4)/3"
+  ],
+  "vulns": [
+   {
+    "id": "small-private-exponent-d",
+    "name": "Small Private Exponent (d)",
+    "desc": "Choosing a small d for fast decryption gives away the key"
+   }
+  ]
+ },
+ "crypto-rsa-hastad": {
+  "learn": [
+   "Sending the same message to several recipients with the same small e",
+   "Combine the ciphertexts with the Chinese Remainder Theorem (CRT)",
+   "Take the exact cube root of the combined value"
+  ],
+  "vulns": [
+   {
+    "id": "unpadded-broadcast-h-stad",
+    "name": "Unpadded Broadcast (Håstad)",
+    "desc": "With e recipients, CRT plus the e-th root recovers the message"
+   }
+  ]
+ },
+ "crypto-jwt-weak-key": {
+  "learn": [
+   "JWT structure: header.payload.signature (base64url)",
+   "Crack an HS256 signing key with a wordlist (hashcat -m 16500 / john)",
+   "Once you have the key, sign a new token with higher privileges"
+  ],
+  "vulns": [
+   {
+    "id": "weak-hmac-key",
+    "name": "Weak HMAC Key",
+    "desc": "A secret key found in a wordlist allows token forgery"
+   }
+  ]
+ }
+}
